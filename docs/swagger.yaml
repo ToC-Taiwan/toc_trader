@@ -1,0 +1,418 @@
+basePath: /trade-bot
+definitions:
+  bidask.BidAskProto:
+    properties:
+      bid_ask:
+        $ref: '#/definitions/bidask.BidAskProto_BidAskData'
+      exchange:
+        type: string
+    type: object
+  bidask.BidAskProto_BidAskData:
+    properties:
+      ask_price:
+        items:
+          type: number
+        type: array
+      ask_volume:
+        items:
+          type: integer
+        type: array
+      bid_price:
+        items:
+          type: number
+        type: array
+      bid_volume:
+        items:
+          type: integer
+        type: array
+      code:
+        type: string
+      date_time:
+        type: string
+      diff_ask_vol:
+        items:
+          type: integer
+        type: array
+      diff_bid_vol:
+        items:
+          type: integer
+        type: array
+      simtrade:
+        type: integer
+      suspend:
+        type: integer
+    type: object
+  handlers.ErrorResponse:
+    properties:
+      attachment:
+        type: object
+      response:
+        type: string
+    type: object
+  mainsystemhandler.UpdateTradeBotConditionBody:
+    properties:
+      enable_buy:
+        type: boolean
+      enable_sell:
+        type: boolean
+      mean_time_trade_stock_num:
+        type: integer
+      use_bid_ask:
+        type: boolean
+    type: object
+  streamtick.StreamTickProto:
+    properties:
+      exchange:
+        type: string
+      tick:
+        $ref: '#/definitions/streamtick.StreamTickProto_TickData'
+    type: object
+  streamtick.StreamTickProto_TickData:
+    properties:
+      amount:
+        type: number
+      ask_side_total_cnt:
+        type: integer
+      ask_side_total_vol:
+        type: integer
+      avg_price:
+        type: number
+      bid_side_total_cnt:
+        type: integer
+      bid_side_total_vol:
+        type: integer
+      chg_type:
+        type: integer
+      close:
+        type: number
+      code:
+        type: string
+      date_time:
+        type: string
+      high:
+        type: number
+      low:
+        type: number
+      open:
+        type: number
+      pct_chg:
+        type: number
+      price_chg:
+        type: number
+      simtrade:
+        type: integer
+      suspend:
+        type: integer
+      tick_type:
+        type: integer
+      total_amount:
+        type: number
+      total_volume:
+        type: integer
+      volume:
+        type: integer
+    type: object
+  sysparm.Parameters:
+    properties:
+      key:
+        type: string
+      value:
+        type: string
+    type: object
+  tradebothandler.ManualSellBody:
+    properties:
+      price:
+        type: number
+      stock_num:
+        type: string
+    type: object
+  tradebothandler.TargetResponse:
+    properties:
+      close:
+        type: number
+      stock_num:
+        type: string
+    type: object
+  tradeevent.EventProto:
+    properties:
+      event:
+        type: string
+      event_code:
+        type: integer
+      info:
+        type: string
+      resp_code:
+        type: integer
+    type: object
+  traderecord.TradeRecordArrProto:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/traderecord.TradeRecordProto'
+        type: array
+    type: object
+  traderecord.TradeRecordProto:
+    properties:
+      action:
+        type: string
+      code:
+        type: string
+      id:
+        type: string
+      order_time:
+        type: string
+      price:
+        type: number
+      quantity:
+        type: integer
+      status:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: API docs for ToC Trader
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: ToC Trader
+  version: 0.1.0
+paths:
+  /data/bid-ask:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/bidask.BidAskProto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: ReceiveBidAsk
+      tags:
+      - tradebot
+  /data/streamtick:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/streamtick.StreamTickProto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: ReceiveStreamTick
+      tags:
+      - tradebot
+  /data/target:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: count
+        in: header
+        name: count
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/tradebothandler.TargetResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: GetTarget
+      tags:
+      - tradebot
+  /system/pyserver/host:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: host
+        in: header
+        name: py_host
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: UpdatePyServerHost
+      tags:
+      - mainsystem
+  /system/restart:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Restart
+      tags:
+      - mainsystem
+  /system/sysparm:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Body
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/sysparm.Parameters'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: UpdateSysparm
+      tags:
+      - sysparm
+  /system/trade/switch:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: GetTradeBotCondition
+      tags:
+      - mainsystem
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/mainsystemhandler.UpdateTradeBotConditionBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: UpdateTradeBotCondition
+      tags:
+      - mainsystem
+  /trade-event:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/tradeevent.EventProto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: ReciveTradeEvent
+      tags:
+      - tradeevent
+  /trade-record:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/traderecord.TradeRecordArrProto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: UpdateTradeRecord
+      tags:
+      - traderecord
+  /trade/manual/sell:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/tradebothandler.ManualSellBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: ManualSellStock
+      tags:
+      - tradebot
+swagger: "2.0"
