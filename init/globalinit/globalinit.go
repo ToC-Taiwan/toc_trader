@@ -39,7 +39,7 @@ func init() {
 	}
 
 	var today time.Time
-	if time.Now().Hour() > 15 {
+	if time.Now().Hour() >= 15 {
 		today = time.Now().AddDate(0, 0, 1)
 	} else {
 		today = time.Now()

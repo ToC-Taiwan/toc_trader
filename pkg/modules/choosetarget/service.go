@@ -20,6 +20,13 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
+// TSEChannel TSEChannel
+var TSEChannel chan *snapshot.SnapShot
+
+func init() {
+	TSEChannel = make(chan *snapshot.SnapShot)
+}
+
 // SubscribeTarget SubscribeTarget
 func SubscribeTarget(targetArr []string) {
 	// Update last 2 trade day close in map
@@ -39,6 +46,7 @@ func UnSubscribeAll() {
 
 // GetTopTarget GetTopTarget
 func GetTopTarget(count int) (targetArr []string, err error) {
+	go TSEProcess()
 	resp, err := global.RestyClient.R().
 		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/basic/update/snapshot")
 	if err != nil {
@@ -57,6 +65,10 @@ func GetTopTarget(count int) (targetArr []string, err error) {
 	conditionArr := sysparminit.GlobalSettings.GetTargetCondArr()
 	for _, condition := range conditionArr {
 		for _, v := range body.Data {
+			if v.Code == "001" {
+				TSEChannel <- v.ToSnapShotFromProto()
+				continue
+			}
 			if _, ok := blackStockMap[v.Code]; ok {
 				continue
 			}
@@ -187,6 +199,9 @@ func UpdateLastStockVolume() {
 		panic(err)
 	}
 	for _, v := range res.Data {
+		if v.Code == "001" {
+			continue
+		}
 		tmpMap[v.Code] = struct {
 			Close  float64
 			Volume int64
@@ -233,4 +248,18 @@ func UpdateStockCloseMapByDate(stockNumArr []string, dateArr []time.Time) error 
 		}
 	}
 	return nil
+}
+
+// TSEProcess TSEProcess
+func TSEProcess() {
+	for {
+		tse := <-TSEChannel
+		logger.Logger.WithFields(map[string]interface{}{
+			"Open":        tse.Open,
+			"High":        tse.High,
+			"Low":         tse.Low,
+			"ChangeRatio": tse.ChangeRate,
+			"Diff":        tse.ChangePrice,
+		}).Info("TSE")
+	}
 }

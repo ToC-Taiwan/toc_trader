@@ -49,7 +49,7 @@ func TradeProcess() {
 		// Background get trade record
 		go tradebot.CheckOrderStatusLoop()
 
-		tick := time.NewTicker(60 * time.Second)
+		tick := time.NewTicker(10 * time.Second)
 		for range tick.C {
 			var count int
 			if newTargetArr, err := choosetarget.GetTopTarget(15); err != nil {

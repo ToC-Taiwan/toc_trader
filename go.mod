@@ -3,9 +3,9 @@ module gitlab.tocraw.com/root/toc_trader
 go 1.17
 
 require (
-	github.com/gin-gonic/gin v1.7.2-0.20210908033055-3a6f18f32f22
-	github.com/go-resty/resty/v2 v2.6.1-0.20210914060920-d1979b9e77f5
-	github.com/lib/pq v1.10.3
+	github.com/gin-gonic/gin v1.7.2-0.20210921072331-e052bf31aac2
+	github.com/go-resty/resty/v2 v2.6.1-0.20210916045937-1792d629c3c6
+	github.com/lib/pq v1.10.4-0.20210922040759-26399a76874b
 	github.com/markcheno/go-quote v0.0.0-20210728005305-f6d452d96e34
 	github.com/markcheno/go-talib v0.0.0-20190307022042-cd53a9264d70
 	github.com/robfig/cron v1.2.1-0.20190616124356-61d93e07d1be
@@ -16,7 +16,7 @@ require (
 	google.golang.org/protobuf v1.27.2-0.20210806184350-5aec41b4809b
 	gorm.io/driver/postgres v1.1.1-0.20210809055529-7ef9d036488f
 	gorm.io/driver/sqlite v1.1.5-0.20210809061157-093b93351529
-	gorm.io/gorm v1.21.16-0.20210911082235-d41fb3acdcfe
+	gorm.io/gorm v1.21.16-0.20210920134048-5202529ea147
 )
 
 require (
@@ -39,7 +39,7 @@ require (
 	github.com/jackc/pgproto3/v2 v2.1.1 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20200714003250-2b9c44734f2b // indirect
 	github.com/jackc/pgtype v1.8.2-0.20210911155926-693c7c7f7d4f // indirect
-	github.com/jackc/pgx/v4 v4.13.1-0.20210911162028-b31b6d7a1a96 // indirect
+	github.com/jackc/pgx/v4 v4.13.1-0.20210918153603-255276c39005 // indirect
 	github.com/jinzhu/inflection v1.0.1-0.20210111022912-b5281034e75e // indirect
 	github.com/jinzhu/now v1.1.3-0.20210526101024-9d6adef43842 // indirect
 	github.com/josharian/intern v1.0.1-0.20191216181125-a140101e2404 // indirect
@@ -51,10 +51,10 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/ugorji/go/codec v1.2.6 // indirect
-	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5 // indirect
-	golang.org/x/net v0.0.0-20210913180222-943fd674d43e // indirect
-	golang.org/x/sys v0.0.0-20210910150752-751e447fb3d0 // indirect
-	golang.org/x/text v0.3.8-0.20210914153828-2ca5a52dcb2f // indirect
-	golang.org/x/tools v0.1.6-0.20210915001336-0cffec9e30d0 // indirect
+	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
+	golang.org/x/net v0.0.0-20210917221730-978cfadd31cf // indirect
+	golang.org/x/sys v0.0.0-20210921065528-437939a70204 // indirect
+	golang.org/x/text v0.3.8-0.20210915171039-29bf0102df0c // indirect
+	golang.org/x/tools v0.1.7-0.20210921203514-b98090b833e3 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )

@@ -28,32 +28,32 @@ func Simulate() {
 		logger.Logger.Error(err)
 		return
 	}
-	global.HistoryCloseCount = 1100
+	global.HistoryCloseCount = 800
 	cond := global.AnalyzeCondition{
-		OutSum:               190,
-		OutInRatio:           55,
+		OutSum:               260,
+		OutInRatio:           60,
 		CloseDiff:            0,
 		CloseChangeRatioLow:  0,
 		CloseChangeRatioHigh: 5,
 		OpenChangeRatio:      5,
-		RsiHigh:              90,
-		RsiLow:               90,
+		RsiHigh:              65,
+		RsiLow:               35,
 	}
 	fetchentiretick.FetchEntireTick(targetArr, global.LastTradeDayArr, cond)
 	logger.Logger.Info("Fetch done")
 
 	storeAllEntireTick(targetArr)
-	// for i := -9; i < 10; i++ {
-	// 	global.HistoryCloseCount = 1100
+	// for i := 5; i < 96; i += 5 {
+	// 	global.HistoryCloseCount = 800
 	// 	cond := global.AnalyzeCondition{
-	// 		OutSum:               190,
-	// 		OutInRatio:           55,
+	// 		OutSum:               260,
+	// 		OutInRatio:           60,
 	// 		CloseDiff:            0,
 	// 		CloseChangeRatioLow:  0,
 	// 		CloseChangeRatioHigh: 5,
 	// 		OpenChangeRatio:      5,
-	// 		RsiHigh:              90,
-	// 		RsiLow:               90,
+	// 		RsiHigh:              65,
+	// 		RsiLow:               35,
 	// 	}
 	GetBalance(SearchBuyPoint(targetArr, cond), cond)
 	// }
@@ -136,11 +136,12 @@ func GetBalance(analyzeMap map[string]analyzeentiretick.AnalyzeEntireTick, cond 
 			buyCost := tradebot.GetStockBuyCost(buyPrice, global.OneTimeQuantity)
 			sellCost := tradebot.GetStockSellCost(sellPrice, global.OneTimeQuantity)
 			balance += (sellCost - buyCost)
+			logger.Logger.Warnf("Balance: %d, Stock: %s, Name: %s, Total Time: %d", sellCost-buyCost, v.StockNum, global.AllStockNameMap.GetName(v.StockNum), (sellTimeStamp[v.StockNum]-v.TimeStamp)/1000/1000/1000)
 		}
 	}
 	if balance >= maxBalance {
 		maxBalance = balance
-		logger.Logger.Warnf("Balance: %d, HistoryCount: %d, Cond: %+v", balance, global.HistoryCloseCount, cond)
+		logger.Logger.Warnf("Total Balance: %d, TradeCount: %d,HistoryCount: %d, Cond: %v", balance, len(analyzeMap), global.HistoryCloseCount, cond)
 	}
 }
 

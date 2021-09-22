@@ -119,9 +119,10 @@ func UnSubscribeAll(dataType TickType) {
 		}
 	}()
 	var url string
-	if dataType == StreamType {
+	switch {
+	case dataType == StreamType:
 		url = "/pyapi/unsubscribeall/streamtick"
-	} else if dataType == BidAsk {
+	case dataType == BidAsk:
 		url = "/pyapi/unsubscribeall/bid-ask"
 	}
 	resp, err := global.RestyClient.R().
