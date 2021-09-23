@@ -3,6 +3,7 @@ package taskinit
 
 import (
 	"gitlab.tocraw.com/root/toc_trader/init/sysparminit"
+	"gitlab.tocraw.com/root/toc_trader/pkg/tasks/fullrestart"
 	"gitlab.tocraw.com/root/toc_trader/pkg/tasks/tradeeventprocess"
 
 	"github.com/robfig/cron"
@@ -18,7 +19,7 @@ func init() {
 	}
 
 	err = c.AddFunc(sysparminit.GlobalSettings.GetRestartSinopacAndTocTraderCron(), func() {
-		tradeeventprocess.Run()
+		fullrestart.Run()
 	})
 	if err != nil {
 		panic(err)

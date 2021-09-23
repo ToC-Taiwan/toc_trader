@@ -16,6 +16,7 @@ var DefaultKey = []string{
 	"black_stock_arr",
 	"black_category_arr",
 	"cleaneventcron",
+	"restart_sinopac_toc_trader_cron",
 	"http_port",
 	"py_server_port",
 	"py_server_host",
