@@ -101,7 +101,7 @@ func sendCurrentIP() {
 		logger.Logger.Error(err)
 		return
 	} else if resp.StatusCode() != 200 {
-		logger.Logger.Error("api fail")
+		logger.Logger.Error("SendCurrentIP api fail")
 		return
 	}
 	res := *resp.Result().(*pyresponse.PyServerResponse)

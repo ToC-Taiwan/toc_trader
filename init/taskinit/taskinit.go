@@ -16,5 +16,12 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+
+	err = c.AddFunc(sysparminit.GlobalSettings.GetRestartSinopacAndTocTraderCron(), func() {
+		tradeeventprocess.Run()
+	})
+	if err != nil {
+		panic(err)
+	}
 	c.Start()
 }

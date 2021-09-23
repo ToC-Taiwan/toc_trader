@@ -31,7 +31,7 @@ func PlaceOrder(action OrderAction, stockNum string, stockQuantity int64, stockP
 	if err != nil {
 		return returnOrder, err
 	} else if resp.StatusCode() != 200 {
-		return returnOrder, errors.New("api fail")
+		return returnOrder, errors.New("PlaceOrder api fail")
 	}
 	res := *resp.Result().(*pyresponse.PyServerResponse)
 	return res, err
@@ -52,11 +52,11 @@ func Cancel(orderID string) (err error) {
 	if err != nil {
 		return err
 	} else if resp.StatusCode() != 200 {
-		return errors.New("api fail")
+		return errors.New("Cancel api fail")
 	}
 	res := *resp.Result().(*pyresponse.PyServerResponse)
 	if res.Status == "fail" {
-		return errors.New("cancel fail")
+		return errors.New("Cancel fail")
 	}
 	return err
 }

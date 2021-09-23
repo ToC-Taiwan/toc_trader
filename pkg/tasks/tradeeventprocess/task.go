@@ -29,6 +29,7 @@ func Run() {
 			logger.Logger.Error(err.Error() + "\n" + string(debug.Stack()))
 		}
 	}()
+	defer lock.Unlock()
 	if err := tradeeventprocess.CleanEvent(); err != nil {
 		panic(err)
 	}

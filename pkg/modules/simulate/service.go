@@ -28,35 +28,28 @@ func Simulate() {
 		logger.Logger.Error(err)
 		return
 	}
-	global.HistoryCloseCount = 800
+	fetchentiretick.FetchEntireTick(targetArr, global.LastTradeDayArr, global.TickAnalyzeCondition)
+	logger.Logger.Info("Fetch done")
+	storeAllEntireTick(targetArr)
+	historyCount := getBestHistoryCount(targetArr)
+	outSum := getBestOutSum(targetArr, historyCount)
+	outInRatio := getBestOutInRatio(targetArr, historyCount, outSum)
+	rsiArr := getBestRSI(targetArr, historyCount, outSum, outInRatio)
+
+	global.HistoryCloseCount = int(historyCount)
 	cond := global.AnalyzeCondition{
-		OutSum:               260,
-		OutInRatio:           60,
+		OutSum:               outSum,
+		OutInRatio:           outInRatio,
 		CloseDiff:            0,
 		CloseChangeRatioLow:  0,
 		CloseChangeRatioHigh: 5,
 		OpenChangeRatio:      5,
-		RsiHigh:              65,
-		RsiLow:               35,
+		RsiHigh:              rsiArr[1],
+		RsiLow:               rsiArr[0],
 	}
-	fetchentiretick.FetchEntireTick(targetArr, global.LastTradeDayArr, cond)
-	logger.Logger.Info("Fetch done")
-
-	storeAllEntireTick(targetArr)
-	// for i := 5; i < 96; i += 5 {
-	// 	global.HistoryCloseCount = 800
-	// 	cond := global.AnalyzeCondition{
-	// 		OutSum:               260,
-	// 		OutInRatio:           60,
-	// 		CloseDiff:            0,
-	// 		CloseChangeRatioLow:  0,
-	// 		CloseChangeRatioHigh: 5,
-	// 		OpenChangeRatio:      5,
-	// 		RsiHigh:              65,
-	// 		RsiLow:               35,
-	// 	}
-	GetBalance(SearchBuyPoint(targetArr, cond), cond)
-	// }
+	logger.Logger.Warnf("HistoryCount: %d, Cond: %v", global.HistoryCloseCount, cond)
+	GetBalance(SearchBuyPoint(targetArr, cond), cond, false)
+	time.Sleep(10 * time.Second)
 }
 
 // SearchBuyPoint SearchBuyPoint
@@ -106,7 +99,7 @@ func SearchBuyPoint(targetArr []string, cond global.AnalyzeCondition) map[string
 var maxBalance int64
 
 // GetBalance GetBalance
-func GetBalance(analyzeMap map[string]analyzeentiretick.AnalyzeEntireTick, cond global.AnalyzeCondition) {
+func GetBalance(analyzeMap map[string]analyzeentiretick.AnalyzeEntireTick, cond global.AnalyzeCondition, training bool) int64 {
 	sellTimeStamp := make(map[string]int64)
 	var balance int64
 	for stockNum, v := range analyzeMap {
@@ -139,10 +132,11 @@ func GetBalance(analyzeMap map[string]analyzeentiretick.AnalyzeEntireTick, cond 
 			logger.Logger.Warnf("Balance: %d, Stock: %s, Name: %s, Total Time: %d", sellCost-buyCost, v.StockNum, global.AllStockNameMap.GetName(v.StockNum), (sellTimeStamp[v.StockNum]-v.TimeStamp)/1000/1000/1000)
 		}
 	}
-	if balance >= maxBalance {
+	if balance >= maxBalance && !training {
 		maxBalance = balance
 		logger.Logger.Warnf("Total Balance: %d, TradeCount: %d,HistoryCount: %d, Cond: %v", balance, len(analyzeMap), global.HistoryCloseCount, cond)
 	}
+	return balance
 }
 
 var allTickMap entireTickMap
@@ -156,4 +150,134 @@ func storeAllEntireTick(stockArr []string) {
 		}
 		allTickMap.saveByStockNum(stockNum, ticks)
 	}
+}
+
+func getBestHistoryCount(targetArr []string) int64 {
+	type balanceWithIndex struct {
+		index   int
+		balance int64
+	}
+	var tmp balanceWithIndex
+	for i := 100; i <= 5000; i += 100 {
+		global.HistoryCloseCount = i
+		cond := global.AnalyzeCondition{
+			OutSum:               200,
+			OutInRatio:           60,
+			CloseDiff:            0,
+			CloseChangeRatioLow:  0,
+			CloseChangeRatioHigh: 5,
+			OpenChangeRatio:      5,
+			RsiHigh:              70,
+			RsiLow:               30,
+		}
+		tmpBalance := GetBalance(SearchBuyPoint(targetArr, cond), cond, true)
+		if tmp.balance == 0 {
+			tmp.balance = tmpBalance
+			tmp.index = i
+		} else if tmpBalance > tmp.balance {
+			tmp.balance = tmpBalance
+			tmp.index = i
+		}
+	}
+	logger.Logger.Warnf("Best HistoryCount: %d, balance: %d", tmp.index, tmp.balance)
+	return int64(tmp.index)
+}
+
+func getBestOutSum(targetArr []string, historyCloseCount int64) int64 {
+	type balanceWithIndex struct {
+		index   int
+		balance int64
+	}
+	var tmp balanceWithIndex
+	for i := 1000; i >= 10; i -= 10 {
+		global.HistoryCloseCount = int(historyCloseCount)
+		cond := global.AnalyzeCondition{
+			OutSum:               int64(i),
+			OutInRatio:           60,
+			CloseDiff:            0,
+			CloseChangeRatioLow:  0,
+			CloseChangeRatioHigh: 5,
+			OpenChangeRatio:      5,
+			RsiHigh:              70,
+			RsiLow:               30,
+		}
+		tmpBalance := GetBalance(SearchBuyPoint(targetArr, cond), cond, true)
+		if tmp.balance == 0 {
+			tmp.balance = tmpBalance
+			tmp.index = i
+		} else if tmpBalance > tmp.balance {
+			tmp.balance = tmpBalance
+			tmp.index = i
+		}
+	}
+	logger.Logger.Warnf("Best OutSum: %d, balance: %d", tmp.index, tmp.balance)
+	return int64(tmp.index)
+}
+
+func getBestOutInRatio(targetArr []string, historyCloseCount, outSum int64) float64 {
+	type balanceWithIndex struct {
+		index   int
+		balance int64
+	}
+	var tmp balanceWithIndex
+	for i := 95; i >= 5; i -= 5 {
+		global.HistoryCloseCount = int(historyCloseCount)
+		cond := global.AnalyzeCondition{
+			OutSum:               outSum,
+			OutInRatio:           float64(i),
+			CloseDiff:            0,
+			CloseChangeRatioLow:  0,
+			CloseChangeRatioHigh: 5,
+			OpenChangeRatio:      5,
+			RsiHigh:              70,
+			RsiLow:               30,
+		}
+		tmpBalance := GetBalance(SearchBuyPoint(targetArr, cond), cond, true)
+		if tmp.balance == 0 {
+			tmp.balance = tmpBalance
+			tmp.index = i
+		} else if tmpBalance > tmp.balance {
+			tmp.balance = tmpBalance
+			tmp.index = i
+		}
+	}
+	logger.Logger.Warnf("Best OutInRatio: %d, balance: %d", tmp.index, tmp.balance)
+	return float64(tmp.index)
+}
+
+func getBestRSI(targetArr []string, historyCloseCount, outSum int64, outInRatio float64) []int64 {
+	type balanceWithIndex struct {
+		index   int
+		balance int64
+	}
+	var tmp balanceWithIndex
+	var rsiArr []int64
+	for i := 5; i <= 95; i += 5 {
+		global.HistoryCloseCount = int(historyCloseCount)
+		cond := global.AnalyzeCondition{
+			OutSum:               outSum,
+			OutInRatio:           outInRatio,
+			CloseDiff:            0,
+			CloseChangeRatioLow:  0,
+			CloseChangeRatioHigh: 5,
+			OpenChangeRatio:      5,
+			RsiHigh:              100 - int64(i),
+			RsiLow:               int64(i),
+		}
+		tmpBalance := GetBalance(SearchBuyPoint(targetArr, cond), cond, true)
+		// if tmp > 0 {
+		// 	rsiArr = append(rsiArr, int64(i), 100-int64(i))
+		// 	return rsiArr
+		// }
+		if tmp.balance == 0 {
+			tmp.balance = tmpBalance
+			tmp.index = i
+		} else if tmpBalance > tmp.balance {
+			tmp.balance = tmpBalance
+			tmp.index = i
+		}
+	}
+	rsiArr = append(rsiArr, int64(tmp.index), 100-int64(tmp.index))
+	logger.Logger.Warnf("Best RSI Low: %d, RSI High: %d, balance: %d", tmp.index, 100-tmp.index, tmp.balance)
+	return rsiArr
 }

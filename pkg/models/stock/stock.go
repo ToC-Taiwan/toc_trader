@@ -62,3 +62,12 @@ func (c *MutexStruct) GetCategory(stockNum string) string {
 	c.mutex.RUnlock()
 	return tmp.Category
 }
+
+// CheckIsDayTrade CheckIsDayTrade
+func (c *MutexStruct) CheckIsDayTrade(stockNum string) bool {
+	var tmp bool
+	c.mutex.RLock()
+	tmp = c.dataMap[stockNum].DayTrade
+	c.mutex.RUnlock()
+	return tmp
+}

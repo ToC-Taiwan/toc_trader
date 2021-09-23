@@ -56,11 +56,11 @@ func SubStreamTick(stockArr []string) {
 	if err != nil {
 		panic(err)
 	} else if resp.StatusCode() != 200 {
-		panic("api fail")
+		panic("SubStreamTick api fail")
 	}
 	res := *resp.Result().(*pyresponse.PyServerResponse)
 	if res.Status != SucessStatus {
-		panic("subscribe fail")
+		panic("Subscribe fail")
 	}
 }
 
@@ -94,11 +94,11 @@ func SubBidAsk(stockArr []string) {
 	if err != nil {
 		panic(err)
 	} else if resp.StatusCode() != 200 {
-		panic("api fail")
+		panic("SubBidAsk api fail")
 	}
 	res := *resp.Result().(*pyresponse.PyServerResponse)
 	if res.Status != SucessStatus {
-		panic("subscribe bidask fail")
+		panic("Subscribe bidask fail")
 	}
 }
 
@@ -131,10 +131,10 @@ func UnSubscribeAll(dataType TickType) {
 	if err != nil {
 		panic(err)
 	} else if resp.StatusCode() != 200 {
-		panic("api fail")
+		panic("UnSubscribeAll api fail")
 	}
 	res := *resp.Result().(*pyresponse.PyServerResponse)
 	if res.Status != SucessStatus {
-		panic("unsubscribe fail")
+		panic("Unsubscribe fail")
 	}
 }

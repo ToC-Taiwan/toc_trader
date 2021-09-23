@@ -67,6 +67,11 @@ func (c GlobalSettingMap) GetCleanEventCron() string {
 	return c["cleaneventcron"]
 }
 
+// GetRestartSinopacAndTocTraderCron GetRestartSinopacAndTocTraderCron
+func (c GlobalSettingMap) GetRestartSinopacAndTocTraderCron() string {
+	return c["restart_sinopac_toc_trader_cron"]
+}
+
 // GetHTTPPort GetHTTPPort
 func (c GlobalSettingMap) GetHTTPPort() string {
 	return c["http_port"]

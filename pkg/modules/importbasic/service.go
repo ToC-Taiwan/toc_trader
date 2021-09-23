@@ -52,7 +52,7 @@ func ImportAllStock() {
 	if err != nil {
 		panic(err)
 	} else if resp.StatusCode() != 200 {
-		panic("api fail")
+		panic("ImportAllStock api fail")
 	}
 	res := *resp.Result().(*[]FetchStockBody)
 	var importStock, already int64
@@ -198,7 +198,7 @@ func AskSinoPyUpdateBasic() (err error) {
 	if err != nil {
 		return err
 	} else if resp.StatusCode() != 200 {
-		return errors.New("api fail")
+		return errors.New("AskSinoPyUpdateBasic api fail")
 	}
 	res := *resp.Result().(*pyresponse.PyServerResponse)
 	if res.Status != pyresponse.SuccessStatus {

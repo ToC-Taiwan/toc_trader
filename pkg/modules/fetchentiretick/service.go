@@ -84,7 +84,7 @@ func GetAndSaveEntireTick(stockNum, date string, cond global.AnalyzeCondition, s
 	if err != nil {
 		panic(err)
 	} else if resp.StatusCode() != 200 {
-		panic("api fail")
+		panic("GetAndSaveEntireTick api fail")
 	}
 	res := entiretick.EntireTickArrProto{}
 	if err = proto.Unmarshal(resp.Body(), &res); err != nil {
@@ -125,7 +125,7 @@ func FetchByDate(stockNum, date string) (data []entiretick.EntireTick, err error
 	if err != nil {
 		return data, err
 	} else if resp.StatusCode() != 200 {
-		return data, errors.New("api fail")
+		return data, errors.New("FetchByDate api fail")
 	}
 	res := entiretick.EntireTickArrProto{}
 	if err = proto.Unmarshal(resp.Body(), &res); err != nil {

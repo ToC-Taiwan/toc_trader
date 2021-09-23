@@ -22,9 +22,9 @@ func init() {
 	global.UseBidAsk = false
 	global.MeanTimeTradeStockNum = 3
 
-	global.HistoryCloseCount = 800
+	global.HistoryCloseCount = 3400
 	global.TickAnalyzeCondition = global.AnalyzeCondition{
-		OutSum:               260,
+		OutSum:               60,
 		OutInRatio:           60,
 		CloseDiff:            0,
 		CloseChangeRatioLow:  0,

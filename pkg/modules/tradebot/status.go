@@ -104,11 +104,11 @@ func FetchOrderStatus() (err error) {
 	if err != nil {
 		return err
 	} else if resp.StatusCode() != 200 {
-		return errors.New("api fail")
+		return errors.New("FetchOrderStatus api fail")
 	}
 	res := *resp.Result().(*traderecord.SinoStatusResponse)
 	if res.Status != pyresponse.SuccessStatus {
-		return errors.New("fail")
+		return errors.New("FetchOrderStatus fail")
 	}
 	return err
 }
