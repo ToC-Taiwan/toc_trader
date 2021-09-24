@@ -258,9 +258,8 @@ func TSEProcess() {
 	var tmp int64
 	for {
 		tse := <-TSEChannel
-		if tmp == 0 {
+		if tmp != tse.TS {
 			tmp = tse.TS
-		} else if tmp != tse.TS {
 			logger.Logger.WithFields(map[string]interface{}{
 				"Close":       tse.Close,
 				"Open":        tse.Open,

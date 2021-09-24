@@ -64,7 +64,7 @@ func (c GlobalSettingMap) GetDBTimeZone() string {
 
 // GetCleanEventCron GetCleanEventCron
 func (c GlobalSettingMap) GetCleanEventCron() string {
-	return c["cleaneventcron"]
+	return c["cleanevent_cron"]
 }
 
 // GetRestartSinopacAndTocTraderCron GetRestartSinopacAndTocTraderCron

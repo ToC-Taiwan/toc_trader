@@ -31,6 +31,7 @@ func Simulate() {
 	fetchentiretick.FetchEntireTick(targetArr, global.LastTradeDayArr, global.TickAnalyzeCondition)
 	logger.Logger.Info("Fetch done")
 	storeAllEntireTick(targetArr)
+	logger.Logger.Info("Begin Training")
 	historyCount := getBestHistoryCount(targetArr)
 	outSum := getBestOutSum(targetArr, historyCount)
 	outInRatio := getBestOutInRatio(targetArr, historyCount, outSum)
@@ -47,6 +48,7 @@ func Simulate() {
 		RsiHigh:              rsiArr[1],
 		RsiLow:               rsiArr[0],
 	}
+	logger.Logger.Info("Finish Training")
 	logger.Logger.Warnf("HistoryCount: %d, Cond: %v", global.HistoryCloseCount, cond)
 	GetBalance(SearchBuyPoint(targetArr, cond), cond, false)
 	time.Sleep(10 * time.Second)
@@ -158,7 +160,7 @@ func getBestHistoryCount(targetArr []string) int64 {
 		balance int64
 	}
 	var tmp balanceWithIndex
-	for i := 100; i <= 5000; i += 100 {
+	for i := 300; i <= 1300; i += 100 {
 		global.HistoryCloseCount = i
 		cond := global.AnalyzeCondition{
 			OutSum:               200,
@@ -189,7 +191,7 @@ func getBestOutSum(targetArr []string, historyCloseCount int64) int64 {
 		balance int64
 	}
 	var tmp balanceWithIndex
-	for i := 1000; i >= 10; i -= 10 {
+	for i := 1000; i >= 100; i -= 10 {
 		global.HistoryCloseCount = int(historyCloseCount)
 		cond := global.AnalyzeCondition{
 			OutSum:               int64(i),
@@ -265,10 +267,6 @@ func getBestRSI(targetArr []string, historyCloseCount, outSum int64, outInRatio 
 			RsiLow:               int64(i),
 		}
 		tmpBalance := GetBalance(SearchBuyPoint(targetArr, cond), cond, true)
-		// if tmp > 0 {
-		// 	rsiArr = append(rsiArr, int64(i), 100-int64(i))
-		// 	return rsiArr
-		// }
 		if tmp.balance == 0 {
 			tmp.balance = tmpBalance
 			tmp.index = i
