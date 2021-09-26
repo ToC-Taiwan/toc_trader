@@ -34,10 +34,10 @@ func InitStartUpQuota() (err error) {
 
 // GetStockBuyCost GetStockBuyCost
 func GetStockBuyCost(price float64, qty int64) int64 {
-	return int64(price*float64(qty)*1000 + math.Floor(price*float64(qty)*1000*TradeFeeRatio))
+	return int64(math.Ceil(price*float64(qty)*1000) + math.Floor(price*float64(qty)*1000*TradeFeeRatio))
 }
 
 // GetStockSellCost GetStockSellCost
 func GetStockSellCost(price float64, qty int64) int64 {
-	return int64(price*float64(qty)*1000 - math.Floor(price*float64(qty)*1000*TradeFeeRatio) - math.Floor(price*float64(qty)*1000*TradeTaxRatio))
+	return int64(math.Ceil(price*float64(qty)*1000) - math.Floor(price*float64(qty)*1000*TradeFeeRatio) - math.Floor(price*float64(qty)*1000*TradeTaxRatio))
 }
