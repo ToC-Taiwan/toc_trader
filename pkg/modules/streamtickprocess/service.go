@@ -54,11 +54,11 @@ func TickProcess(lastClose float64, ch chan *streamtick.StreamTick, saveCh chan 
 				inSum += v.GetInSum()
 				totalTime += v.GetTotalTime()
 			}
-			if len(input.Close) < global.HistoryCloseCount {
+			if len(input.Close) < int(global.TickAnalyzeCondition.HistoryCloseCount) {
 				unSavedTicks.ClearAll()
 				continue
 			} else {
-				input.Close = input.Close[len(input.Close)-global.HistoryCloseCount:]
+				input.Close = input.Close[len(input.Close)-int(global.TickAnalyzeCondition.HistoryCloseCount):]
 			}
 			closeDiff := common.Round((unSavedTicks.GetLastClose() - lastSaveLastClose), 2)
 			if lastSaveLastClose == 0 {

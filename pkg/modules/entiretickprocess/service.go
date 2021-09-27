@@ -74,11 +74,11 @@ func TickProcess(stockNum string, lastClose float64, cond global.AnalyzeConditio
 				inSum += v.GetInSum()
 				totalTime += v.GetTotalTime()
 			}
-			if len(input.Close) < global.HistoryCloseCount {
+			if len(input.Close) < int(cond.HistoryCloseCount) {
 				unSavedTicks.ClearAll()
 				continue
 			} else {
-				input.Close = input.Close[len(input.Close)-global.HistoryCloseCount:]
+				input.Close = input.Close[len(input.Close)-int(cond.HistoryCloseCount):]
 			}
 			closeDiff := common.Round((unSavedTicks.GetLastClose() - lastSaveLastClose), 2)
 			if lastSaveLastClose == 0 {
@@ -103,7 +103,7 @@ func TickProcess(stockNum string, lastClose float64, cond global.AnalyzeConditio
 				Low:              low,
 			}
 			if unSavedTicksInOutRatio >= cond.OutInRatio && outSum >= cond.OutSum && closeDiff > cond.CloseDiff {
-				if closeChangeRatio >= cond.CloseChangeRatioLow && closeChangeRatio <= cond.CloseChangeRatioHigh && closeChangeRatio <= cond.OpenChangeRatio && analyze.Rsi < float64(cond.RsiLow) {
+				if closeChangeRatio >= cond.CloseChangeRatioLow && closeChangeRatio <= cond.CloseChangeRatioHigh && closeChangeRatio <= cond.OpenChangeRatio && analyze.Rsi <= float64(cond.RsiLow) {
 					analyzeChan <- &analyze
 					// name := global.AllStockNameMap.GetName(stockNum)
 					// tickTime := time.Unix(0, tick.TimeStamp).UTC().Format(global.LongTimeLayout)

@@ -15,7 +15,7 @@ import (
 
 // GenerateRSI GenerateRSI
 func GenerateRSI(input quote.Quote) float64 {
-	rsiArr := talib.Rsi(input.Close, 2)
+	rsiArr := talib.Rsi(input.Close, len(input.Close)-1)
 	return common.Round(rsiArr[len(rsiArr)-1], 2)
 }
 

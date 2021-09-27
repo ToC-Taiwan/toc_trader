@@ -38,7 +38,7 @@ func CheckOrderStatusLoop() {
 
 // ShowStatus ShowStatus
 func ShowStatus() {
-	tick := time.Tick(15 * time.Second)
+	tick := time.Tick(60 * time.Second)
 	for range tick {
 		if lastTradeTime.IsZero() {
 			lastTradeTime = time.Date(global.TradeDay.Year(), global.TradeDay.Month(), global.TradeDay.Day(), 13, 0, 0, 0, time.Local)
@@ -46,6 +46,7 @@ func ShowStatus() {
 		}
 		if time.Now().After(lastTradeTime) {
 			global.EnableBuy = false
+			logger.Logger.Warn("Trun enable buy off")
 		}
 		if FilledBuyOrderMap.GetCount() == FilledSellOrderMap.GetCount() && FilledSellOrderMap.GetCount() != 0 {
 			balance := FilledSellOrderMap.GetTotalSellCost() - FilledBuyOrderMap.GetTotalBuyCost()

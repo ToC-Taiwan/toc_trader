@@ -46,7 +46,6 @@ func UnSubscribeAll() {
 
 // GetTopTarget GetTopTarget
 func GetTopTarget(count int) (targetArr []string, err error) {
-	go TSEProcess()
 	resp, err := global.RestyClient.R().
 		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/basic/update/snapshot")
 	if err != nil {
@@ -122,6 +121,7 @@ func GetTarget(conditionArr []sysparm.TargetCondArr) {
 			logger.Logger.Error(err.Error() + "\n" + string(debug.Stack()))
 		}
 	}()
+	go TSEProcess()
 	var savedTarget []targetstock.Target
 	if dbTarget, err := targetstock.GetTargetByTime(global.LastTradeDay, global.GlobalDB); err != nil {
 		panic(err)

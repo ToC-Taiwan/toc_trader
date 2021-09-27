@@ -3,6 +3,7 @@ package global
 
 // AnalyzeCondition AnalyzeCondition
 type AnalyzeCondition struct {
+	HistoryCloseCount    int64
 	OutSum               int64
 	OutInRatio           float64
 	CloseDiff            float64

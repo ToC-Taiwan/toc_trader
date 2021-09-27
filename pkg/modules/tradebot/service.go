@@ -114,7 +114,7 @@ func SellBot(ch chan *streamtick.StreamTick) {
 	for {
 		tick := <-ch
 		historyClose = append(historyClose, tick.Close)
-		if len(historyClose) > global.HistoryCloseCount {
+		if len(historyClose) > int(global.TickAnalyzeCondition.HistoryCloseCount) {
 			historyClose = historyClose[1:]
 		}
 		filled, err := traderecord.CheckIsFilledByOrderID(BuyOrderMap.GetOrderID(tick.StockNum), global.GlobalDB)
@@ -156,7 +156,7 @@ func SellBot(ch chan *streamtick.StreamTick) {
 func GetSellPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyClose []float64, originalOrderClose float64, cond global.AnalyzeCondition) float64 {
 	tickTimeUnix := time.Unix(0, tick.TimeStamp)
 	lastTime := time.Date(tickTimeUnix.Year(), tickTimeUnix.Month(), tickTimeUnix.Day(), 13, 0, 0, 0, time.Local)
-	if len(historyClose) < global.HistoryCloseCount && tickTimeUnix.Before(lastTime) {
+	if len(historyClose) < int(cond.HistoryCloseCount) && tickTimeUnix.Before(lastTime) {
 		return 0
 	}
 	var sellPrice float64

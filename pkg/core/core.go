@@ -57,7 +57,7 @@ func TradeProcess() {
 				continue
 			} else {
 				count = len(newTargetArr)
-				if len(newTargetArr) != 0 {
+				if count != 0 {
 					choosetarget.SubscribeTarget(newTargetArr)
 					global.TargetArr = append(global.TargetArr, newTargetArr...)
 				}

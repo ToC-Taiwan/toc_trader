@@ -72,6 +72,3 @@ var MeanTimeTradeStockNum int
 
 // TickAnalyzeCondition TickAnalyzeCondition
 var TickAnalyzeCondition AnalyzeCondition
-
-// HistoryCloseCount HistoryCloseCount
-var HistoryCloseCount int
