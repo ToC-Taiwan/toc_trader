@@ -13,7 +13,7 @@ var Logger = log.New()
 func init() {
 	var logColor bool
 	deployment := os.Getenv("DEPLOYMENT")
-	if deployment != "docker" {
+	if deployment == "docker" {
 		logColor = true
 	}
 	Logger.SetFormatter(&log.TextFormatter{
