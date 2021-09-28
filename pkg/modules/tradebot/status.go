@@ -44,7 +44,7 @@ func ShowStatus() {
 			lastTradeTime = time.Date(global.TradeDay.Year(), global.TradeDay.Month(), global.TradeDay.Day(), 13, 0, 0, 0, time.Local)
 			logger.Logger.Infof("LastTradeTime is %s", lastTradeTime)
 		}
-		if time.Now().After(lastTradeTime) {
+		if time.Now().After(lastTradeTime) && global.EnableBuy {
 			global.EnableBuy = false
 			logger.Logger.Warn("Trun enable buy off")
 		}

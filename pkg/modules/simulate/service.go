@@ -229,7 +229,7 @@ func getBestCond(targetArr []string) {
 			}
 		}
 	}
-	logger.Logger.Warnf("Total: %d", len(conds))
+	logger.Logger.Warnf("Total simulate counts: %d", len(conds))
 	for _, v := range conds {
 		wg.Add(1)
 		go GetBalance(SearchBuyPoint(targetArr, v), v, true, &wg)
