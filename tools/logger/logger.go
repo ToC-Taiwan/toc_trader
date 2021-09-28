@@ -11,11 +11,16 @@ import (
 var Logger = log.New()
 
 func init() {
+	var logColor bool
+	deployment := os.Getenv("DEPLOYMENT")
+	if deployment != "docker" {
+		logColor = true
+	}
 	Logger.SetFormatter(&log.TextFormatter{
 		TimestampFormat:  "2006/01/02 15:04:05",
 		FullTimestamp:    true,
 		QuoteEmptyFields: true,
-		DisableColors:    false,
+		DisableColors:    logColor,
 		PadLevelText:     false,
 	})
 	Logger.SetLevel(log.TraceLevel)
