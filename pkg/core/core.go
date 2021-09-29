@@ -2,7 +2,9 @@
 package core
 
 import (
+	"bufio"
 	"errors"
+	"fmt"
 	"net"
 	"os"
 	"time"
@@ -24,16 +26,27 @@ func TradeProcess() {
 	importbasic.ImportAllStock()
 	// If needed, it will update StockCloseMap and volume, close in database
 	choosetarget.UpdateLastStockVolume()
+	// Monitor TSE001 Status
+	go choosetarget.TSEProcess()
 	// Development
 	deployment := os.Getenv("DEPLOYMENT")
 	if deployment != "docker" {
 		// Send ip to sinopac srv
 		sendCurrentIP()
 		// Simulate
-		simulate.Simulate()
+		fmt.Print("Need simulate?(y/n): ")
+		reader := bufio.NewReader(os.Stdin)
+		ans, err := reader.ReadString('\n')
+		if err != nil {
+			panic(err)
+		}
+		if ans == "y\n" {
+			logger.Logger.Warn("Simulating")
+			simulate.Simulate()
+		}
 	}
 	// Generate global target array
-	choosetarget.GetTarget(sysparminit.GlobalSettings.GetTargetCondArr())
+	choosetarget.GetTargetFromStockList(sysparminit.GlobalSettings.GetTargetCondArr())
 	// UnSubscribeAll first
 	choosetarget.UnSubscribeAll()
 
@@ -48,29 +61,31 @@ func TradeProcess() {
 		logger.Logger.Info("FetchEntireTick Done")
 		// Background get trade record
 		go tradebot.CheckOrderStatusLoop()
-
-		tick := time.NewTicker(10 * time.Second)
-		for range tick.C {
-			var count int
-			if newTargetArr, err := choosetarget.GetTopTarget(15); err != nil {
-				logger.Logger.Error(err)
-				continue
-			} else {
-				count = len(newTargetArr)
-				if count != 0 {
-					choosetarget.SubscribeTarget(newTargetArr)
-					global.TargetArr = append(global.TargetArr, newTargetArr...)
-				}
-			}
-			if count != 0 {
-				logger.Logger.Infof("GetTopTarget %d", count)
-			}
-		}
+		go addRankTarget()
 	}
 }
 
 func sendCurrentIP() {
 	var err error
+	results := findMachineIP()
+	resp, err := global.RestyClient.R().
+		SetHeader("X-Trade-Bot-Host", results[len(results)-1]).
+		SetResult(&pyresponse.PyServerResponse{}).
+		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/system/tradebothost")
+	if err != nil {
+		logger.Logger.Error(err)
+		return
+	} else if resp.StatusCode() != 200 {
+		logger.Logger.Error("SendCurrentIP api fail")
+		return
+	}
+	res := *resp.Result().(*pyresponse.PyServerResponse)
+	if res.Status != "success" {
+		logger.Logger.Error(errors.New("sendCurrentIP fail"))
+	}
+}
+
+func findMachineIP() []string {
 	var results []string
 	ifaces, err := net.Interfaces()
 	if err != nil {
@@ -93,19 +108,13 @@ func sendCurrentIP() {
 			}
 		}
 	}
-	resp, err := global.RestyClient.R().
-		SetHeader("X-Trade-Bot-Host", results[len(results)-1]).
-		SetResult(&pyresponse.PyServerResponse{}).
-		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/system/tradebothost")
-	if err != nil {
-		logger.Logger.Error(err)
-		return
-	} else if resp.StatusCode() != 200 {
-		logger.Logger.Error("SendCurrentIP api fail")
-		return
+	return results
+}
+
+func checkIsOpenTime() bool {
+	starTime := global.TradeDay.Add(1 * time.Hour)
+	if time.Now().After(starTime) && time.Now().Before(global.TradeDayEndTime) {
+		return true
 	}
-	res := *resp.Result().(*pyresponse.PyServerResponse)
-	if res.Status != "success" {
-		logger.Logger.Error(errors.New("sendCurrentIP fail"))
-	}
+	return false
 }

@@ -25,6 +25,7 @@ func CheckOrderStatusLoop() {
 			if err := InitStartUpQuota(); err != nil {
 				panic(err)
 			}
+			logger.Logger.Warnf("Initial Quota: %d", TradeQuota)
 			dbOrder, err := traderecord.GetAllorderByDayTime(global.TradeDay, global.GlobalDB)
 			if err != nil {
 				logger.Logger.Error(err)
@@ -40,26 +41,25 @@ func CheckOrderStatusLoop() {
 func ShowStatus() {
 	tick := time.Tick(60 * time.Second)
 	for range tick {
-		if lastTradeTime.IsZero() {
-			lastTradeTime = time.Date(global.TradeDay.Year(), global.TradeDay.Month(), global.TradeDay.Day(), 13, 0, 0, 0, time.Local)
-			logger.Logger.Infof("LastTradeTime is %s", lastTradeTime)
-		}
-		if time.Now().After(lastTradeTime) && global.EnableBuy {
+		if time.Now().After(global.TradeDayEndTime) && global.EnableBuy {
 			global.EnableBuy = false
 			logger.Logger.Warn("Trun enable buy off")
 		}
 		if FilledBuyOrderMap.GetCount() == FilledSellOrderMap.GetCount() && FilledSellOrderMap.GetCount() != 0 {
 			balance := FilledSellOrderMap.GetTotalSellCost() - FilledBuyOrderMap.GetTotalBuyCost()
+			back := FilledSellOrderMap.GetTotalCostBack() + FilledBuyOrderMap.GetTotalCostBack()
 			logger.Logger.WithFields(map[string]interface{}{
 				"Balance": balance,
+				"Back":    back,
+				"Total":   balance + back,
 			}).Info("Balance Status")
 		}
 		if BuyOrderMap.GetCount() != 0 {
 			logger.Logger.WithFields(map[string]interface{}{
-				"Current":       BuyOrderMap.GetCount(),
-				"Maximum":       global.MeanTimeTradeStockNum,
-				"TradeQuota":    TradeQuota,
-				"LastTradeTime": lastTradeTime.Format(global.LongTimeLayout),
+				"Current":                BuyOrderMap.GetCount(),
+				"Maximum":                global.MeanTimeTradeStockNum,
+				"TradeQuota":             TradeQuota,
+				"global.TradeDayEndTime": global.TradeDayEndTime.Format(global.LongTimeLayout),
 			}).Info("Current Trade Status")
 		}
 	}

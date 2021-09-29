@@ -2,6 +2,9 @@
 package simulate
 
 import (
+	"bufio"
+	"fmt"
+	"os"
 	"sync"
 	"time"
 
@@ -49,8 +52,12 @@ func SearchBuyPoint(targetArr []string, cond global.AnalyzeCondition) map[string
 	var simulateAnalyzeEntireMap entiretickprocess.AnalyzeEntireTickMap
 	var wg sync.WaitGroup
 	for _, stockNum := range targetArr {
-		wg.Add(1)
 		ticks := allTickMap.getAllTicksByStockNum(stockNum)
+		if len(ticks) == 0 {
+			logger.Logger.Errorf("%s has no ticks", stockNum)
+			continue
+		}
+		wg.Add(1)
 		ch := make(chan *entiretick.EntireTick)
 		saveCh := make(chan []*entiretick.EntireTick)
 
@@ -95,6 +102,10 @@ func GetBalance(analyzeMap map[string]analyzeentiretick.AnalyzeEntireTick, cond 
 	var balance int64
 	for stockNum, v := range analyzeMap {
 		ticks := allTickMap.getAllTicksByStockNum(stockNum)
+		if len(ticks) == 0 {
+			logger.Logger.Errorf("%s has no ticks", stockNum)
+			continue
+		}
 		var historyClose []float64
 		var buyPrice, sellPrice float64
 		for _, k := range ticks {
@@ -120,6 +131,9 @@ func GetBalance(analyzeMap map[string]analyzeentiretick.AnalyzeEntireTick, cond 
 			buyCost := tradebot.GetStockBuyCost(buyPrice, global.OneTimeQuantity)
 			sellCost := tradebot.GetStockSellCost(sellPrice, global.OneTimeQuantity)
 			balance += (sellCost - buyCost)
+			if !training {
+				logger.Logger.Warnf("Balance: %d, Stock: %s, Name: %s, Total Time: %d", sellCost-buyCost, v.StockNum, global.AllStockNameMap.GetName(v.StockNum), (sellTimeStamp[v.StockNum]-v.TimeStamp)/1000/1000/1000)
+			}
 		}
 	}
 	tmp := bestCond{
@@ -133,7 +147,11 @@ func GetBalance(analyzeMap map[string]analyzeentiretick.AnalyzeEntireTick, cond 
 		rsiHigh:         int(cond.RsiHigh),
 		balance:         balance,
 	}
-	resultChan <- tmp
+	if training {
+		resultChan <- tmp
+	} else {
+		logger.Logger.Warnf("Total Balance: %d, TradeCount: %d, Cond: %v", balance, len(analyzeMap), cond)
+	}
 }
 
 var allTickMap entireTickMap
@@ -163,31 +181,36 @@ type bestCond struct {
 	balance         int64
 }
 
-func catchResult() {
+func catchResult(targetArr []string) {
 	var tmp bestCond
 	var count, timestamp int
+	if timestamp == 0 {
+		timestamp = int(time.Now().Unix())
+	}
 	for {
 		result, ok := <-resultChan
 		if !ok {
-			logger.Logger.Warnf("Best: %+v", tmp)
+			var wg sync.WaitGroup
 			finalCond := global.AnalyzeCondition{
-				HistoryCloseCount:    int64(result.historyCount),
-				OutSum:               int64(result.outSum),
-				OutInRatio:           float64(result.outInRatio),
+				HistoryCloseCount:    int64(tmp.historyCount),
+				OutSum:               int64(tmp.outSum),
+				OutInRatio:           float64(tmp.outInRatio),
 				CloseDiff:            0,
-				CloseChangeRatioLow:  float64(result.closeLow),
-				CloseChangeRatioHigh: float64(result.closeHigh),
-				OpenChangeRatio:      float64(result.openChangeRatio),
-				RsiHigh:              int64(result.rsiHigh),
-				RsiLow:               int64(result.rsiLow),
+				CloseChangeRatioLow:  float64(tmp.closeLow),
+				CloseChangeRatioHigh: float64(tmp.closeHigh),
+				OpenChangeRatio:      float64(tmp.openChangeRatio),
+				RsiHigh:              int64(tmp.rsiHigh),
+				RsiLow:               int64(tmp.rsiLow),
 			}
-			global.TickAnalyzeCondition = finalCond
+			wg.Add(1)
+			go GetBalance(SearchBuyPoint(targetArr, finalCond), finalCond, false, &wg)
+			wg.Wait()
 			finishSimulate <- 0
 			break
 		}
 		count++
 		if count%100 == 0 {
-			logger.Logger.Warn(count, int(time.Now().Unix())-timestamp)
+			logger.Logger.Warnf("Finished: %d, Time: %d", count, int(time.Now().Unix())-timestamp)
 			timestamp = int(time.Now().Unix())
 		}
 		if tmp.balance == 0 {
@@ -200,29 +223,37 @@ func catchResult() {
 
 func getBestCond(targetArr []string) {
 	resultChan = make(chan bestCond)
-	go catchResult()
+	go catchResult(targetArr)
 	var wg sync.WaitGroup
 	var conds []global.AnalyzeCondition
-	for j := 200; j <= 500; j += 100 {
-		for l := 200; l >= 100; l -= 100 {
-			for m := 75; m >= 50; m -= 5 {
-				for n := -3; n <= 1; n++ {
-					for k := 10; k >= 4; k-- {
-						for i := 40; i <= 60; i += 5 {
-							cond := global.AnalyzeCondition{
-								HistoryCloseCount:    int64(j),
-								OutSum:               int64(l),
-								OutInRatio:           float64(m),
-								CloseChangeRatioLow:  float64(n),
-								CloseChangeRatioHigh: float64(k),
-								OpenChangeRatio:      float64(k),
-								RsiLow:               int64(i),
-								RsiHigh:              int64(i),
-								CloseDiff:            0,
+	fmt.Print("Use global cond?(y/n): ")
+	reader := bufio.NewReader(os.Stdin)
+	ans, err := reader.ReadString('\n')
+	if err != nil {
+		panic(err)
+	}
+	if ans == "y\n" {
+		conds = append(conds, global.TickAnalyzeCondition)
+	} else {
+		for j := 200; j <= 800; j += 100 {
+			for l := 500; l >= 100; l -= 50 {
+				for m := 85; m >= 50; m -= 5 {
+					for n := -3; n <= 0; n++ {
+						for k := 7; k >= 4; k-- {
+							for i := 20; i <= 50; i += 5 {
+								cond := global.AnalyzeCondition{
+									HistoryCloseCount:    int64(j),
+									OutSum:               int64(l),
+									OutInRatio:           float64(m),
+									CloseChangeRatioLow:  float64(n),
+									CloseChangeRatioHigh: float64(k),
+									OpenChangeRatio:      float64(k),
+									RsiLow:               100 - int64(i),
+									RsiHigh:              int64(i),
+									CloseDiff:            0,
+								}
+								conds = append(conds, cond)
 							}
-							conds = append(conds, cond)
-							// wg.Add(1)
-							// go GetBalance(SearchBuyPoint(targetArr, cond), cond, true, &wg)
 						}
 					}
 				}
@@ -234,19 +265,6 @@ func getBestCond(targetArr []string) {
 		wg.Add(1)
 		go GetBalance(SearchBuyPoint(targetArr, v), v, true, &wg)
 	}
-	// cond := global.AnalyzeCondition{
-	// 	HistoryCloseCount:    200,
-	// 	OutSum:               100,
-	// 	OutInRatio:           40,
-	// 	CloseDiff:            0,
-	// 	CloseChangeRatioLow:  -10,
-	// 	CloseChangeRatioHigh: 10,
-	// 	OpenChangeRatio:      10,
-	// 	RsiHigh:              55,
-	// 	RsiLow:               55,
-	// }
-	// wg.Add(1)
-	// go GetBalance(SearchBuyPoint(targetArr, cond), cond, true, &wg)
 	wg.Wait()
 	close(resultChan)
 }

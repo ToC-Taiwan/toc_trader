@@ -86,6 +86,11 @@ func TickProcess(stockNum string, lastClose float64, cond global.AnalyzeConditio
 			}
 			lastSaveLastClose = unSavedTicks.GetLastClose()
 			unSavedTicksInOutRatio := common.Round(100*(float64(outSum)/float64(outSum+inSum)), 2)
+			rsi, err := tickanalyze.GenerateRSI(input)
+			if err != nil {
+				logger.Logger.Errorf("TickProcess Stock: %s, Err: %s", stockNum, err)
+				continue
+			}
 			analyze := analyzeentiretick.AnalyzeEntireTick{
 				TimeStamp:        tick.TimeStamp,
 				StockNum:         stockNum,
@@ -97,7 +102,7 @@ func TickProcess(stockNum string, lastClose float64, cond global.AnalyzeConditio
 				OutInRatio:       unSavedTicksInOutRatio,
 				TotalTime:        common.Round(totalTime, 2),
 				CloseDiff:        closeDiff,
-				Rsi:              tickanalyze.GenerateRSI(input),
+				Rsi:              rsi,
 				Open:             open,
 				High:             high,
 				Low:              low,

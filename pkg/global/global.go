@@ -31,6 +31,9 @@ var ExitChannel chan string
 // TradeDay TradeDay
 var TradeDay time.Time
 
+// TradeDayEndTime TradeDayEndTime
+var TradeDayEndTime time.Time
+
 // LastTradeDay LastTradeDay
 var LastTradeDay time.Time
 

@@ -20,18 +20,18 @@ func init() {
 	global.EnableBuy = true
 	global.EnableSell = true
 	global.UseBidAsk = false
-	global.MeanTimeTradeStockNum = 3
+	global.MeanTimeTradeStockNum = 8
 
 	global.TickAnalyzeCondition = global.AnalyzeCondition{
-		HistoryCloseCount:    500,
-		OutSum:               100,
-		OutInRatio:           70,
+		HistoryCloseCount:    400,
+		OutSum:               300,
+		OutInRatio:           55,
 		CloseDiff:            0,
-		CloseChangeRatioLow:  -1,
-		CloseChangeRatioHigh: 10,
-		OpenChangeRatio:      10,
-		RsiHigh:              55,
-		RsiLow:               55,
+		CloseChangeRatioLow:  -2,
+		CloseChangeRatioHigh: 7,
+		OpenChangeRatio:      7,
+		RsiHigh:              50,
+		RsiLow:               50,
 	}
 
 	if err := importbasic.ImportHoliday(); err != nil {
@@ -39,33 +39,37 @@ func init() {
 	}
 
 	var today time.Time
+	var err error
 	if time.Now().Hour() >= 15 {
 		today = time.Now().AddDate(0, 0, 1)
 	} else {
 		today = time.Now()
 	}
-	tradeDay, err := importbasic.GetTradeDayTime(today)
-	if err != nil {
-		panic(err)
-	}
-	lastTradeDay, err := importbasic.GetLastTradeDayTime(tradeDay)
+	global.TradeDay, err = importbasic.GetTradeDayTime(today)
 	if err != nil {
 		panic(err)
 	}
 
-	lastLastTradeDay, err := importbasic.GetLastTradeDayTime(lastTradeDay)
+	global.TradeDayEndTime = time.Date(global.TradeDay.Year(), global.TradeDay.Month(), global.TradeDay.Day(), 13, 0, 0, 0, time.Local)
+
+	global.LastTradeDay, err = importbasic.GetLastTradeDayTime(global.TradeDay)
 	if err != nil {
 		panic(err)
 	}
 
-	global.TradeDay = tradeDay
-	global.LastTradeDay = lastTradeDay
-	global.LastLastTradeDay = lastLastTradeDay
-	global.LastTradeDayArr = append(global.LastTradeDayArr, lastLastTradeDay, lastTradeDay)
+	global.LastLastTradeDay, err = importbasic.GetLastTradeDayTime(global.LastTradeDay)
+	if err != nil {
+		panic(err)
+	}
+
+	global.LastTradeDayArr = append(global.LastTradeDayArr, global.LastLastTradeDay, global.LastTradeDay)
 
 	logger.Logger.WithFields(map[string]interface{}{
-		"TradeDay":         tradeDay.Format(global.ShortTimeLayout),
-		"LastTradeDay":     lastTradeDay.Format(global.ShortTimeLayout),
-		"LastLastTradeDay": lastLastTradeDay.Format(global.ShortTimeLayout),
+		"TradeDay":         global.TradeDay.Format(global.ShortTimeLayout),
+		"LastTradeDay":     global.LastTradeDay.Format(global.ShortTimeLayout),
+		"LastLastTradeDay": global.LastLastTradeDay.Format(global.ShortTimeLayout),
 	}).Info("Last Trade Days")
+	logger.Logger.WithFields(map[string]interface{}{
+		"TradeDayEndTime": global.TradeDayEndTime.Format(global.LongTimeLayout),
+	}).Info("Trade Time")
 }

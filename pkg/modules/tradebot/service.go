@@ -29,8 +29,6 @@ var FilledSellOrderMap tradeRecordMutexStruct
 // ManualSellMap ManualSellMap
 var ManualSellMap tradeRecordMutexStruct
 
-var lastTradeTime time.Time
-
 // BuyBot BuyBot
 func BuyBot(ch chan *analyzestreamtick.AnalyzeStreamTick) {
 	for {
@@ -44,6 +42,17 @@ func BuyBot(ch chan *analyzestreamtick.AnalyzeStreamTick) {
 		if !IsBuyPoint(analyzeTick, global.TickAnalyzeCondition) {
 			continue
 		}
+		tickTime := time.Unix(0, analyzeTick.TimeStamp).Local().Format(global.LongTimeLayout)
+		replaceDate := tickTime[:10]
+		clockTime := tickTime[11:19]
+		logger.Logger.WithFields(map[string]interface{}{
+			"Close":       analyzeTick.Close,
+			"ChangeRatio": closeChangeRatio,
+			"OutSum":      outSum,
+			"InSum":       inSum,
+			"OutInRatio":  outInRatio,
+			"Name":        name,
+		}).Infof("StreamTick Analyze: %s %s %s", replaceDate, clockTime, analyzeTick.StockNum)
 
 		buyCost := GetStockBuyCost(analyzeTick.Close, global.OneTimeQuantity)
 		if global.EnableBuy && !FilledBuyOrderMap.CheckStockExist(analyzeTick.StockNum) && BuyOrderMap.GetCount() < global.MeanTimeTradeStockNum &&
@@ -68,17 +77,7 @@ func BuyBot(ch chan *analyzestreamtick.AnalyzeStreamTick) {
 				}
 				BuyOrderMap.Set(record)
 				go CheckBuyOrderStatus(record)
-				tickTime := time.Unix(0, analyzeTick.TimeStamp).Local().Format(global.LongTimeLayout)
-				replaceDate := tickTime[:10]
-				clockTime := tickTime[11:19]
-				logger.Logger.WithFields(map[string]interface{}{
-					"Close":       analyzeTick.Close,
-					"ChangeRatio": closeChangeRatio,
-					"OutSum":      outSum,
-					"InSum":       inSum,
-					"OutInRatio":  outInRatio,
-					"Name":        name,
-				}).Infof("StreamTick Analyze: %s %s %s", replaceDate, clockTime, analyzeTick.StockNum)
+
 				continue
 			}
 			logger.Logger.Warn("Buy Order is failed")
@@ -162,10 +161,15 @@ func GetSellPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyClose
 	var sellPrice float64
 	var input quote.Quote
 	input.Close = historyClose
+	rsi, err := tickanalyze.GenerateRSI(input)
+	if err != nil {
+		logger.Logger.Errorf("GetSellPrice Stock: %s, Err: %s", tick.StockNum, err)
+		return 0
+	}
 	switch {
-	case tick.Close < stockutil.GetNewClose(originalOrderClose, -1) && tickanalyze.GenerateRSI(input) > float64(cond.RsiHigh):
+	case tick.Close < stockutil.GetNewClose(originalOrderClose, -1) && rsi < float64(cond.RsiLow):
 		sellPrice = tick.Close
-	case tickanalyze.GenerateRSI(input) > float64(cond.RsiHigh):
+	case rsi > float64(cond.RsiHigh):
 		sellPrice = tick.Close
 	case tradeTime.Add(600*time.Second).Before(tickTimeUnix) && tick.Close >= stockutil.GetNewClose(originalOrderClose, 2):
 		sellPrice = tick.Close

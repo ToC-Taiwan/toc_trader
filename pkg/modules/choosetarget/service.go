@@ -64,11 +64,11 @@ func GetTopTarget(count int) (targetArr []string, err error) {
 	conditionArr := sysparminit.GlobalSettings.GetTargetCondArr()
 	for _, condition := range conditionArr {
 		for _, v := range body.Data {
-			if !importbasic.AllStockDetailMap.CheckIsDayTrade(v.Code) {
-				continue
-			}
 			if v.Code == "001" {
 				TSEChannel <- v.ToSnapShotFromProto()
+				continue
+			}
+			if !importbasic.AllStockDetailMap.CheckIsDayTrade(v.Code) {
 				continue
 			}
 			if _, ok := blackStockMap[v.Code]; ok {
@@ -105,8 +105,8 @@ func GetTopTarget(count int) (targetArr []string, err error) {
 	return targetArr, err
 }
 
-// GetTarget GetTarget
-func GetTarget(conditionArr []sysparm.TargetCondArr) {
+// GetTargetFromStockList GetTargetFromStockList
+func GetTargetFromStockList(conditionArr []sysparm.TargetCondArr) {
 	var err error
 	defer func() {
 		if r := recover(); r != nil {
@@ -121,7 +121,6 @@ func GetTarget(conditionArr []sysparm.TargetCondArr) {
 			logger.Logger.Error(err.Error() + "\n" + string(debug.Stack()))
 		}
 	}()
-	go TSEProcess()
 	var savedTarget []targetstock.Target
 	if dbTarget, err := targetstock.GetTargetByTime(global.LastTradeDay, global.GlobalDB); err != nil {
 		panic(err)
@@ -253,13 +252,15 @@ func UpdateStockCloseMapByDate(stockNumArr []string, dateArr []time.Time) error 
 	return nil
 }
 
+// TSE001 TSE001
+var TSE001 *snapshot.SnapShot
+
 // TSEProcess TSEProcess
 func TSEProcess() {
-	var tmp int64
+	TSE001 = &snapshot.SnapShot{}
 	for {
 		tse := <-TSEChannel
-		if tmp != tse.TS {
-			tmp = tse.TS
+		if TSE001.TS != tse.TS {
 			logger.Logger.WithFields(map[string]interface{}{
 				"Close":       tse.Close,
 				"Open":        tse.Open,
@@ -267,7 +268,8 @@ func TSEProcess() {
 				"Low":         tse.Low,
 				"ChangeRatio": tse.ChangeRate,
 				"Diff":        tse.ChangePrice,
-			}).Info("TSE")
+			}).Info("TSE001")
 		}
+		TSE001 = tse
 	}
 }

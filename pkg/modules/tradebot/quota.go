@@ -13,7 +13,9 @@ var TradeQuota int64 = 1000000
 
 const (
 	// TradeFeeRatio TradeFeeRatio
-	TradeFeeRatio float64 = 0.001425 * 0.38
+	TradeFeeRatio float64 = 0.001425
+	// FeeDiscount FeeDiscount
+	FeeDiscount float64 = 0.38
 	// TradeTaxRatio TradeTaxRatio
 	TradeTaxRatio float64 = 0.0015
 )
@@ -40,4 +42,9 @@ func GetStockBuyCost(price float64, qty int64) int64 {
 // GetStockSellCost GetStockSellCost
 func GetStockSellCost(price float64, qty int64) int64 {
 	return int64(math.Ceil(price*float64(qty)*1000) - math.Floor(price*float64(qty)*1000*TradeFeeRatio) - math.Floor(price*float64(qty)*1000*TradeTaxRatio))
+}
+
+// GetStockTradeFeeDiscount GetStockTradeFeeDiscount
+func GetStockTradeFeeDiscount(price float64, qty int64) int64 {
+	return int64(math.Floor(price*float64(qty)*1000*TradeFeeRatio) * (1 - FeeDiscount))
 }

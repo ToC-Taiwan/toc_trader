@@ -66,6 +66,11 @@ func TickProcess(lastClose float64, ch chan *streamtick.StreamTick, saveCh chan 
 			}
 			lastSaveLastClose = unSavedTicks.GetLastClose()
 			unSavedTicksInOutRatio := common.Round((100 * (float64(outSum) / float64(outSum+inSum))), 2)
+			rsi, err := tickanalyze.GenerateRSI(input)
+			if err != nil {
+				logger.Logger.Errorf("TickProcess Stock: %s, Err: %s", tick.StockNum, err)
+				continue
+			}
 			analyze := analyzestreamtick.AnalyzeStreamTick{
 				TimeStamp:        tick.TimeStamp,
 				StockNum:         tick.StockNum,
@@ -81,7 +86,7 @@ func TickProcess(lastClose float64, ch chan *streamtick.StreamTick, saveCh chan 
 				AvgPrice:         tick.AvgPrice,
 				High:             tick.High,
 				Low:              tick.Low,
-				Rsi:              tickanalyze.GenerateRSI(input),
+				Rsi:              rsi,
 			}
 			// analyzeChan <- analyze
 			buyChan <- &analyze

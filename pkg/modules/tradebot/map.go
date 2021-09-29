@@ -132,3 +132,16 @@ func (c *tradeRecordMutexStruct) GetTotalSellCost() int64 {
 	c.mutex.RUnlock()
 	return cost
 }
+
+func (c *tradeRecordMutexStruct) GetTotalCostBack() int64 {
+	if c.tMap == nil {
+		c.tMap = make(map[string]traderecord.TradeRecord)
+	}
+	c.mutex.RLock()
+	var cost int64
+	for _, order := range c.tMap {
+		cost += GetStockTradeFeeDiscount(order.Price, order.Quantity)
+	}
+	c.mutex.RUnlock()
+	return cost
+}
