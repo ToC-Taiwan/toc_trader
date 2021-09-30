@@ -42,6 +42,7 @@ func Simulate() {
 		finish := <-finishSimulate
 		if finish == 0 {
 			close(finishSimulate)
+			time.Sleep(10 * time.Second)
 			return
 		}
 	}
@@ -137,15 +138,8 @@ func GetBalance(analyzeMap map[string]analyzeentiretick.AnalyzeEntireTick, cond 
 		}
 	}
 	tmp := bestCond{
-		historyCount:    int(cond.HistoryCloseCount),
-		outSum:          int(cond.OutSum),
-		outInRatio:      int(cond.OutInRatio),
-		closeLow:        int(cond.CloseChangeRatioLow),
-		closeHigh:       int(cond.CloseChangeRatioHigh),
-		openChangeRatio: int(cond.OpenChangeRatio),
-		rsiLow:          int(cond.RsiLow),
-		rsiHigh:         int(cond.RsiHigh),
-		balance:         balance,
+		cond:    cond,
+		balance: balance,
 	}
 	if training {
 		resultChan <- tmp
@@ -170,15 +164,8 @@ func storeAllEntireTick(stockArr []string) {
 var resultChan chan bestCond
 
 type bestCond struct {
-	historyCount    int
-	outSum          int
-	outInRatio      int
-	closeLow        int
-	closeHigh       int
-	openChangeRatio int
-	rsiLow          int
-	rsiHigh         int
-	balance         int64
+	cond    global.AnalyzeCondition
+	balance int64
 }
 
 func catchResult(targetArr []string) {
@@ -191,17 +178,8 @@ func catchResult(targetArr []string) {
 		result, ok := <-resultChan
 		if !ok {
 			var wg sync.WaitGroup
-			finalCond := global.AnalyzeCondition{
-				HistoryCloseCount:    int64(tmp.historyCount),
-				OutSum:               int64(tmp.outSum),
-				OutInRatio:           float64(tmp.outInRatio),
-				CloseDiff:            0,
-				CloseChangeRatioLow:  float64(tmp.closeLow),
-				CloseChangeRatioHigh: float64(tmp.closeHigh),
-				OpenChangeRatio:      float64(tmp.openChangeRatio),
-				RsiHigh:              int64(tmp.rsiHigh),
-				RsiLow:               int64(tmp.rsiLow),
-			}
+			finalCond := tmp.cond
+			logger.Logger.Info("Below is best result")
 			wg.Add(1)
 			go GetBalance(SearchBuyPoint(targetArr, finalCond), finalCond, false, &wg)
 			wg.Wait()
@@ -235,24 +213,31 @@ func getBestCond(targetArr []string) {
 	if ans == "y\n" {
 		conds = append(conds, global.TickAnalyzeCondition)
 	} else {
-		for j := 200; j <= 800; j += 100 {
-			for l := 500; l >= 100; l -= 50 {
-				for m := 85; m >= 50; m -= 5 {
-					for n := -3; n <= 0; n++ {
-						for k := 7; k >= 4; k-- {
-							for i := 20; i <= 50; i += 5 {
-								cond := global.AnalyzeCondition{
-									HistoryCloseCount:    int64(j),
-									OutSum:               int64(l),
-									OutInRatio:           float64(m),
-									CloseChangeRatioLow:  float64(n),
-									CloseChangeRatioHigh: float64(k),
-									OpenChangeRatio:      float64(k),
-									RsiLow:               100 - int64(i),
-									RsiHigh:              int64(i),
-									CloseDiff:            0,
+		for j := 500; j >= 300; j -= 100 {
+			for l := 300; l >= 150; l -= 50 {
+				for m := 70; m >= 55; m -= 5 {
+					for n := -3; n <= -1; n++ {
+						for k := 7; k >= 5; k-- {
+							for i := 30; i <= 50; i += 5 {
+								for o := 5; o <= 20; o += 5 {
+									for p := 1; p <= 4; p++ {
+										cond := global.AnalyzeCondition{
+											HistoryCloseCount:    int64(j),
+											OutSum:               int64(l),
+											OutInRatio:           float64(m),
+											CloseDiff:            0,
+											CloseChangeRatioLow:  float64(n),
+											CloseChangeRatioHigh: float64(k),
+											OpenChangeRatio:      float64(k),
+											RsiHigh:              int64(i) + 5,
+											RsiLow:               int64(i),
+											TicksPeriodThreshold: float64(o),
+											TicksPeriodLimit:     float64(o) * 1.3,
+											TicksPeriodCount:     p,
+										}
+										conds = append(conds, cond)
+									}
 								}
-								conds = append(conds, cond)
 							}
 						}
 					}

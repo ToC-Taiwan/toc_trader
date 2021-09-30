@@ -74,6 +74,7 @@ func GetAndSaveEntireTick(stockNum, date string, cond global.AnalyzeCondition, s
 			logger.Logger.Error(err.Error() + "\n" + string(debug.Stack()))
 		}
 	}()
+	logger.Logger.Infof("Fetching %s on %s", stockNum, date)
 	stockAndDate := FetchBody{
 		StockNum: stockNum,
 		Date:     date,

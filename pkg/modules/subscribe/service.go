@@ -43,7 +43,7 @@ func SubStreamTick(stockArr []string) {
 		StreamTickChannelMap.Set(stockNum, ch)
 
 		lastClose := global.StockCloseByDateMap.GetClose(stockNum, global.LastTradeDay.Format(global.ShortTimeLayout))
-		go streamtickprocess.TickProcess(lastClose, ch, saveCh)
+		go streamtickprocess.TickProcess(lastClose, global.TickAnalyzeCondition, ch, saveCh)
 	}
 
 	stocks := SubBody{

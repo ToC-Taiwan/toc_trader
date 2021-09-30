@@ -13,7 +13,7 @@ import (
 )
 
 // TickProcess TickProcess
-func TickProcess(lastClose float64, ch chan *streamtick.StreamTick, saveCh chan []*streamtick.StreamTick) {
+func TickProcess(lastClose float64, cond global.AnalyzeCondition, ch chan *streamtick.StreamTick, saveCh chan []*streamtick.StreamTick) {
 	if lastClose == 0 {
 		return
 	}
@@ -34,17 +34,17 @@ func TickProcess(lastClose float64, ch chan *streamtick.StreamTick, saveCh chan 
 			sellChan <- tick
 		}
 		tmpArr = append(tmpArr, tick)
-		if tmpArr.GetTotalTime() < 20 {
+		if tmpArr.GetTotalTime() < cond.TicksPeriodThreshold {
 			continue
 		}
-		if tmpArr.GetTotalTime() > 30 {
+		if tmpArr.GetTotalTime() > cond.TicksPeriodLimit {
 			unSavedTicks.ClearAll()
 		}
 		unSavedTicks.Append(tmpArr)
 		saveCh <- tmpArr
 		tmpArr = []*streamtick.StreamTick{}
 
-		if unSavedTicks.GetCount() >= 3 {
+		if unSavedTicks.GetCount() >= cond.TicksPeriodCount {
 			var outSum, inSum int64
 			var totalTime float64
 			data := unSavedTicks.Get()

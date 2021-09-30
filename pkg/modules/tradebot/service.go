@@ -168,19 +168,25 @@ func GetSellPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyClose
 	}
 	switch {
 	case tick.Close < stockutil.GetNewClose(originalOrderClose, -1) && rsi < float64(cond.RsiLow):
+		// logger.Logger.Warn("too low")
 		sellPrice = tick.Close
 	case rsi > float64(cond.RsiHigh):
+		// logger.Logger.Warn("touch high")
 		sellPrice = tick.Close
-	case tradeTime.Add(600*time.Second).Before(tickTimeUnix) && tick.Close >= stockutil.GetNewClose(originalOrderClose, 2):
-		sellPrice = tick.Close
-	case tradeTime.Add(1800*time.Second).Before(tickTimeUnix) && tick.Close >= stockutil.GetNewClose(originalOrderClose, 1):
-		sellPrice = tick.Close
+	// case tradeTime.Add(600*time.Second).Before(tickTimeUnix) && tick.Close >= stockutil.GetNewClose(originalOrderClose, 2):
+	// 	logger.Logger.Warn("cond 3")
+	// 	sellPrice = tick.Close
+	// case tradeTime.Add(1800*time.Second).Before(tickTimeUnix) && tick.Close >= stockutil.GetNewClose(originalOrderClose, 1):
+	// 	logger.Logger.Warn("cond 4")
+	// 	sellPrice = tick.Close
 	case ManualSellMap.CheckStockExist(tick.StockNum):
+		// logger.Logger.Warn("cond 5")
 		sellPrice = ManualSellMap.GetClose(tick.StockNum)
 		if sellPrice == 0 {
 			sellPrice = tick.Close
 		}
 	case tickTimeUnix.After(lastTime):
+		// logger.Logger.Warn("last time sell")
 		sellPrice = tick.Close
 	default:
 		sellPrice = 0

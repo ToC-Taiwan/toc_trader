@@ -40,6 +40,7 @@ func CheckOrderStatusLoop() {
 // ShowStatus ShowStatus
 func ShowStatus() {
 	tick := time.Tick(60 * time.Second)
+	var tmpBalance int64
 	for range tick {
 		if time.Now().After(global.TradeDayEndTime) && global.EnableBuy {
 			global.EnableBuy = false
@@ -48,11 +49,14 @@ func ShowStatus() {
 		if FilledBuyOrderMap.GetCount() == FilledSellOrderMap.GetCount() && FilledSellOrderMap.GetCount() != 0 {
 			balance := FilledSellOrderMap.GetTotalSellCost() - FilledBuyOrderMap.GetTotalBuyCost()
 			back := FilledSellOrderMap.GetTotalCostBack() + FilledBuyOrderMap.GetTotalCostBack()
-			logger.Logger.WithFields(map[string]interface{}{
-				"Balance": balance,
-				"Back":    back,
-				"Total":   balance + back,
-			}).Info("Balance Status")
+			if balance != tmpBalance {
+				logger.Logger.WithFields(map[string]interface{}{
+					"Balance": balance,
+					"Back":    back,
+					"Total":   balance + back,
+				}).Info("Balance Status")
+				tmpBalance = balance
+			}
 		}
 		if BuyOrderMap.GetCount() != 0 {
 			logger.Logger.WithFields(map[string]interface{}{

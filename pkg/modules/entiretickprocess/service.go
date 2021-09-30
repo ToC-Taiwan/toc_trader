@@ -52,10 +52,10 @@ func TickProcess(stockNum string, lastClose float64, cond global.AnalyzeConditio
 		}
 		tick.Open = open
 		tmpArr = append(tmpArr, tick)
-		if tmpArr.GetTotalTime() < 20 {
+		if tmpArr.GetTotalTime() < cond.TicksPeriodThreshold {
 			continue
 		}
-		if tmpArr.GetTotalTime() > 30 {
+		if tmpArr.GetTotalTime() > cond.TicksPeriodLimit {
 			unSavedTicks.ClearAll()
 		}
 		unSavedTicks.Append(tmpArr)
@@ -63,7 +63,7 @@ func TickProcess(stockNum string, lastClose float64, cond global.AnalyzeConditio
 			saveCh <- tmpArr
 		}
 		tmpArr = []*entiretick.EntireTick{}
-		if unSavedTicks.GetCount() >= 3 {
+		if unSavedTicks.GetCount() >= cond.TicksPeriodCount {
 			var outSum, inSum int64
 			var totalTime float64
 			closeChangeRatio := common.Round(100*(tick.Close-lastClose)/lastClose, 2)

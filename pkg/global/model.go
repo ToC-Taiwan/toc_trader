@@ -12,4 +12,7 @@ type AnalyzeCondition struct {
 	OpenChangeRatio      float64
 	RsiHigh              int64
 	RsiLow               int64
+	TicksPeriodThreshold float64
+	TicksPeriodLimit     float64
+	TicksPeriodCount     int
 }
