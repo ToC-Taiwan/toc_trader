@@ -14,7 +14,6 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/choosetarget"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/entiretickprocess"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/fetchentiretick"
-	"gitlab.tocraw.com/root/toc_trader/pkg/modules/importbasic"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot"
 	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 )
@@ -28,6 +27,17 @@ func Simulate() {
 	if err != nil {
 		logger.Logger.Error(err)
 		return
+	}
+	fmt.Print("Use global trade date?(y/n): ")
+	reader := bufio.NewReader(os.Stdin)
+	ans, err := reader.ReadString('\n')
+	if err != nil {
+		panic(err)
+	}
+	if ans == "n\n" {
+		lastLast := time.Date(2021, 9, 23, 0, 0, 0, 0, time.UTC)
+		last := time.Date(2021, 9, 24, 0, 0, 0, 0, time.UTC)
+		global.LastTradeDayArr = []time.Time{lastLast, last}
 	}
 	logger.Logger.Infof("Simulate %d stock", len(targetArr))
 	if err := choosetarget.UpdateStockCloseMapByDate(targetArr, global.LastTradeDayArr); err != nil {
@@ -62,12 +72,7 @@ func SearchBuyPoint(targetArr []string, cond global.AnalyzeCondition) map[string
 		ch := make(chan *entiretick.EntireTick)
 		saveCh := make(chan []*entiretick.EntireTick)
 
-		lastTradeDay, err := importbasic.GetLastTradeDayByDate(global.LastTradeDay.Format(global.ShortTimeLayout))
-		if err != nil {
-			panic(err)
-		}
-
-		lastClose := global.StockCloseByDateMap.GetClose(stockNum, lastTradeDay.Format(global.ShortTimeLayout))
+		lastClose := global.StockCloseByDateMap.GetClose(stockNum, global.LastTradeDayArr[0].Format(global.ShortTimeLayout))
 		if lastClose != 0 {
 			go entiretickprocess.TickProcess(stockNum, lastClose, cond, ch, &wg, saveCh, true, &simulateAnalyzeEntireMap)
 		} else {
@@ -214,28 +219,30 @@ func getBestCond(targetArr []string) {
 		conds = append(conds, global.TickAnalyzeCondition)
 	} else {
 		for j := 500; j >= 300; j -= 100 {
-			for l := 300; l >= 150; l -= 50 {
+			for l := 200; l >= 150; l -= 50 {
 				for m := 70; m >= 55; m -= 5 {
 					for n := -3; n <= -1; n++ {
 						for k := 7; k >= 5; k-- {
-							for i := 30; i <= 50; i += 5 {
-								for o := 5; o <= 20; o += 5 {
-									for p := 1; p <= 4; p++ {
-										cond := global.AnalyzeCondition{
-											HistoryCloseCount:    int64(j),
-											OutSum:               int64(l),
-											OutInRatio:           float64(m),
-											CloseDiff:            0,
-											CloseChangeRatioLow:  float64(n),
-											CloseChangeRatioHigh: float64(k),
-											OpenChangeRatio:      float64(k),
-											RsiHigh:              int64(i) + 5,
-											RsiLow:               int64(i),
-											TicksPeriodThreshold: float64(o),
-											TicksPeriodLimit:     float64(o) * 1.3,
-											TicksPeriodCount:     p,
+							for i := 40; i <= 55; i += 5 {
+								for z := 5; z <= 25; z += 5 {
+									for o := 10; o <= 20; o += 5 {
+										for p := 1; p <= 4; p++ {
+											cond := global.AnalyzeCondition{
+												HistoryCloseCount:    int64(j),
+												OutSum:               int64(l),
+												OutInRatio:           float64(m),
+												CloseDiff:            0,
+												CloseChangeRatioLow:  float64(n),
+												CloseChangeRatioHigh: float64(k),
+												OpenChangeRatio:      float64(k),
+												RsiHigh:              int64(i + z),
+												RsiLow:               int64(i),
+												TicksPeriodThreshold: float64(o),
+												TicksPeriodLimit:     float64(o) * 1.3,
+												TicksPeriodCount:     p,
+											}
+											conds = append(conds, cond)
 										}
-										conds = append(conds, cond)
 									}
 								}
 							}

@@ -6,10 +6,10 @@ rm go.sum
 go mod init gitlab.tocraw.com/root/toc_trader
 go mod tidy
 
-python ./scripts/master_mod.py
+# python ./scripts/master_mod.py
 
-rm go.mod
-rm go.sum
+# rm go.mod
+# rm go.sum
 
-mv temp_go.mod go.mod
-go mod tidy
+# mv temp_go.mod go.mod
+# go mod tidy

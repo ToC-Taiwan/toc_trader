@@ -23,18 +23,18 @@ func init() {
 	global.MeanTimeTradeStockNum = 8
 
 	global.TickAnalyzeCondition = global.AnalyzeCondition{
-		HistoryCloseCount:    500,
-		OutSum:               200,
-		OutInRatio:           60,
+		HistoryCloseCount:    400,
+		OutSum:               150,
+		OutInRatio:           70,
 		CloseDiff:            0,
 		CloseChangeRatioLow:  -3,
 		CloseChangeRatioHigh: 5,
 		OpenChangeRatio:      5,
-		RsiHigh:              55,
+		RsiHigh:              60,
 		RsiLow:               50,
-		TicksPeriodThreshold: 20,
-		TicksPeriodLimit:     26,
-		TicksPeriodCount:     3,
+		TicksPeriodThreshold: 10,
+		TicksPeriodLimit:     13,
+		TicksPeriodCount:     4,
 	}
 
 	if err := importbasic.ImportHoliday(); err != nil {

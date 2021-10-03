@@ -49,63 +49,10 @@ git check-ignore *
 ### Simulation
 
 ```log
-WARN[2021/09/30 16:00:51] Balance: -475, Stock: 6182, Name: 合晶, Total Time: 1720
-WARN[2021/09/30 16:00:51] Balance: -274, Stock: 2303, Name: 聯電, Total Time: 467
-WARN[2021/09/30 16:00:51] Balance: 611, Stock: 2436, Name: 偉詮電, Total Time: 529
-WARN[2021/09/30 16:00:51] Balance: 418, Stock: 2606, Name: 裕民, Total Time: 1029
-WARN[2021/09/30 16:00:51] Balance: 472, Stock: 6217, Name: 中探針, Total Time: 230
-WARN[2021/09/30 16:00:51] Balance: 459, Stock: 2486, Name: 一詮, Total Time: 811
 WARN[2021/09/30 16:00:51] Total Balance: 1211, TradeCount: 6, Cond: {500 150 55 0 -3 5 5 50 50}
-```
-
-```log
-WARN[2021/10/01 03:10:33] Balance: -361, Stock: 1513, Name: 中興電, Total Time: 745
-WARN[2021/10/01 03:10:33] Balance: 35, Stock: 2601, Name: 益航, Total Time: 3992
-WARN[2021/10/01 03:10:33] Balance: -117, Stock: 9103, Name: 美德醫療-DR, Total Time: 476
-WARN[2021/10/01 03:10:33] Balance: 135, Stock: 2344, Name: 華邦電, Total Time: 645
-WARN[2021/10/01 03:10:33] Balance: 243, Stock: 2504, Name: 國產, Total Time: 567
-WARN[2021/10/01 03:10:33] Balance: 564, Stock: 2641, Name: 正德, Total Time: 412
-WARN[2021/10/01 03:10:33] Balance: 140, Stock: 1440, Name: 南紡, Total Time: 77
-WARN[2021/10/01 03:10:33] Balance: 104, Stock: 1718, Name: 中纖, Total Time: 376
-WARN[2021/10/01 03:10:33] Balance: -123, Stock: 2610, Name: 華航, Total Time: 775
-WARN[2021/10/01 03:10:33] Balance: -190, Stock: 2371, Name: 大同, Total Time: 960
-WARN[2021/10/01 03:10:33] Balance: 248, Stock: 1444, Name: 力麗, Total Time: 157
-WARN[2021/10/01 03:10:33] Balance: -60, Stock: 2605, Name: 新興, Total Time: 497
-WARN[2021/10/01 03:10:33] Balance: -610, Stock: 1308, Name: 亞聚, Total Time: 159
-WARN[2021/10/01 03:10:33] Balance: 114, Stock: 1734, Name: 杏輝, Total Time: 81
-WARN[2021/10/01 03:10:33] Balance: -151, Stock: 1305, Name: 華夏, Total Time: 87
-WARN[2021/10/01 03:10:33] Balance: 52, Stock: 1710, Name: 東聯, Total Time: 127
-WARN[2021/10/01 03:10:33] Balance: -228, Stock: 1802, Name: 台玻, Total Time: 2039
-WARN[2021/10/01 03:10:33] Balance: 49, Stock: 2406, Name: 國碩, Total Time: 1449
-WARN[2021/10/01 03:10:33] Balance: 20, Stock: 2618, Name: 長榮航, Total Time: 664
-WARN[2021/10/01 03:10:33] Balance: -179, Stock: 2409, Name: 友達, Total Time: 126
-WARN[2021/10/01 03:10:33] Balance: -42, Stock: 1409, Name: 新纖, Total Time: 245
-WARN[2021/10/01 03:10:33] Balance: 93, Stock: 1711, Name: 永光, Total Time: 628
-WARN[2021/10/01 03:10:33] Balance: 154, Stock: 2027, Name: 大成鋼, Total Time: 2032
-WARN[2021/10/01 03:10:33] Balance: 38, Stock: 1905, Name: 華紙, Total Time: 299
-WARN[2021/10/01 03:10:33] Balance: 171, Stock: 2023, Name: 燁輝, Total Time: 355
-WARN[2021/10/01 03:10:33] Balance: -37, Stock: 6126, Name: 信音, Total Time: 791
-WARN[2021/10/01 03:10:33] Balance: 313, Stock: 1455, Name: 集盛, Total Time: 107
-WARN[2021/10/01 03:10:33] Balance: -26, Stock: 3481, Name: 群創, Total Time: 39
-WARN[2021/10/01 03:10:33] Balance: 662, Stock: 4141, Name: 龍燈-KY, Total Time: 250
-WARN[2021/10/01 03:10:33] Balance: 76, Stock: 3033, Name: 威健, Total Time: 987
-WARN[2021/10/01 03:10:33] Balance: -153, Stock: 2002, Name: 中鋼, Total Time: 352
-WARN[2021/10/01 03:10:33] Balance: -42, Stock: 3062, Name: 建漢, Total Time: 176
-WARN[2021/10/01 03:10:33] Balance: -216, Stock: 6116, Name: 彩晶, Total Time: 2720
 WARN[2021/10/01 03:10:33] Total Balance: 676, TradeCount: 33, Cond: {400 150 55 0 -1 7 7 45 55}
-```
-
-```log
-WARN[2021/10/01 03:49:41] Balance: -293, Stock: 2408, Name: 南亞科, Total Time: 329
-WARN[2021/10/01 03:49:41] Balance: 225, Stock: 6182, Name: 合晶, Total Time: 779
-WARN[2021/10/01 03:49:41] Balance: 95, Stock: 2436, Name: 偉詮電, Total Time: 58
-WARN[2021/10/01 03:49:41] Balance: -81, Stock: 2606, Name: 裕民, Total Time: 493
-WARN[2021/10/01 03:49:41] Balance: 217, Stock: 2368, Name: 金像電, Total Time: 1788
-WARN[2021/10/01 03:49:41] Balance: 472, Stock: 6217, Name: 中探針, Total Time: 123
-WARN[2021/10/01 03:49:41] Balance: 559, Stock: 2486, Name: 一詮, Total Time: 795
-WARN[2021/10/01 03:49:41] Balance: -272, Stock: 2303, Name: 聯電, Total Time: 436
-WARN[2021/10/01 03:49:41] Balance: 92, Stock: 2354, Name: 鴻準, Total Time: 117
 WARN[2021/10/01 03:49:41] Total Balance: 1014, TradeCount: 9, Cond: {500 150 55 0 -3 5 5 45 55 5 6.5 4}
+WARN[2021/10/01 04:48:41] Total Balance: 5163, TradeCount: 4, Cond: {500 200 60 0 -3 5 5 55 50 20 26 3}
 ```
 
 ### Trade Bot Service

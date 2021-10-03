@@ -42,6 +42,7 @@ func BuyBot(ch chan *analyzestreamtick.AnalyzeStreamTick) {
 		if !IsBuyPoint(analyzeTick, global.TickAnalyzeCondition) {
 			continue
 		}
+
 		tickTime := time.Unix(0, analyzeTick.TimeStamp).Local().Format(global.LongTimeLayout)
 		replaceDate := tickTime[:10]
 		clockTime := tickTime[11:19]
