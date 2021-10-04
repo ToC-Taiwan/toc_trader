@@ -59,7 +59,7 @@ func Simulate() {
 }
 
 // SearchBuyPoint SearchBuyPoint
-func SearchBuyPoint(targetArr []string, cond global.AnalyzeCondition) map[string]analyzeentiretick.AnalyzeEntireTick {
+func SearchBuyPoint(targetArr []string, cond global.AnalyzeCondition) []map[string]analyzeentiretick.AnalyzeEntireTick {
 	var simulateAnalyzeEntireMap entiretickprocess.AnalyzeEntireTickMap
 	var wg sync.WaitGroup
 	for _, stockNum := range targetArr {
@@ -87,26 +87,33 @@ func SearchBuyPoint(targetArr []string, cond global.AnalyzeCondition) map[string
 	}
 	wg.Wait()
 	buyPointMap := make(map[string]analyzeentiretick.AnalyzeEntireTick)
+	sellFirstPointMap := make(map[string]analyzeentiretick.AnalyzeEntireTick)
 	allPoint := simulateAnalyzeEntireMap.GetAllTicks()
 	for _, v := range allPoint {
 		tmp := v.ToAnalyzeStreamTick()
+		tickTimeUnix := time.Unix(0, tmp.TimeStamp)
+		lastTime := time.Date(tickTimeUnix.Year(), tickTimeUnix.Month(), tickTimeUnix.Day(), 13, 0, 0, 0, time.Local)
 		if tradebot.IsBuyPoint(tmp, cond) {
-			tickTimeUnix := time.Unix(0, tmp.TimeStamp)
-			lastTime := time.Date(tickTimeUnix.Year(), tickTimeUnix.Month(), tickTimeUnix.Day(), 13, 0, 0, 0, time.Local)
 			if _, ok := buyPointMap[v.StockNum]; !ok && tickTimeUnix.Before(lastTime) {
 				buyPointMap[v.StockNum] = *v
 			}
+		} else if tradebot.IsSellFirstPoint(tmp, cond) {
+			if _, ok := buyPointMap[v.StockNum]; !ok {
+				if _, ok := sellFirstPointMap[v.StockNum]; !ok {
+					sellFirstPointMap[v.StockNum] = *v
+				}
+			}
 		}
 	}
-	return buyPointMap
+	return []map[string]analyzeentiretick.AnalyzeEntireTick{buyPointMap, sellFirstPointMap}
 }
 
 // GetBalance GetBalance
-func GetBalance(analyzeMap map[string]analyzeentiretick.AnalyzeEntireTick, cond global.AnalyzeCondition, training bool, wg *sync.WaitGroup) {
+func GetBalance(analyzeMap []map[string]analyzeentiretick.AnalyzeEntireTick, cond global.AnalyzeCondition, training bool, wg *sync.WaitGroup) {
 	defer wg.Done()
 	sellTimeStamp := make(map[string]int64)
 	var balance int64
-	for stockNum, v := range analyzeMap {
+	for stockNum, v := range analyzeMap[0] {
 		ticks := allTickMap.getAllTicksByStockNum(stockNum)
 		if len(ticks) == 0 {
 			logger.Logger.Errorf("%s has no ticks", stockNum)
@@ -138,7 +145,44 @@ func GetBalance(analyzeMap map[string]analyzeentiretick.AnalyzeEntireTick, cond 
 			sellCost := tradebot.GetStockSellCost(sellPrice, global.OneTimeQuantity)
 			balance += (sellCost - buyCost)
 			if !training {
-				logger.Logger.Warnf("Balance: %d, Stock: %s, Name: %s, Total Time: %d", sellCost-buyCost, v.StockNum, global.AllStockNameMap.GetName(v.StockNum), (sellTimeStamp[v.StockNum]-v.TimeStamp)/1000/1000/1000)
+				logger.Logger.Warnf("Forward Balance: %d, Stock: %s, Name: %s, Total Time: %d", sellCost-buyCost, v.StockNum, global.AllStockNameMap.GetName(v.StockNum), (sellTimeStamp[v.StockNum]-v.TimeStamp)/1000/1000/1000)
+			}
+		}
+	}
+	sellTimeStamp = make(map[string]int64)
+	for stockNum, v := range analyzeMap[1] {
+		ticks := allTickMap.getAllTicksByStockNum(stockNum)
+		if len(ticks) == 0 {
+			logger.Logger.Errorf("%s has no ticks", stockNum)
+			continue
+		}
+		var historyClose []float64
+		var sellFirstPrice, buyLaterPrice float64
+		for _, k := range ticks {
+			historyClose = append(historyClose, k.Close)
+			if len(historyClose) > int(cond.HistoryCloseCount) {
+				historyClose = historyClose[1:]
+			}
+			if k.TimeStamp == v.TimeStamp && sellFirstPrice == 0 {
+				historyClose = []float64{}
+				sellFirstPrice = k.Close
+			}
+			if sellFirstPrice != 0 {
+				buyLaterPrice = tradebot.GetBuyLaterPrice(k.ToStreamTick(), time.Unix(0, v.TimeStamp).Add(-8*time.Hour), historyClose, sellFirstPrice, cond)
+				if buyLaterPrice != 0 {
+					sellTimeStamp[k.StockNum] = k.TimeStamp
+					break
+				}
+			}
+		}
+		if buyLaterPrice == 0 {
+			logger.Logger.Warnf("%s no buy later point", stockNum)
+		} else {
+			buyCost := tradebot.GetStockBuyCost(buyLaterPrice, global.OneTimeQuantity)
+			sellCost := tradebot.GetStockSellCost(sellFirstPrice, global.OneTimeQuantity)
+			balance += (sellCost - buyCost)
+			if !training {
+				logger.Logger.Warnf("Reverse Balance: %d, Stock: %s, Name: %s, Total Time: %d", sellCost-buyCost, v.StockNum, global.AllStockNameMap.GetName(v.StockNum), (sellTimeStamp[v.StockNum]-v.TimeStamp)/1000/1000/1000)
 			}
 		}
 	}
@@ -149,7 +193,7 @@ func GetBalance(analyzeMap map[string]analyzeentiretick.AnalyzeEntireTick, cond 
 	if training {
 		resultChan <- tmp
 	} else {
-		logger.Logger.Warnf("Total Balance: %d, TradeCount: %d, Cond: %v", balance, len(analyzeMap), cond)
+		logger.Logger.Warnf("Total Balance: %d, TradeCount: %d, Cond: %v", balance, len(analyzeMap[0])+len(analyzeMap[1]), cond)
 	}
 }
 
@@ -192,14 +236,14 @@ func catchResult(targetArr []string) {
 			break
 		}
 		count++
-		if count%100 == 0 {
-			logger.Logger.Warnf("Finished: %d, Time: %d", count, int(time.Now().Unix())-timestamp)
-			timestamp = int(time.Now().Unix())
-		}
 		if tmp.balance == 0 {
 			tmp = result
 		} else if result.balance > tmp.balance {
 			tmp = result
+		}
+		if count%100 == 0 {
+			logger.Logger.Warnf("Finished: %d, Time: %d, Best: %d", count, int(time.Now().Unix())-timestamp, tmp.balance)
+			timestamp = int(time.Now().Unix())
 		}
 	}
 }

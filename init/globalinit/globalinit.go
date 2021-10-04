@@ -17,24 +17,29 @@ func init() {
 	global.PyServerHost = sysparminit.GlobalSettings.GetPyServerHost()
 	global.PyServerPort = sysparminit.GlobalSettings.GetPyServerPort()
 
-	global.EnableBuy = true
-	global.EnableSell = true
-	global.UseBidAsk = false
-	global.MeanTimeTradeStockNum = 8
+	global.TradeSwitch = global.SystemSwitch{
+		Buy:                          true,
+		Sell:                         true,
+		SellFirst:                    true,
+		BuyLater:                     true,
+		UseBidAsk:                    false,
+		MeanTimeTradeStockNum:        3,
+		MeanTimeReverseTradeStockNum: 3,
+	}
 
 	global.TickAnalyzeCondition = global.AnalyzeCondition{
 		HistoryCloseCount:    400,
-		OutSum:               150,
+		OutSum:               200,
 		OutInRatio:           70,
 		CloseDiff:            0,
 		CloseChangeRatioLow:  -3,
-		CloseChangeRatioHigh: 5,
-		OpenChangeRatio:      5,
-		RsiHigh:              60,
-		RsiLow:               50,
+		CloseChangeRatioHigh: 7,
+		OpenChangeRatio:      7,
+		RsiHigh:              45,
+		RsiLow:               40,
 		TicksPeriodThreshold: 10,
 		TicksPeriodLimit:     13,
-		TicksPeriodCount:     4,
+		TicksPeriodCount:     2,
 	}
 
 	if err := importbasic.ImportHoliday(); err != nil {
@@ -72,7 +77,8 @@ func init() {
 		"LastTradeDay":     global.LastTradeDay.Format(global.ShortTimeLayout),
 		"LastLastTradeDay": global.LastLastTradeDay.Format(global.ShortTimeLayout),
 	}).Info("Last Trade Days")
+
 	logger.Logger.WithFields(map[string]interface{}{
 		"TradeDayEndTime": global.TradeDayEndTime.Format(global.LongTimeLayout),
-	}).Info("Trade Time")
+	}).Info("Trade End Time")
 }

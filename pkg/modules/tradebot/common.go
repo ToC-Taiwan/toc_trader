@@ -14,10 +14,13 @@ func PlaceOrder(action OrderAction, stockNum string, stockQuantity int64, stockP
 		return returnOrder, errors.New("PlaceOrder input error")
 	}
 	var url string
-	if action == BuyAction {
+	switch action {
+	case BuyAction:
 		url = "/pyapi/trade/buy"
-	} else if action == SellAction {
+	case SellAction:
 		url = "/pyapi/trade/sell"
+	case SellFirstAction:
+		url = "/pyapi/trade/sell_first"
 	}
 	order := OrderBody{
 		Stock:    stockNum,

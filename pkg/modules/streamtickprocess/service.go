@@ -19,9 +19,11 @@ func TickProcess(lastClose float64, cond global.AnalyzeCondition, ch chan *strea
 	}
 	buyChan := make(chan *analyzestreamtick.AnalyzeStreamTick)
 	sellChan := make(chan *streamtick.StreamTick)
+	buyLaterChan := make(chan *streamtick.StreamTick)
 	// analyzeChan := make(chan *analyzestreamtick.AnalyzeStreamTick)
 	go tradebot.BuyBot(buyChan)
 	go tradebot.SellBot(sellChan)
+	go tradebot.BuyLaterBot(buyLaterChan)
 	// go AnalyzeStreamTickSaver(analyzeChan)
 
 	var input quote.Quote
@@ -30,8 +32,11 @@ func TickProcess(lastClose float64, cond global.AnalyzeCondition, ch chan *strea
 	var lastSaveLastClose float64
 	for {
 		tick := <-ch
-		if tradebot.BuyOrderMap.CheckStockExist(tick.StockNum) {
+		if tradebot.FilledBuyOrderMap.CheckStockExist(tick.StockNum) {
 			sellChan <- tick
+		}
+		if tradebot.FilledSellFirstOrderMap.CheckStockExist(tick.StockNum) {
+			buyLaterChan <- tick
 		}
 		tmpArr = append(tmpArr, tick)
 		if tmpArr.GetTotalTime() < cond.TicksPeriodThreshold {

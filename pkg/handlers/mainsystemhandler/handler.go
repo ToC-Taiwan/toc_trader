@@ -66,15 +66,15 @@ func UpdateTradeBotCondition(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, res)
 		return
 	}
-	global.EnableBuy = req.EnableBuy
-	global.EnableSell = req.EnableSell
-	global.UseBidAsk = req.UseBidAsk
-	global.MeanTimeTradeStockNum = req.MeanTimeTradeStockNum
+	global.TradeSwitch.Buy = req.EnableBuy
+	global.TradeSwitch.Sell = req.EnableSell
+	global.TradeSwitch.UseBidAsk = req.UseBidAsk
+	global.TradeSwitch.MeanTimeTradeStockNum = req.MeanTimeTradeStockNum
 	logger.Logger.WithFields(map[string]interface{}{
-		"EnableBuy":             global.EnableBuy,
-		"EnableSell":            global.EnableSell,
-		"UseBidAsk":             global.UseBidAsk,
-		"MeanTimeTradeStockNum": global.MeanTimeTradeStockNum,
+		"EnableBuy":             global.TradeSwitch.Buy,
+		"EnableSell":            global.TradeSwitch.Sell,
+		"UseBidAsk":             global.TradeSwitch.UseBidAsk,
+		"MeanTimeTradeStockNum": global.TradeSwitch.MeanTimeTradeStockNum,
 	}).Info("Trade Switch Status")
 	c.JSON(http.StatusOK, nil)
 }
@@ -88,10 +88,10 @@ func UpdateTradeBotCondition(c *gin.Context) {
 // @Router /system/trade/switch [get]
 func GetTradeBotCondition(c *gin.Context) {
 	data := UpdateTradeBotConditionBody{
-		EnableBuy:             global.EnableBuy,
-		EnableSell:            global.EnableSell,
-		UseBidAsk:             global.UseBidAsk,
-		MeanTimeTradeStockNum: global.MeanTimeTradeStockNum,
+		EnableBuy:             global.TradeSwitch.Buy,
+		EnableSell:            global.TradeSwitch.Sell,
+		UseBidAsk:             global.TradeSwitch.UseBidAsk,
+		MeanTimeTradeStockNum: global.TradeSwitch.MeanTimeTradeStockNum,
 	}
 	c.JSON(http.StatusOK, data)
 }

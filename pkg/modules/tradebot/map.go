@@ -8,13 +8,13 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/traderecord"
 )
 
-type tradeRecordMutexStruct struct {
+type tradeRecordMutexMap struct {
 	tMap  map[string]traderecord.TradeRecord
 	mutex sync.RWMutex
 }
 
 // Set Set
-func (c *tradeRecordMutexStruct) Set(record traderecord.TradeRecord) {
+func (c *tradeRecordMutexMap) Set(record traderecord.TradeRecord) {
 	if c.tMap == nil {
 		c.tMap = make(map[string]traderecord.TradeRecord)
 	}
@@ -24,7 +24,7 @@ func (c *tradeRecordMutexStruct) Set(record traderecord.TradeRecord) {
 }
 
 // Delete Delete
-func (c *tradeRecordMutexStruct) Delete(stockNum string) {
+func (c *tradeRecordMutexMap) Delete(stockNum string) {
 	if c.tMap == nil {
 		c.tMap = make(map[string]traderecord.TradeRecord)
 	}
@@ -34,7 +34,7 @@ func (c *tradeRecordMutexStruct) Delete(stockNum string) {
 }
 
 // GetAll GetAll
-func (c *tradeRecordMutexStruct) GetAll() map[string]traderecord.TradeRecord {
+func (c *tradeRecordMutexMap) GetAll() map[string]traderecord.TradeRecord {
 	var tmp map[string]traderecord.TradeRecord
 	if c.tMap == nil {
 		c.tMap = make(map[string]traderecord.TradeRecord)
@@ -46,7 +46,7 @@ func (c *tradeRecordMutexStruct) GetAll() map[string]traderecord.TradeRecord {
 }
 
 // GetCount GetCount
-func (c *tradeRecordMutexStruct) GetCount() int {
+func (c *tradeRecordMutexMap) GetCount() int {
 	var tmp int
 	if c.tMap == nil {
 		c.tMap = make(map[string]traderecord.TradeRecord)
@@ -58,7 +58,7 @@ func (c *tradeRecordMutexStruct) GetCount() int {
 }
 
 // GetOrderID GetOrderID
-func (c *tradeRecordMutexStruct) GetOrderID(stockNum string) string {
+func (c *tradeRecordMutexMap) GetOrderID(stockNum string) string {
 	var tmp string
 	if c.tMap == nil {
 		c.tMap = make(map[string]traderecord.TradeRecord)
@@ -70,7 +70,7 @@ func (c *tradeRecordMutexStruct) GetOrderID(stockNum string) string {
 }
 
 // GetTradeTime GetTradeTime
-func (c *tradeRecordMutexStruct) GetTradeTime(stockNum string) time.Time {
+func (c *tradeRecordMutexMap) GetTradeTime(stockNum string) time.Time {
 	var tmp time.Time
 	if c.tMap == nil {
 		c.tMap = make(map[string]traderecord.TradeRecord)
@@ -82,7 +82,7 @@ func (c *tradeRecordMutexStruct) GetTradeTime(stockNum string) time.Time {
 }
 
 // CheckStockExist CheckStockExist
-func (c *tradeRecordMutexStruct) CheckStockExist(stockNum string) bool {
+func (c *tradeRecordMutexMap) CheckStockExist(stockNum string) bool {
 	var tmp bool
 	if c.tMap == nil {
 		c.tMap = make(map[string]traderecord.TradeRecord)
@@ -96,7 +96,7 @@ func (c *tradeRecordMutexStruct) CheckStockExist(stockNum string) bool {
 }
 
 // GetClose GetClose
-func (c *tradeRecordMutexStruct) GetClose(stockNum string) float64 {
+func (c *tradeRecordMutexMap) GetClose(stockNum string) float64 {
 	var tmp float64
 	if c.tMap == nil {
 		c.tMap = make(map[string]traderecord.TradeRecord)
@@ -107,7 +107,7 @@ func (c *tradeRecordMutexStruct) GetClose(stockNum string) float64 {
 	return tmp
 }
 
-func (c *tradeRecordMutexStruct) GetTotalBuyCost() int64 {
+func (c *tradeRecordMutexMap) GetTotalBuyCost() int64 {
 	if c.tMap == nil {
 		c.tMap = make(map[string]traderecord.TradeRecord)
 	}
@@ -120,7 +120,7 @@ func (c *tradeRecordMutexStruct) GetTotalBuyCost() int64 {
 	return cost
 }
 
-func (c *tradeRecordMutexStruct) GetTotalSellCost() int64 {
+func (c *tradeRecordMutexMap) GetTotalSellCost() int64 {
 	if c.tMap == nil {
 		c.tMap = make(map[string]traderecord.TradeRecord)
 	}
@@ -133,7 +133,7 @@ func (c *tradeRecordMutexStruct) GetTotalSellCost() int64 {
 	return cost
 }
 
-func (c *tradeRecordMutexStruct) GetTotalCostBack() int64 {
+func (c *tradeRecordMutexMap) GetTotalCostBack() int64 {
 	if c.tMap == nil {
 		c.tMap = make(map[string]traderecord.TradeRecord)
 	}

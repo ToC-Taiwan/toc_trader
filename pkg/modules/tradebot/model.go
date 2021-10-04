@@ -21,4 +21,6 @@ const (
 	BuyAction OrderAction = iota + 1
 	// SellAction SellAction
 	SellAction
+	// SellFirstAction SellFirstAction
+	SellFirstAction
 )

@@ -55,23 +55,14 @@ var PyServerHost string
 // PyServerPort PyServerPort
 var PyServerPort string
 
+// TradeSwitch TradeSwitch
+var TradeSwitch SystemSwitch
+
 // AllStockNameMap AllStockNameMap
 var AllStockNameMap stringStringMutex
 
 // StockCloseByDateMap StockCloseByDateMap
 var StockCloseByDateMap stringStringFloat64Mutex
-
-// EnableBuy EnableBuy
-var EnableBuy bool
-
-// EnableSell EnableSell
-var EnableSell bool
-
-// UseBidAsk UseBidAsk
-var UseBidAsk bool
-
-// MeanTimeTradeStockNum MeanTimeTradeStockNum
-var MeanTimeTradeStockNum int
 
 // TickAnalyzeCondition TickAnalyzeCondition
 var TickAnalyzeCondition AnalyzeCondition

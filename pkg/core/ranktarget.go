@@ -15,11 +15,12 @@ func addRankTarget() {
 		if !checkIsOpenTime() {
 			continue
 		}
-		if choosetarget.TSE001.ChangeRate < -1 && global.EnableBuy {
-			global.EnableBuy = false
+
+		if choosetarget.TSE001.ChangeRate < -1 && global.TradeSwitch.Buy {
+			global.TradeSwitch.Buy = false
 			logger.Logger.Warn("TSE001 too low, enable buy is off")
-		} else if choosetarget.TSE001.ChangeRate > -1 && !global.EnableBuy {
-			global.EnableBuy = true
+		} else if choosetarget.TSE001.ChangeRate > -1 && !global.TradeSwitch.Buy {
+			global.TradeSwitch.Buy = true
 			logger.Logger.Warn("TSE001 is back, enable buy is on")
 		}
 		var count int

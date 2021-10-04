@@ -15,33 +15,39 @@ import (
 )
 
 // BuyOrderMap BuyOrderMap
-var BuyOrderMap tradeRecordMutexStruct
+var BuyOrderMap tradeRecordMutexMap
 
 // SellOrderMap SellOrderMap
-var SellOrderMap tradeRecordMutexStruct
+var SellOrderMap tradeRecordMutexMap
 
 // FilledBuyOrderMap FilledBuyOrderMap
-var FilledBuyOrderMap tradeRecordMutexStruct
+var FilledBuyOrderMap tradeRecordMutexMap
 
 // FilledSellOrderMap FilledSellOrderMap
-var FilledSellOrderMap tradeRecordMutexStruct
+var FilledSellOrderMap tradeRecordMutexMap
 
 // ManualSellMap ManualSellMap
-var ManualSellMap tradeRecordMutexStruct
+var ManualSellMap tradeRecordMutexMap
 
 // BuyBot BuyBot
 func BuyBot(ch chan *analyzestreamtick.AnalyzeStreamTick) {
 	for {
 		analyzeTick := <-ch
+		if checkInBuyMap(analyzeTick.StockNum) || checkInSellFirstMap(analyzeTick.StockNum) {
+			continue
+		}
+		if !IsBuyPoint(analyzeTick, global.TickAnalyzeCondition) {
+			if IsSellFirstPoint(analyzeTick, global.TickAnalyzeCondition) {
+				go SellFirstBot(analyzeTick)
+			}
+			continue
+		}
+
 		name := global.AllStockNameMap.GetName(analyzeTick.StockNum)
 		outSum := analyzeTick.OutSum
 		inSum := analyzeTick.InSum
 		closeChangeRatio := analyzeTick.CloseChangeRatio
 		outInRatio := analyzeTick.OutInRatio
-
-		if !IsBuyPoint(analyzeTick, global.TickAnalyzeCondition) {
-			continue
-		}
 
 		tickTime := time.Unix(0, analyzeTick.TimeStamp).Local().Format(global.LongTimeLayout)
 		replaceDate := tickTime[:10]
@@ -56,8 +62,7 @@ func BuyBot(ch chan *analyzestreamtick.AnalyzeStreamTick) {
 		}).Infof("StreamTick Analyze: %s %s %s", replaceDate, clockTime, analyzeTick.StockNum)
 
 		buyCost := GetStockBuyCost(analyzeTick.Close, global.OneTimeQuantity)
-		if global.EnableBuy && !FilledBuyOrderMap.CheckStockExist(analyzeTick.StockNum) && BuyOrderMap.GetCount() < global.MeanTimeTradeStockNum &&
-			!BuyOrderMap.CheckStockExist(analyzeTick.StockNum) && TradeQuota-buyCost > 0 {
+		if global.TradeSwitch.Buy && BuyOrderMap.GetCount() < global.TradeSwitch.MeanTimeTradeStockNum && TradeQuota-buyCost > 0 {
 			if order, err := PlaceOrder(BuyAction, analyzeTick.StockNum, global.OneTimeQuantity, analyzeTick.Close); err != nil {
 				logger.Logger.WithFields(map[string]interface{}{
 					"Msg":      err,
@@ -78,7 +83,6 @@ func BuyBot(ch chan *analyzestreamtick.AnalyzeStreamTick) {
 				}
 				BuyOrderMap.Set(record)
 				go CheckBuyOrderStatus(record)
-
 				continue
 			}
 			logger.Logger.Warn("Buy Order is failed")
@@ -89,13 +93,6 @@ func BuyBot(ch chan *analyzestreamtick.AnalyzeStreamTick) {
 // IsBuyPoint IsBuyPoint
 func IsBuyPoint(analyzeTick *analyzestreamtick.AnalyzeStreamTick, cond global.AnalyzeCondition) bool {
 	closeChangeRatio := analyzeTick.CloseChangeRatio
-	// if global.UseBidAsk {
-	// 	lastBidAsk := bidaskprocess.TmpBidAskMap.GetLastOneByStockNum(analyzeTick.StockNum)
-	// 	if !lastBidAsk.IsBestBid() {
-	// 		logger.Logger.Warn("Not best bid")
-	// 		return false
-	// 	}
-	// }
 	if analyzeTick.OpenChangeRatio > cond.OpenChangeRatio || closeChangeRatio < cond.CloseChangeRatioLow || closeChangeRatio > cond.CloseChangeRatioHigh {
 		return false
 	}
@@ -122,7 +119,7 @@ func SellBot(ch chan *streamtick.StreamTick) {
 			logger.Logger.Error(err)
 			continue
 		}
-		if filled && !SellOrderMap.CheckStockExist(tick.StockNum) && global.EnableSell {
+		if filled && !SellOrderMap.CheckStockExist(tick.StockNum) && global.TradeSwitch.Sell {
 			originalOrderClose := BuyOrderMap.GetClose(tick.StockNum)
 			sellPrice := GetSellPrice(tick, BuyOrderMap.GetTradeTime(tick.StockNum), historyClose, originalOrderClose, global.TickAnalyzeCondition)
 			if sellPrice == 0 {
@@ -293,4 +290,8 @@ func CheckSellOrderStatus(record traderecord.TradeRecord) {
 			return
 		}
 	}
+}
+
+func checkInBuyMap(stockNum string) bool {
+	return FilledBuyOrderMap.CheckStockExist(stockNum) || BuyOrderMap.CheckStockExist(stockNum)
 }
