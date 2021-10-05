@@ -18,6 +18,7 @@ type AnalyzeStreamTick struct {
 	CloseChangeRatio float64 `gorm:"column:close_change_ratio"`
 	OutSum           int64   `gorm:"column:out_sum"`
 	InSum            int64   `gorm:"column:in_sum"`
+	Volume           int64   `gorm:"column:volume"`
 	OutInRatio       float64 `gorm:"column:out_in_ratio"`
 	TotalTime        float64 `gorm:"column:total_time"`
 	CloseDiff        float64 `gorm:"column:close_diff"`

@@ -106,6 +106,7 @@ func TickProcess(stockNum string, lastClose float64, cond global.AnalyzeConditio
 				Open:             open,
 				High:             high,
 				Low:              low,
+				Volume:           outSum + inSum,
 			}
 			analyzeChan <- &analyze
 			// if unSavedTicksInOutRatio >= cond.OutInRatio && outSum >= cond.OutSum && closeDiff > cond.CloseDiff {

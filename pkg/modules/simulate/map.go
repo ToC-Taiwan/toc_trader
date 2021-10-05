@@ -33,3 +33,15 @@ func (c *entireTickMap) getAllTicksByStockNum(stockNum string) []entiretick.Enti
 	c.mutex.Unlock()
 	return tmp
 }
+
+// saveByStockNum saveByStockNum
+func (c *entireTickMap) getAllTicksMap() map[string][]entiretick.EntireTick {
+	var tmp map[string][]entiretick.EntireTick
+	if c.tickMap == nil {
+		c.tickMap = make(map[string][]entiretick.EntireTick)
+	}
+	c.mutex.Lock()
+	tmp = c.tickMap
+	c.mutex.Unlock()
+	return tmp
+}

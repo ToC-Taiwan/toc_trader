@@ -92,6 +92,7 @@ func TickProcess(lastClose float64, cond global.AnalyzeCondition, ch chan *strea
 				High:             tick.High,
 				Low:              tick.Low,
 				Rsi:              rsi,
+				Volume:           outSum + inSum,
 			}
 			// analyzeChan <- analyze
 			buyChan <- &analyze

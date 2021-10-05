@@ -64,14 +64,9 @@ func SearchBuyPoint(targetArr []string, cond global.AnalyzeCondition) []map[stri
 	var wg sync.WaitGroup
 	for _, stockNum := range targetArr {
 		ticks := allTickMap.getAllTicksByStockNum(stockNum)
-		if len(ticks) == 0 {
-			logger.Logger.Errorf("%s has no ticks", stockNum)
-			continue
-		}
 		wg.Add(1)
 		ch := make(chan *entiretick.EntireTick)
 		saveCh := make(chan []*entiretick.EntireTick)
-
 		lastClose := global.StockCloseByDateMap.GetClose(stockNum, global.LastTradeDayArr[0].Format(global.ShortTimeLayout))
 		if lastClose != 0 {
 			go entiretickprocess.TickProcess(stockNum, lastClose, cond, ch, &wg, saveCh, true, &simulateAnalyzeEntireMap)
@@ -96,10 +91,12 @@ func SearchBuyPoint(targetArr []string, cond global.AnalyzeCondition) []map[stri
 		if tradebot.IsBuyPoint(tmp, cond) {
 			if _, ok := buyPointMap[v.StockNum]; !ok && tickTimeUnix.Before(lastTime) {
 				buyPointMap[v.StockNum] = *v
+				continue
 			}
-		} else if tradebot.IsSellFirstPoint(tmp, cond) {
+		}
+		if tradebot.IsSellFirstPoint(tmp, cond) {
 			if _, ok := buyPointMap[v.StockNum]; !ok {
-				if _, ok := sellFirstPointMap[v.StockNum]; !ok {
+				if _, ok := sellFirstPointMap[v.StockNum]; !ok && tickTimeUnix.Before(lastTime) {
 					sellFirstPointMap[v.StockNum] = *v
 				}
 			}
@@ -115,10 +112,6 @@ func GetBalance(analyzeMap []map[string]analyzeentiretick.AnalyzeEntireTick, con
 	var balance int64
 	for stockNum, v := range analyzeMap[0] {
 		ticks := allTickMap.getAllTicksByStockNum(stockNum)
-		if len(ticks) == 0 {
-			logger.Logger.Errorf("%s has no ticks", stockNum)
-			continue
-		}
 		var historyClose []float64
 		var buyPrice, sellPrice float64
 		for _, k := range ticks {
@@ -144,18 +137,17 @@ func GetBalance(analyzeMap []map[string]analyzeentiretick.AnalyzeEntireTick, con
 			buyCost := tradebot.GetStockBuyCost(buyPrice, global.OneTimeQuantity)
 			sellCost := tradebot.GetStockSellCost(sellPrice, global.OneTimeQuantity)
 			balance += (sellCost - buyCost)
+			if (sellTimeStamp[v.StockNum]-v.TimeStamp)/1000/1000/1000 > 10800 {
+				return
+			}
 			if !training {
-				logger.Logger.Warnf("Forward Balance: %d, Stock: %s, Name: %s, Total Time: %d", sellCost-buyCost, v.StockNum, global.AllStockNameMap.GetName(v.StockNum), (sellTimeStamp[v.StockNum]-v.TimeStamp)/1000/1000/1000)
+				logger.Logger.Warnf("Forward Balance: %d, Stock: %s, Name: %s, Total Time: %d, %.2f, %.2f", sellCost-buyCost, v.StockNum, global.AllStockNameMap.GetName(v.StockNum), (sellTimeStamp[v.StockNum]-v.TimeStamp)/1000/1000/1000, buyPrice, sellPrice)
 			}
 		}
 	}
 	sellTimeStamp = make(map[string]int64)
 	for stockNum, v := range analyzeMap[1] {
 		ticks := allTickMap.getAllTicksByStockNum(stockNum)
-		if len(ticks) == 0 {
-			logger.Logger.Errorf("%s has no ticks", stockNum)
-			continue
-		}
 		var historyClose []float64
 		var sellFirstPrice, buyLaterPrice float64
 		for _, k := range ticks {
@@ -180,9 +172,12 @@ func GetBalance(analyzeMap []map[string]analyzeentiretick.AnalyzeEntireTick, con
 		} else {
 			buyCost := tradebot.GetStockBuyCost(buyLaterPrice, global.OneTimeQuantity)
 			sellCost := tradebot.GetStockSellCost(sellFirstPrice, global.OneTimeQuantity)
+			if (sellTimeStamp[v.StockNum]-v.TimeStamp)/1000/1000/1000 > 10800 {
+				return
+			}
 			balance += (sellCost - buyCost)
 			if !training {
-				logger.Logger.Warnf("Reverse Balance: %d, Stock: %s, Name: %s, Total Time: %d", sellCost-buyCost, v.StockNum, global.AllStockNameMap.GetName(v.StockNum), (sellTimeStamp[v.StockNum]-v.TimeStamp)/1000/1000/1000)
+				logger.Logger.Warnf("Reverse Balance: %d, Stock: %s, Name: %s, Total Time: %d, %.2f, %.2f", sellCost-buyCost, v.StockNum, global.AllStockNameMap.GetName(v.StockNum), (sellTimeStamp[v.StockNum]-v.TimeStamp)/1000/1000/1000, buyLaterPrice, sellFirstPrice)
 			}
 		}
 	}
@@ -193,20 +188,7 @@ func GetBalance(analyzeMap []map[string]analyzeentiretick.AnalyzeEntireTick, con
 	if training {
 		resultChan <- tmp
 	} else {
-		logger.Logger.Warnf("Total Balance: %d, TradeCount: %d, Cond: %v", balance, len(analyzeMap[0])+len(analyzeMap[1]), cond)
-	}
-}
-
-var allTickMap entireTickMap
-
-func storeAllEntireTick(stockArr []string) {
-	for _, stockNum := range stockArr {
-		ticks, err := entiretick.GetAllEntiretickByStock(stockNum, global.GlobalDB)
-		if err != nil {
-			logger.Logger.Error(err)
-			continue
-		}
-		allTickMap.saveByStockNum(stockNum, ticks)
+		logger.Logger.Warnf("Total Balance: %d, TradeCount: %d, Cond: %+v", balance, len(analyzeMap[0])+len(analyzeMap[1]), cond)
 	}
 }
 
@@ -249,8 +231,6 @@ func catchResult(targetArr []string) {
 }
 
 func getBestCond(targetArr []string) {
-	resultChan = make(chan bestCond)
-	go catchResult(targetArr)
 	var wg sync.WaitGroup
 	var conds []global.AnalyzeCondition
 	fmt.Print("Use global cond?(y/n): ")
@@ -262,45 +242,66 @@ func getBestCond(targetArr []string) {
 	if ans == "y\n" {
 		conds = append(conds, global.TickAnalyzeCondition)
 	} else {
-		for j := 500; j >= 300; j -= 100 {
-			for l := 200; l >= 150; l -= 50 {
-				for m := 70; m >= 55; m -= 5 {
-					for n := -3; n <= -1; n++ {
-						for k := 7; k >= 5; k-- {
-							for i := 40; i <= 55; i += 5 {
-								for z := 5; z <= 25; z += 5 {
-									for o := 10; o <= 20; o += 5 {
-										for p := 1; p <= 4; p++ {
-											cond := global.AnalyzeCondition{
-												HistoryCloseCount:    int64(j),
-												OutSum:               int64(l),
-												OutInRatio:           float64(m),
-												CloseDiff:            0,
-												CloseChangeRatioLow:  float64(n),
-												CloseChangeRatioHigh: float64(k),
-												OpenChangeRatio:      float64(k),
-												RsiHigh:              int64(i + z),
-												RsiLow:               int64(i),
-												TicksPeriodThreshold: float64(o),
-												TicksPeriodLimit:     float64(o) * 1.3,
-												TicksPeriodCount:     p,
-											}
-											conds = append(conds, cond)
-										}
-									}
-								}
-							}
-						}
+		// for j := 400; j >= 100; j -= 100 {
+		// 	for m := 70; m >= 50; m -= 5 {
+		// for u := 5; u <= 45; u += 5 {
+		// for i := 20; i <= 70; i += 5 {
+		// 	for z := 5; z <= 25; z += 5 {
+		for o := 10; o <= 20; o += 5 {
+			for p := 1; p <= 4; p++ {
+				for v := 40; v <= 50; v += 10 {
+					j := 300
+					m := 60
+					i := 50
+					z := 5
+					u := 5
+					cond := global.AnalyzeCondition{
+						HistoryCloseCount:    int64(j),
+						OutInRatio:           float64(m),
+						ReverseOutInRatio:    float64(u),
+						CloseDiff:            0,
+						CloseChangeRatioLow:  -3,
+						CloseChangeRatioHigh: 6,
+						OpenChangeRatio:      6,
+						RsiHigh:              int64(i + z),
+						RsiLow:               int64(i),
+						ReverseRsiHigh:       int64(i + z),
+						ReverseRsiLow:        int64(i),
+						TicksPeriodThreshold: float64(o),
+						TicksPeriodLimit:     float64(o) * 1.3,
+						TicksPeriodCount:     p,
+						Volume:               int64(v),
 					}
+					conds = append(conds, cond)
 				}
 			}
 		}
 	}
+	// 	}
+	// }
+	// }
+	// 	}
+	// }
 	logger.Logger.Warnf("Total simulate counts: %d", len(conds))
+	resultChan = make(chan bestCond, len(conds))
+	go catchResult(targetArr)
 	for _, v := range conds {
 		wg.Add(1)
 		go GetBalance(SearchBuyPoint(targetArr, v), v, true, &wg)
 	}
 	wg.Wait()
 	close(resultChan)
+}
+
+var allTickMap entireTickMap
+
+func storeAllEntireTick(stockArr []string) {
+	for _, stockNum := range stockArr {
+		ticks, err := entiretick.GetAllEntiretickByStock(stockNum, global.GlobalDB)
+		if err != nil {
+			logger.Logger.Error(err)
+			continue
+		}
+		allTickMap.saveByStockNum(stockNum, ticks)
+	}
 }

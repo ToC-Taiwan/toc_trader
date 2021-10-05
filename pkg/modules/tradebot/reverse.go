@@ -79,10 +79,13 @@ func IsSellFirstPoint(analyzeTick *analyzestreamtick.AnalyzeStreamTick, cond glo
 	// if analyzeTick.OpenChangeRatio > cond.OpenChangeRatio || closeChangeRatio < cond.CloseChangeRatioLow || closeChangeRatio > cond.CloseChangeRatioHigh {
 	// 	return false
 	// }
-	if analyzeTick.OutInRatio > cond.OutInRatio || analyzeTick.OutSum > cond.OutSum || analyzeTick.CloseDiff > cond.CloseDiff {
+	if analyzeTick.Volume < cond.Volume {
 		return false
 	}
-	if analyzeTick.Rsi < float64(cond.RsiHigh) {
+	if analyzeTick.OutInRatio > cond.ReverseOutInRatio || analyzeTick.CloseDiff > cond.CloseDiff {
+		return false
+	}
+	if analyzeTick.Rsi < float64(cond.ReverseRsiHigh) {
 		return false
 	}
 	return true
@@ -127,7 +130,6 @@ func BuyLaterBot(ch chan *streamtick.StreamTick) {
 				go CheckBuyLaterOrderStatus(record)
 				continue
 			}
-			logger.Logger.Warn("Buy Later Order is failed")
 		}
 	}
 }
@@ -148,9 +150,9 @@ func GetBuyLaterPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyC
 		return 0
 	}
 	switch {
-	case tick.Close > stockutil.GetNewClose(originalOrderClose, 1) && rsi > float64(cond.RsiHigh):
+	case tick.Close > stockutil.GetNewClose(originalOrderClose, 1) && rsi > float64(cond.ReverseRsiHigh):
 		buyPrice = tick.Close
-	case rsi < float64(cond.RsiLow):
+	case rsi < float64(cond.ReverseRsiLow):
 		buyPrice = tick.Close
 	case tickTimeUnix.After(lastTime):
 		buyPrice = tick.Close

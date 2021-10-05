@@ -19,6 +19,7 @@ type AnalyzeEntireTick struct {
 	OpenChangeRatio  float64 `gorm:"column:open_change_ratio"`
 	OutSum           int64   `gorm:"column:out_sum"`
 	InSum            int64   `gorm:"column:in_sum"`
+	Volume           int64   `gorm:"column:volume"`
 	OutInRatio       float64 `gorm:"column:out_in_ratio"`
 	TotalTime        float64 `gorm:"column:total_time"`
 	CloseDiff        float64 `gorm:"column:close_diff"`
@@ -57,6 +58,7 @@ func (c *AnalyzeEntireTick) ToAnalyzeStreamTick() *analyzestreamtick.AnalyzeStre
 		AvgPrice:         c.AvgPrice,
 		High:             c.High,
 		Low:              c.Low,
+		Volume:           c.Volume,
 	}
 	return &tmp
 }
