@@ -5,6 +5,7 @@ import (
 	"github.com/markcheno/go-quote"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/analyzestreamtick"
+	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulationcond"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/streamtick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tickanalyze"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot"
@@ -13,7 +14,7 @@ import (
 )
 
 // TickProcess TickProcess
-func TickProcess(lastClose float64, cond global.AnalyzeCondition, ch chan *streamtick.StreamTick, saveCh chan []*streamtick.StreamTick) {
+func TickProcess(lastClose float64, cond simulationcond.AnalyzeCondition, ch chan *streamtick.StreamTick, saveCh chan []*streamtick.StreamTick) {
 	if lastClose == 0 {
 		return
 	}

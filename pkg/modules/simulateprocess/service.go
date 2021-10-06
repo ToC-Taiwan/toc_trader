@@ -1,5 +1,5 @@
-// Package simulate package simulate
-package simulate
+// Package simulateprocess package simulateprocess
+package simulateprocess
 
 import (
 	"bufio"
@@ -11,6 +11,8 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/analyzeentiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/entiretick"
+	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulate"
+	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulationcond"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/choosetarget"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/entiretickprocess"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/fetchentiretick"
@@ -20,8 +22,13 @@ import (
 
 var finishSimulate chan int
 
+var balanceType string
+
 // Simulate Simulate
 func Simulate() {
+	if err := simulate.DeleteAll(global.GlobalDB); err != nil {
+		panic(err)
+	}
 	finishSimulate = make(chan int)
 	targetArr, err := choosetarget.GetTopTarget(-1)
 	if err != nil {
@@ -38,6 +45,19 @@ func Simulate() {
 		lastLast := time.Date(2021, 9, 23, 0, 0, 0, 0, time.UTC)
 		last := time.Date(2021, 9, 24, 0, 0, 0, 0, time.UTC)
 		global.LastTradeDayArr = []time.Time{lastLast, last}
+	}
+	fmt.Print("Simulate balance type?(a: forward, b: reverse, c: all): ")
+	ans2, err := reader.ReadString('\n')
+	if err != nil {
+		panic(err)
+	}
+	switch ans2 {
+	case "a\n":
+		balanceType = "a"
+	case "b\n":
+		balanceType = "b"
+	case "c\n":
+		balanceType = "c"
 	}
 	logger.Logger.Infof("Simulate %d stock", len(targetArr))
 	if err := choosetarget.UpdateStockCloseMapByDate(targetArr, global.LastTradeDayArr); err != nil {
@@ -59,7 +79,7 @@ func Simulate() {
 }
 
 // SearchBuyPoint SearchBuyPoint
-func SearchBuyPoint(targetArr []string, cond global.AnalyzeCondition) []map[string]analyzeentiretick.AnalyzeEntireTick {
+func SearchBuyPoint(targetArr []string, cond simulationcond.AnalyzeCondition) []map[string]*analyzeentiretick.AnalyzeEntireTick {
 	var simulateAnalyzeEntireMap entiretickprocess.AnalyzeEntireTickMap
 	var wg sync.WaitGroup
 	for _, stockNum := range targetArr {
@@ -72,41 +92,42 @@ func SearchBuyPoint(targetArr []string, cond global.AnalyzeCondition) []map[stri
 			go entiretickprocess.TickProcess(stockNum, lastClose, cond, ch, &wg, saveCh, true, &simulateAnalyzeEntireMap)
 		} else {
 			logger.Logger.Warnf("%s has no %s's close", stockNum, global.LastLastTradeDay.Format(global.ShortTimeLayout))
+			continue
 		}
 		for _, v := range ticks {
 			tmp := v
-			ch <- &tmp
+			ch <- tmp
 		}
 		close(saveCh)
 		close(ch)
 	}
 	wg.Wait()
-	buyPointMap := make(map[string]analyzeentiretick.AnalyzeEntireTick)
-	sellFirstPointMap := make(map[string]analyzeentiretick.AnalyzeEntireTick)
+	buyPointMap := make(map[string]*analyzeentiretick.AnalyzeEntireTick)
+	sellFirstPointMap := make(map[string]*analyzeentiretick.AnalyzeEntireTick)
 	allPoint := simulateAnalyzeEntireMap.GetAllTicks()
 	for _, v := range allPoint {
 		tmp := v.ToAnalyzeStreamTick()
 		tickTimeUnix := time.Unix(0, tmp.TimeStamp)
 		lastTime := time.Date(tickTimeUnix.Year(), tickTimeUnix.Month(), tickTimeUnix.Day(), 13, 0, 0, 0, time.Local)
-		if tradebot.IsBuyPoint(tmp, cond) {
+		if tradebot.IsBuyPoint(tmp, cond) && (balanceType == "a" || balanceType == "c") {
 			if _, ok := buyPointMap[v.StockNum]; !ok && tickTimeUnix.Before(lastTime) {
-				buyPointMap[v.StockNum] = *v
+				buyPointMap[v.StockNum] = v
 				continue
 			}
 		}
-		if tradebot.IsSellFirstPoint(tmp, cond) {
+		if tradebot.IsSellFirstPoint(tmp, cond) && (balanceType == "b" || balanceType == "c") {
 			if _, ok := buyPointMap[v.StockNum]; !ok {
 				if _, ok := sellFirstPointMap[v.StockNum]; !ok && tickTimeUnix.Before(lastTime) {
-					sellFirstPointMap[v.StockNum] = *v
+					sellFirstPointMap[v.StockNum] = v
 				}
 			}
 		}
 	}
-	return []map[string]analyzeentiretick.AnalyzeEntireTick{buyPointMap, sellFirstPointMap}
+	return []map[string]*analyzeentiretick.AnalyzeEntireTick{buyPointMap, sellFirstPointMap}
 }
 
 // GetBalance GetBalance
-func GetBalance(analyzeMap []map[string]analyzeentiretick.AnalyzeEntireTick, cond global.AnalyzeCondition, training bool, wg *sync.WaitGroup) {
+func GetBalance(analyzeMap []map[string]*analyzeentiretick.AnalyzeEntireTick, cond simulationcond.AnalyzeCondition, training bool, wg *sync.WaitGroup) {
 	defer wg.Done()
 	sellTimeStamp := make(map[string]int64)
 	var balance int64
@@ -181,9 +202,9 @@ func GetBalance(analyzeMap []map[string]analyzeentiretick.AnalyzeEntireTick, con
 			}
 		}
 	}
-	tmp := bestCond{
-		cond:    cond,
-		balance: balance,
+	tmp := simulate.Result{
+		Cond:    cond,
+		Balance: balance,
 	}
 	if training {
 		resultChan <- tmp
@@ -192,39 +213,54 @@ func GetBalance(analyzeMap []map[string]analyzeentiretick.AnalyzeEntireTick, con
 	}
 }
 
-var resultChan chan bestCond
+var resultChan chan simulate.Result
 
-type bestCond struct {
-	cond    global.AnalyzeCondition
-	balance int64
-}
+// type bestCond struct {
+// 	cond    simulationcond.AnalyzeCondition
+// 	balance int64
+// }
 
 func catchResult(targetArr []string) {
-	var tmp bestCond
-	var count, timestamp int
-	if timestamp == 0 {
-		timestamp = int(time.Now().Unix())
-	}
+	var save []simulate.Result
+	var tmp []simulate.Result
+	var count int
+	timestamp := int(time.Now().Unix())
 	for {
 		result, ok := <-resultChan
+		if result.Cond.Model.ID != 0 {
+			save = append(save, result)
+		}
 		if !ok {
+			if err := simulate.InsertMultiRecord(save, global.GlobalDB); err != nil {
+				logger.Logger.Error(err)
+			}
 			var wg sync.WaitGroup
-			finalCond := tmp.cond
-			logger.Logger.Info("Below is best result")
-			wg.Add(1)
-			go GetBalance(SearchBuyPoint(targetArr, finalCond), finalCond, false, &wg)
-			wg.Wait()
+			// finalCond := tmp.cond
+			if len(tmp) > 0 {
+				logger.Logger.Info("Below is best result")
+				for _, k := range tmp {
+					wg.Add(1)
+					go GetBalance(SearchBuyPoint(targetArr, k.Cond), k.Cond, false, &wg)
+				}
+				wg.Wait()
+			} else {
+				logger.Logger.Info("No best result")
+			}
 			finishSimulate <- 0
 			break
 		}
 		count++
-		if tmp.balance == 0 {
-			tmp = result
-		} else if result.balance > tmp.balance {
-			tmp = result
+		switch {
+		case len(tmp) == 0:
+			tmp = append(tmp, result)
+		case result.Balance > tmp[0].Balance:
+			tmp = []simulate.Result{}
+			tmp = append(tmp, result)
+		case result.Balance == tmp[0].Balance:
+			tmp = append(tmp, result)
 		}
 		if count%100 == 0 {
-			logger.Logger.Warnf("Finished: %d, Time: %d, Best: %d", count, int(time.Now().Unix())-timestamp, tmp.balance)
+			logger.Logger.Warnf("Finished: %d, Time: %d, Best: %d", count, int(time.Now().Unix())-timestamp, tmp[0].Balance)
 			timestamp = int(time.Now().Unix())
 		}
 	}
@@ -232,7 +268,7 @@ func catchResult(targetArr []string) {
 
 func getBestCond(targetArr []string) {
 	var wg sync.WaitGroup
-	var conds []global.AnalyzeCondition
+	var conds []*simulationcond.AnalyzeCondition
 	fmt.Print("Use global cond?(y/n): ")
 	reader := bufio.NewReader(os.Stdin)
 	ans, err := reader.ReadString('\n')
@@ -240,54 +276,55 @@ func getBestCond(targetArr []string) {
 		panic(err)
 	}
 	if ans == "y\n" {
-		conds = append(conds, global.TickAnalyzeCondition)
+		conds = append(conds, &global.TickAnalyzeCondition)
 	} else {
-		// for j := 400; j >= 100; j -= 100 {
-		// 	for m := 70; m >= 50; m -= 5 {
-		// for u := 5; u <= 45; u += 5 {
-		// for i := 20; i <= 70; i += 5 {
-		// 	for z := 5; z <= 25; z += 5 {
-		for o := 10; o <= 20; o += 5 {
-			for p := 1; p <= 4; p++ {
-				for v := 40; v <= 50; v += 10 {
-					j := 300
-					m := 60
-					i := 50
-					z := 5
-					u := 5
-					cond := global.AnalyzeCondition{
-						HistoryCloseCount:    int64(j),
-						OutInRatio:           float64(m),
-						ReverseOutInRatio:    float64(u),
-						CloseDiff:            0,
-						CloseChangeRatioLow:  -3,
-						CloseChangeRatioHigh: 6,
-						OpenChangeRatio:      6,
-						RsiHigh:              int64(i + z),
-						RsiLow:               int64(i),
-						ReverseRsiHigh:       int64(i + z),
-						ReverseRsiLow:        int64(i),
-						TicksPeriodThreshold: float64(o),
-						TicksPeriodLimit:     float64(o) * 1.3,
-						TicksPeriodCount:     p,
-						Volume:               int64(v),
+		for j := 500; j >= 300; j -= 100 {
+			for m := 65; m >= 50; m -= 5 {
+				for u := 10; u <= 25; u += 5 {
+					for i := 45; i <= 60; i += 5 {
+						for z := 5; z <= 15; z += 5 {
+							for o := 20; o >= 5; o -= 5 {
+								for p := 4; p >= 1; p-- {
+									for v := 200; v >= 30; v -= 10 {
+										cond := simulationcond.AnalyzeCondition{
+											HistoryCloseCount:    int64(j),
+											OutInRatio:           float64(m),
+											ReverseOutInRatio:    float64(u),
+											CloseDiff:            0,
+											CloseChangeRatioLow:  -3,
+											CloseChangeRatioHigh: 6,
+											OpenChangeRatio:      6,
+											RsiHigh:              int64(i + z),
+											RsiLow:               int64(i),
+											ReverseRsiHigh:       int64(i + z),
+											ReverseRsiLow:        int64(i),
+											TicksPeriodThreshold: float64(o),
+											TicksPeriodLimit:     float64(o) * 1.3,
+											TicksPeriodCount:     p,
+											Volume:               int64(v),
+										}
+										conds = append(conds, &cond)
+									}
+								}
+							}
+						}
 					}
-					conds = append(conds, cond)
 				}
 			}
 		}
 	}
-	// 	}
-	// }
-	// }
-	// 	}
-	// }
+	if err := simulationcond.DeleteAll(global.GlobalDB); err != nil {
+		panic(err)
+	}
+	if err := simulationcond.InsertMultiRecord(conds, global.GlobalDB); err != nil {
+		panic(err)
+	}
 	logger.Logger.Warnf("Total simulate counts: %d", len(conds))
-	resultChan = make(chan bestCond, len(conds))
+	resultChan = make(chan simulate.Result)
 	go catchResult(targetArr)
 	for _, v := range conds {
 		wg.Add(1)
-		go GetBalance(SearchBuyPoint(targetArr, v), v, true, &wg)
+		go GetBalance(SearchBuyPoint(targetArr, *v), *v, true, &wg)
 	}
 	wg.Wait()
 	close(resultChan)

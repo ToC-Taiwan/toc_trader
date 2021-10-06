@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/go-resty/resty/v2"
+	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulationcond"
 	"gorm.io/gorm"
 )
 
@@ -65,4 +66,4 @@ var AllStockNameMap stringStringMutex
 var StockCloseByDateMap stringStringFloat64Mutex
 
 // TickAnalyzeCondition TickAnalyzeCondition
-var TickAnalyzeCondition AnalyzeCondition
+var TickAnalyzeCondition simulationcond.AnalyzeCondition

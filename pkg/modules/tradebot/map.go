@@ -33,6 +33,13 @@ func (c *tradeRecordMutexMap) Delete(stockNum string) {
 	c.mutex.Unlock()
 }
 
+// ClearAll ClearAll
+func (c *tradeRecordMutexMap) ClearAll() {
+	c.mutex.Lock()
+	c.tMap = make(map[string]traderecord.TradeRecord)
+	c.mutex.Unlock()
+}
+
 // GetAll GetAll
 func (c *tradeRecordMutexMap) GetAll() map[string]traderecord.TradeRecord {
 	var tmp map[string]traderecord.TradeRecord

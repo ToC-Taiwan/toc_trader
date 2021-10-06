@@ -7,6 +7,7 @@ import (
 	"github.com/markcheno/go-quote"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/analyzestreamtick"
+	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulationcond"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/streamtick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/traderecord"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tickanalyze"
@@ -91,7 +92,7 @@ func BuyBot(ch chan *analyzestreamtick.AnalyzeStreamTick) {
 }
 
 // IsBuyPoint IsBuyPoint
-func IsBuyPoint(analyzeTick *analyzestreamtick.AnalyzeStreamTick, cond global.AnalyzeCondition) bool {
+func IsBuyPoint(analyzeTick *analyzestreamtick.AnalyzeStreamTick, cond simulationcond.AnalyzeCondition) bool {
 	closeChangeRatio := analyzeTick.CloseChangeRatio
 	if analyzeTick.Volume < cond.Volume {
 		return false
@@ -153,7 +154,7 @@ func SellBot(ch chan *streamtick.StreamTick) {
 }
 
 // GetSellPrice GetSellPrice
-func GetSellPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyClose []float64, originalOrderClose float64, cond global.AnalyzeCondition) float64 {
+func GetSellPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyClose []float64, originalOrderClose float64, cond simulationcond.AnalyzeCondition) float64 {
 	tickTimeUnix := time.Unix(0, tick.TimeStamp)
 	lastTime := time.Date(tickTimeUnix.Year(), tickTimeUnix.Month(), tickTimeUnix.Day(), 13, 0, 0, 0, time.Local)
 	if len(historyClose) < int(cond.HistoryCloseCount) && tickTimeUnix.Before(lastTime) {

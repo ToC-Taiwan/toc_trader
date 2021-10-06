@@ -68,7 +68,7 @@ func GetByStockAndTimeStamp(stockNum string, timestamp int64, db *gorm.DB) (reco
 }
 
 // GetAllEntiretickByStock GetAllEntiretickByStock
-func GetAllEntiretickByStock(stockNum string, db *gorm.DB) (records []EntireTick, err error) {
+func GetAllEntiretickByStock(stockNum string, db *gorm.DB) (records []*EntireTick, err error) {
 	result := db.Model(&EntireTick{}).Where("stock_num = ?", stockNum).Order("timestamp asc").Find(&records)
 	return records, result.Error
 }

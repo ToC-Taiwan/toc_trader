@@ -10,13 +10,14 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/analyzeentiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/entiretick"
+	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulationcond"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tickanalyze"
 	"gitlab.tocraw.com/root/toc_trader/tools/common"
 	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 )
 
 // TickProcess TickProcess
-func TickProcess(stockNum string, lastClose float64, cond global.AnalyzeCondition, ch chan *entiretick.EntireTick, wg *sync.WaitGroup, saveCh chan []*entiretick.EntireTick, sim bool, simulateMap *AnalyzeEntireTickMap) {
+func TickProcess(stockNum string, lastClose float64, cond simulationcond.AnalyzeCondition, ch chan *entiretick.EntireTick, wg *sync.WaitGroup, saveCh chan []*entiretick.EntireTick, sim bool, simulateMap *AnalyzeEntireTickMap) {
 	var input quote.Quote
 	var high, low, open float64
 	var unSavedTicks entiretick.PtrArrArr

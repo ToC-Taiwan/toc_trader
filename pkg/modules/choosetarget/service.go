@@ -85,6 +85,9 @@ func GetTopTarget(count int) (targetArr []string, err error) {
 			}
 		}
 	}
+	if len(rank) == 0 {
+		return targetArr, err
+	}
 	sort.Slice(rank, func(i, j int) bool {
 		return rank[i].TotalVolume > rank[j].TotalVolume
 	})

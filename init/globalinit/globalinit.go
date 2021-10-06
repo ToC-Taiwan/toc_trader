@@ -6,6 +6,7 @@ import (
 
 	"gitlab.tocraw.com/root/toc_trader/init/sysparminit"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
+	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulationcond"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/importbasic"
 	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 )
@@ -27,22 +28,22 @@ func init() {
 		MeanTimeReverseTradeStockNum: 3,
 	}
 
-	global.TickAnalyzeCondition = global.AnalyzeCondition{
-		HistoryCloseCount:    300,
-		OutInRatio:           60,
-		ReverseOutInRatio:    5,
+	global.TickAnalyzeCondition = simulationcond.AnalyzeCondition{
+		HistoryCloseCount:    450,
+		OutInRatio:           55,
+		ReverseOutInRatio:    15,
 		CloseDiff:            0,
 		CloseChangeRatioLow:  -3,
 		CloseChangeRatioHigh: 6,
 		OpenChangeRatio:      6,
-		RsiHigh:              55,
-		RsiLow:               50,
-		ReverseRsiHigh:       55,
-		ReverseRsiLow:        50,
+		RsiHigh:              50,
+		RsiLow:               45,
+		ReverseRsiHigh:       50,
+		ReverseRsiLow:        45,
 		TicksPeriodThreshold: 20,
 		TicksPeriodLimit:     26,
-		TicksPeriodCount:     1,
-		Volume:               50,
+		TicksPeriodCount:     4,
+		Volume:               130,
 	}
 
 	if err := importbasic.ImportHoliday(); err != nil {

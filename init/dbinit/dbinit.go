@@ -13,6 +13,8 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/analyzeentiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/entiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/holiday"
+	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulate"
+	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulationcond"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/stock"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/streamtick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/targetstock"
@@ -53,6 +55,8 @@ func init() {
 		&entiretick.EntireTick{},
 		&streamtick.StreamTick{},
 		&holiday.Holiday{},
+		&simulate.Result{},
+		&simulationcond.AnalyzeCondition{},
 		&stock.Stock{},
 		&targetstock.Target{},
 		&tradeevent.EventResponse{},

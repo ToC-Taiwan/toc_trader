@@ -40,7 +40,6 @@ func CheckOrderStatusLoop() {
 // ShowStatus ShowStatus
 func ShowStatus() {
 	tick := time.Tick(60 * time.Second)
-	var tmpBalance int64
 	for range tick {
 		if time.Now().After(global.TradeDayEndTime) && global.TradeSwitch.Buy {
 			global.TradeSwitch.Buy = false
@@ -49,22 +48,18 @@ func ShowStatus() {
 		if FilledBuyOrderMap.GetCount() == FilledSellOrderMap.GetCount() && FilledSellOrderMap.GetCount() != 0 {
 			balance := FilledSellOrderMap.GetTotalSellCost() + FilledSellFirstOrderMap.GetTotalSellCost() - FilledBuyLaterOrderMap.GetTotalBuyCost() - FilledBuyOrderMap.GetTotalBuyCost()
 			back := FilledSellOrderMap.GetTotalCostBack() + FilledBuyOrderMap.GetTotalCostBack() + FilledSellFirstOrderMap.GetTotalCostBack() + FilledBuyLaterOrderMap.GetTotalCostBack()
-			if balance != tmpBalance {
-				logger.Logger.WithFields(map[string]interface{}{
-					"Balance": balance,
-					"Back":    back,
-					"Total":   balance + back,
-				}).Info("Balance Status")
-				tmpBalance = balance
-			}
-		}
-		if BuyOrderMap.GetCount() != 0 {
 			logger.Logger.WithFields(map[string]interface{}{
-				"Current":                BuyOrderMap.GetCount(),
-				"Maximum":                global.TradeSwitch.MeanTimeTradeStockNum,
-				"TradeQuota":             TradeQuota,
-				"global.TradeDayEndTime": global.TradeDayEndTime.Format(global.LongTimeLayout),
+				"Current":         BuyOrderMap.GetCount(),
+				"Maximum":         global.TradeSwitch.MeanTimeTradeStockNum,
+				"TradeQuota":      TradeQuota,
+				"OriginalBalance": balance,
+				"Back":            back,
+				"Real":            balance + back,
 			}).Info("Current Trade Status")
+		}
+		if time.Now().After(global.TradeDayEndTime.Add(1 * time.Hour)) {
+			FilledBuyOrderMap.ClearAll()
+			FilledSellOrderMap.ClearAll()
 		}
 	}
 }

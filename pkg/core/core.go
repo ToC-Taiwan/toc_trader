@@ -15,7 +15,7 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/choosetarget"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/fetchentiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/importbasic"
-	"gitlab.tocraw.com/root/toc_trader/pkg/modules/simulate"
+	"gitlab.tocraw.com/root/toc_trader/pkg/modules/simulateprocess"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot"
 	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 )
@@ -42,7 +42,7 @@ func TradeProcess() {
 		}
 		if ans == "y\n" {
 			logger.Logger.Warn("Simulating")
-			simulate.Simulate()
+			simulateprocess.Simulate()
 		}
 	}
 	// Generate global target array

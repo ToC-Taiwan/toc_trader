@@ -9,6 +9,7 @@ import (
 
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/entiretick"
+	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulationcond"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/entiretickprocess"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/importbasic"
 	"gitlab.tocraw.com/root/toc_trader/tools/logger"
@@ -18,7 +19,7 @@ import (
 var wg sync.WaitGroup
 
 // FetchEntireTick FetchEntireTick
-func FetchEntireTick(stockNumArr []string, dateArr []time.Time, cond global.AnalyzeCondition) {
+func FetchEntireTick(stockNumArr []string, dateArr []time.Time, cond simulationcond.AnalyzeCondition) {
 	var err error
 	defer func() {
 		if r := recover(); r != nil {
@@ -59,7 +60,7 @@ func FetchEntireTick(stockNumArr []string, dateArr []time.Time, cond global.Anal
 }
 
 // GetAndSaveEntireTick GetAndSaveEntireTick
-func GetAndSaveEntireTick(stockNum, date string, cond global.AnalyzeCondition, saveCh chan []*entiretick.EntireTick) {
+func GetAndSaveEntireTick(stockNum, date string, cond simulationcond.AnalyzeCondition, saveCh chan []*entiretick.EntireTick) {
 	var err error
 	defer func() {
 		if r := recover(); r != nil {
