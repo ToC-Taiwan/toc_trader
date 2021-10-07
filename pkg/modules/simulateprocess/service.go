@@ -35,18 +35,19 @@ func Simulate() {
 		logger.Logger.Error(err)
 		return
 	}
-	fmt.Print("Use global trade date?(y/n): ")
-	reader := bufio.NewReader(os.Stdin)
-	ans, err := reader.ReadString('\n')
-	if err != nil {
-		panic(err)
-	}
-	if ans == "n\n" {
-		lastLast := time.Date(2021, 9, 23, 0, 0, 0, 0, time.UTC)
-		last := time.Date(2021, 9, 24, 0, 0, 0, 0, time.UTC)
-		global.LastTradeDayArr = []time.Time{lastLast, last}
-	}
+	// fmt.Print("Use global trade date?(y/n): ")
+	// reader := bufio.NewReader(os.Stdin)
+	// ans, err := reader.ReadString('\n')
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// if ans == "n\n" {
+	// 	lastLast := time.Date(2021, 9, 23, 0, 0, 0, 0, time.UTC)
+	// 	last := time.Date(2021, 9, 24, 0, 0, 0, 0, time.UTC)
+	// 	global.LastTradeDayArr = []time.Time{lastLast, last}
+	// }
 	fmt.Print("Simulate balance type?(a: forward, b: reverse, c: all): ")
+	reader := bufio.NewReader(os.Stdin)
 	ans2, err := reader.ReadString('\n')
 	if err != nil {
 		panic(err)
@@ -78,8 +79,8 @@ func Simulate() {
 	}
 }
 
-// SearchBuyPoint SearchBuyPoint
-func SearchBuyPoint(targetArr []string, cond simulationcond.AnalyzeCondition) []map[string]*analyzeentiretick.AnalyzeEntireTick {
+// SearchTradePoint SearchTradePoint
+func SearchTradePoint(targetArr []string, cond simulationcond.AnalyzeCondition) []map[string]*analyzeentiretick.AnalyzeEntireTick {
 	var simulateAnalyzeEntireMap entiretickprocess.AnalyzeEntireTickMap
 	var wg sync.WaitGroup
 	for _, stockNum := range targetArr {
@@ -220,9 +221,10 @@ var resultChan chan simulate.Result
 // 	balance int64
 // }
 
-func catchResult(targetArr []string) {
+func catchResult(targetArr []string, times int) {
 	var save []simulate.Result
 	var tmp []simulate.Result
+	var consumeArr []int
 	var count int
 	timestamp := int(time.Now().Unix())
 	for {
@@ -240,7 +242,7 @@ func catchResult(targetArr []string) {
 				logger.Logger.Info("Below is best result")
 				for _, k := range tmp {
 					wg.Add(1)
-					go GetBalance(SearchBuyPoint(targetArr, k.Cond), k.Cond, false, &wg)
+					go GetBalance(SearchTradePoint(targetArr, k.Cond), k.Cond, false, &wg)
 				}
 				wg.Wait()
 			} else {
@@ -260,8 +262,20 @@ func catchResult(targetArr []string) {
 			tmp = append(tmp, result)
 		}
 		if count%100 == 0 {
-			logger.Logger.Warnf("Finished: %d, Time: %d, Best: %d", count, int(time.Now().Unix())-timestamp, tmp[0].Balance)
+			var total, average float64
+			consume := int(time.Now().Unix()) - timestamp
+			consumeArr = append(consumeArr, consume)
+			for _, v := range consumeArr {
+				total += float64(v)
+			}
+			average = total / float64(len(consumeArr))
+			rareTime := average * (float64(times-count) / 100) / 60
+			logger.Logger.Warnf("Finished: %d, Time: %d, Estimate: %.2f min, Best: %d", count, consume, rareTime, tmp[0].Balance)
 			timestamp = int(time.Now().Unix())
+			if err := simulate.InsertMultiRecord(save, global.GlobalDB); err != nil {
+				logger.Logger.Error(err)
+			}
+			save = []simulate.Result{}
 		}
 	}
 }
@@ -278,14 +292,22 @@ func getBestCond(targetArr []string) {
 	if ans == "y\n" {
 		conds = append(conds, &global.TickAnalyzeCondition)
 	} else {
-		for j := 500; j >= 300; j -= 100 {
-			for m := 65; m >= 50; m -= 5 {
-				for u := 10; u <= 25; u += 5 {
-					for i := 45; i <= 60; i += 5 {
-						for z := 5; z <= 15; z += 5 {
+		for j := 3000; j >= 3000; j -= 500 {
+			for m := 60; m >= 50; m -= 5 {
+				for u := 10; u <= 20; u += 5 {
+					for i := 45; i <= 50; i += 5 {
+						for z := 0; z <= 10; z += 5 {
 							for o := 20; o >= 5; o -= 5 {
-								for p := 4; p >= 1; p-- {
-									for v := 200; v >= 30; v -= 10 {
+								for p := 3; p >= 1; p-- {
+									for v := 200; v >= 100; v -= 10 {
+										// j := 1000
+										// m := 55
+										// u := 25
+										// i := 50
+										// z := 0
+										// o := 10
+										// p := 2
+										// v := 180
 										cond := simulationcond.AnalyzeCondition{
 											HistoryCloseCount:    int64(j),
 											OutInRatio:           float64(m),
@@ -321,10 +343,10 @@ func getBestCond(targetArr []string) {
 	}
 	logger.Logger.Warnf("Total simulate counts: %d", len(conds))
 	resultChan = make(chan simulate.Result)
-	go catchResult(targetArr)
+	go catchResult(targetArr, len(conds))
 	for _, v := range conds {
 		wg.Add(1)
-		go GetBalance(SearchBuyPoint(targetArr, *v), *v, true, &wg)
+		go GetBalance(SearchTradePoint(targetArr, *v), *v, true, &wg)
 	}
 	wg.Wait()
 	close(resultChan)
