@@ -69,6 +69,7 @@ func SellFirstBot(analyzeTick *analyzestreamtick.AnalyzeStreamTick) {
 			}
 			SellFirstOrderMap.Set(record)
 			go CheckSellFirstOrderStatus(record)
+			return
 		}
 		logger.Logger.Warn("Sell First Order is failed")
 	}
@@ -93,12 +94,12 @@ func IsSellFirstPoint(analyzeTick *analyzestreamtick.AnalyzeStreamTick, cond sim
 }
 
 // BuyLaterBot BuyLaterBot
-func BuyLaterBot(ch chan *streamtick.StreamTick) {
+func BuyLaterBot(ch chan *streamtick.StreamTick, cond simulationcond.AnalyzeCondition) {
 	var historyClose []float64
 	for {
 		tick := <-ch
 		historyClose = append(historyClose, tick.Close)
-		if len(historyClose) > int(global.TickAnalyzeCondition.HistoryCloseCount) {
+		if len(historyClose) > int(cond.HistoryCloseCount) {
 			historyClose = historyClose[1:]
 		}
 		filled, err := traderecord.CheckIsFilledByOrderID(SellFirstOrderMap.GetOrderID(tick.StockNum), global.GlobalDB)
@@ -108,7 +109,7 @@ func BuyLaterBot(ch chan *streamtick.StreamTick) {
 		}
 		if filled && !BuyLaterOrderMap.CheckStockExist(tick.StockNum) && global.TradeSwitch.Buy {
 			originalOrderClose := SellFirstOrderMap.GetClose(tick.StockNum)
-			buyPrice := GetBuyLaterPrice(tick, SellFirstOrderMap.GetTradeTime(tick.StockNum), historyClose, originalOrderClose, global.TickAnalyzeCondition)
+			buyPrice := GetBuyLaterPrice(tick, SellFirstOrderMap.GetTradeTime(tick.StockNum), historyClose, originalOrderClose, cond)
 			if buyPrice == 0 {
 				continue
 			} else if order, err := PlaceOrder(BuyAction, tick.StockNum, global.OneTimeQuantity, buyPrice); err != nil {
@@ -183,7 +184,7 @@ func CheckSellFirstOrderStatus(record traderecord.TradeRecord) {
 			}).Info("Place Order Fail")
 			return
 		}
-		if record.TradeTime.Add(60*time.Second).Before(time.Now()) && order.Status != 6 && order.Status != 5 {
+		if record.TradeTime.Add(30*time.Second).Before(time.Now()) && order.Status != 6 && order.Status != 5 {
 			if err := Cancel(record.OrderID); err != nil {
 				logger.Logger.Error(err)
 				return
@@ -231,7 +232,7 @@ func CheckBuyLaterOrderStatus(record traderecord.TradeRecord) {
 			}).Info("Place Order Fail")
 			return
 		}
-		if record.TradeTime.Add(60*time.Second).Before(time.Now()) && order.Status != 6 && order.Status != 5 {
+		if record.TradeTime.Add(30*time.Second).Before(time.Now()) && order.Status != 6 && order.Status != 5 {
 			if err := Cancel(record.OrderID); err != nil {
 				logger.Logger.Error(err)
 				return

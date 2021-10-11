@@ -22,9 +22,9 @@ func TickProcess(lastClose float64, cond simulationcond.AnalyzeCondition, ch cha
 	sellChan := make(chan *streamtick.StreamTick)
 	buyLaterChan := make(chan *streamtick.StreamTick)
 	// analyzeChan := make(chan *analyzestreamtick.AnalyzeStreamTick)
-	go tradebot.BuyBot(buyChan)
-	go tradebot.SellBot(sellChan)
-	go tradebot.BuyLaterBot(buyLaterChan)
+	go tradebot.BuyBot(buyChan, cond)
+	go tradebot.SellBot(sellChan, cond)
+	go tradebot.BuyLaterBot(buyLaterChan, cond)
 	// go AnalyzeStreamTickSaver(analyzeChan)
 
 	var input quote.Quote
@@ -60,11 +60,11 @@ func TickProcess(lastClose float64, cond simulationcond.AnalyzeCondition, ch cha
 				inSum += v.GetInSum()
 				totalTime += v.GetTotalTime()
 			}
-			if len(input.Close) < int(global.TickAnalyzeCondition.HistoryCloseCount) {
+			if len(input.Close) < int(cond.HistoryCloseCount) {
 				unSavedTicks.ClearAll()
 				continue
 			} else {
-				input.Close = input.Close[len(input.Close)-int(global.TickAnalyzeCondition.HistoryCloseCount):]
+				input.Close = input.Close[len(input.Close)-int(cond.HistoryCloseCount):]
 			}
 			closeDiff := common.Round((unSavedTicks.GetLastClose() - lastSaveLastClose), 2)
 			if lastSaveLastClose == 0 {

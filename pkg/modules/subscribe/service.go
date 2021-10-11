@@ -39,10 +39,13 @@ func SubStreamTick(stockArr []string) {
 	go streamtickprocess.SaveStreamTicks(saveCh)
 
 	for _, stockNum := range stockArr {
+		lastClose := global.StockCloseByDateMap.GetClose(stockNum, global.LastTradeDay.Format(global.ShortTimeLayout))
+		if lastClose == 0 {
+			logger.Logger.Warnf("Stock %s has no lastClose", stockNum)
+			continue
+		}
 		ch := make(chan *streamtick.StreamTick)
 		StreamTickChannelMap.Set(stockNum, ch)
-
-		lastClose := global.StockCloseByDateMap.GetClose(stockNum, global.LastTradeDay.Format(global.ShortTimeLayout))
 		go streamtickprocess.TickProcess(lastClose, global.TickAnalyzeCondition, ch, saveCh)
 	}
 

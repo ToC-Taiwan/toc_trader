@@ -31,14 +31,14 @@ var FilledSellOrderMap tradeRecordMutexMap
 var ManualSellMap tradeRecordMutexMap
 
 // BuyBot BuyBot
-func BuyBot(ch chan *analyzestreamtick.AnalyzeStreamTick) {
+func BuyBot(ch chan *analyzestreamtick.AnalyzeStreamTick, cond simulationcond.AnalyzeCondition) {
 	for {
 		analyzeTick := <-ch
 		if checkInBuyMap(analyzeTick.StockNum) || checkInSellFirstMap(analyzeTick.StockNum) {
 			continue
 		}
-		if !IsBuyPoint(analyzeTick, global.TickAnalyzeCondition) {
-			if IsSellFirstPoint(analyzeTick, global.TickAnalyzeCondition) {
+		if !IsBuyPoint(analyzeTick, cond) {
+			if IsSellFirstPoint(analyzeTick, cond) {
 				go SellFirstBot(analyzeTick)
 			}
 			continue
@@ -110,12 +110,12 @@ func IsBuyPoint(analyzeTick *analyzestreamtick.AnalyzeStreamTick, cond simulatio
 }
 
 // SellBot SellBot
-func SellBot(ch chan *streamtick.StreamTick) {
+func SellBot(ch chan *streamtick.StreamTick, cond simulationcond.AnalyzeCondition) {
 	var historyClose []float64
 	for {
 		tick := <-ch
 		historyClose = append(historyClose, tick.Close)
-		if len(historyClose) > int(global.TickAnalyzeCondition.HistoryCloseCount) {
+		if len(historyClose) > int(cond.HistoryCloseCount) {
 			historyClose = historyClose[1:]
 		}
 		filled, err := traderecord.CheckIsFilledByOrderID(BuyOrderMap.GetOrderID(tick.StockNum), global.GlobalDB)
@@ -125,7 +125,7 @@ func SellBot(ch chan *streamtick.StreamTick) {
 		}
 		if filled && !SellOrderMap.CheckStockExist(tick.StockNum) && global.TradeSwitch.Sell {
 			originalOrderClose := BuyOrderMap.GetClose(tick.StockNum)
-			sellPrice := GetSellPrice(tick, BuyOrderMap.GetTradeTime(tick.StockNum), historyClose, originalOrderClose, global.TickAnalyzeCondition)
+			sellPrice := GetSellPrice(tick, BuyOrderMap.GetTradeTime(tick.StockNum), historyClose, originalOrderClose, cond)
 			if sellPrice == 0 {
 				continue
 			} else if order, err := PlaceOrder(SellAction, tick.StockNum, global.OneTimeQuantity, sellPrice); err != nil {
@@ -206,7 +206,7 @@ func CheckBuyOrderStatus(record traderecord.TradeRecord) {
 			}).Info("Place Order Fail")
 			return
 		}
-		if record.TradeTime.Add(60*time.Second).Before(time.Now()) && order.Status != 6 && order.Status != 5 {
+		if record.TradeTime.Add(30*time.Second).Before(time.Now()) && order.Status != 6 && order.Status != 5 {
 			if err := Cancel(record.OrderID); err != nil {
 				logger.Logger.Error(err)
 				return
@@ -254,7 +254,7 @@ func CheckSellOrderStatus(record traderecord.TradeRecord) {
 			}).Info("Place Order Fail")
 			return
 		}
-		if record.TradeTime.Add(60*time.Second).Before(time.Now()) && order.Status != 6 && order.Status != 5 {
+		if record.TradeTime.Add(30*time.Second).Before(time.Now()) && order.Status != 6 && order.Status != 5 {
 			if err := Cancel(record.OrderID); err != nil {
 				logger.Logger.Error(err)
 				return
