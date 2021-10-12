@@ -111,6 +111,43 @@ func ManualSellStock(c *gin.Context) {
 	c.JSON(http.StatusOK, nil)
 }
 
+// ManualBuyLaterStock ManualBuyLaterStock
+// @Summary ManualBuyLaterStock
+// @tags tradebot
+// @accept json
+// @produce json
+// @param body body ManualBuyLaterBody true "Body"
+// @success 200
+// @failure 500 {object} handlers.ErrorResponse
+// @Router /trade/manual/buy_later [post]
+func ManualBuyLaterStock(c *gin.Context) {
+	req := ManualBuyLaterBody{}
+	var res handlers.ErrorResponse
+	if byteArr, err := ioutil.ReadAll(c.Request.Body); err != nil {
+		logger.Logger.Error(err)
+		res.Response = err.Error()
+		c.JSON(http.StatusInternalServerError, res)
+		return
+	} else if err := json.Unmarshal(byteArr, &req); err != nil {
+		logger.Logger.Error(err)
+		res.Response = err.Error()
+		c.JSON(http.StatusInternalServerError, res)
+		return
+	}
+
+	record := traderecord.TradeRecord{
+		StockNum: req.StockNum,
+		Price:    req.Price,
+	}
+	tradebot.ManualBuyLaterMap.Set(record)
+	logger.Logger.WithFields(map[string]interface{}{
+		"StockNum": req.StockNum,
+		"Price":    req.Price,
+		"Name":     global.AllStockNameMap.GetName(req.StockNum),
+	}).Info("Manual Buy Later")
+	c.JSON(http.StatusOK, nil)
+}
+
 // GetTarget GetTarget
 // @Summary GetTarget
 // @tags tradebot

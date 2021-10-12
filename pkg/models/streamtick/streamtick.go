@@ -99,45 +99,6 @@ func (c *StreamTickProto) ProtoToStreamTick() (result *StreamTick, err error) {
 	return &tmp, err
 }
 
-// ToStreamTick ToStreamTick
-// func (c *SinoPacStreamTick) ToStreamTick() (result *StreamTick, err error) {
-// 	var stockNum string
-// 	if strings.HasPrefix(c.Topic, "MKT/idcdmzpcr01/TSE") {
-// 		stockNum = strings.ReplaceAll(c.Topic, "MKT/idcdmzpcr01/TSE/", "")
-// 	} else {
-// 		stockNum = strings.ReplaceAll(c.Topic, "MKT/idcdmzpcr01/OTC/", "")
-// 	}
-// 	replaceDate := strings.ReplaceAll(c.Date, "/", "-")
-// 	utcTimeSec, err := time.ParseInLocation(global.LongTimeLayout, replaceDate+" "+c.Time[:8], time.Local)
-// 	if err != nil {
-// 		return result, err
-// 	}
-// 	ms, err := common.StrToFloat64("0" + c.Time[8:])
-// 	if err != nil {
-// 		return result, err
-// 	}
-// 	if c.Simtrade == 1 {
-// 		logger.Logger.WithFields(map[string]interface{}{
-// 			"TickType": c.TickType[0],
-// 			"Volume":   c.Volume[0],
-// 			"Close":    c.Close[0],
-// 			"Name":     global.AllStockNameMap.GetName(stockNum),
-// 		}).Info("SimTrade")
-// 		return result, err
-// 	}
-
-// 	result = &StreamTick{
-// 		StockNum:  stockNum,
-// 		AmountSum: c.AmountSum[0],
-// 		Close:     c.Close[0],
-// 		TickType:  c.TickType[0],
-// 		VolumeSum: c.VolSum[0],
-// 		Volume:    c.Volume[0],
-// 		TimeStamp: int64(float64(utcTimeSec.UnixNano() + int64(ms*1000*1000*1000))),
-// 	}
-// 	return result, err
-// }
-
 // PtrArr PtrArr
 type PtrArr []*StreamTick
 

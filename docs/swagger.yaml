@@ -53,7 +53,11 @@ definitions:
     properties:
       enable_buy:
         type: boolean
+      enable_buy_later:
+        type: boolean
       enable_sell:
+        type: boolean
+      enable_sell_first:
         type: boolean
       mean_time_trade_stock_num:
         type: integer
@@ -117,6 +121,13 @@ definitions:
       key:
         type: string
       value:
+        type: string
+    type: object
+  tradebothandler.ManualBuyLaterBody:
+    properties:
+      price:
+        type: number
+      stock_num:
         type: string
     type: object
   tradebothandler.ManualSellBody:
@@ -392,6 +403,29 @@ paths:
       summary: UpdateTradeRecord
       tags:
       - traderecord
+  /trade/manual/buy_later:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/tradebothandler.ManualBuyLaterBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: ManualBuyLaterStock
+      tags:
+      - tradebot
   /trade/manual/sell:
     post:
       consumes:

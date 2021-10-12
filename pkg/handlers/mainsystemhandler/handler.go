@@ -68,12 +68,15 @@ func UpdateTradeBotCondition(c *gin.Context) {
 	}
 	global.TradeSwitch.Buy = req.EnableBuy
 	global.TradeSwitch.Sell = req.EnableSell
+	global.TradeSwitch.SellFirst = req.EnableSell
+	global.TradeSwitch.BuyLater = req.EnableBuyLater
 	global.TradeSwitch.UseBidAsk = req.UseBidAsk
 	global.TradeSwitch.MeanTimeTradeStockNum = req.MeanTimeTradeStockNum
 	logger.Logger.WithFields(map[string]interface{}{
 		"EnableBuy":             global.TradeSwitch.Buy,
 		"EnableSell":            global.TradeSwitch.Sell,
-		"UseBidAsk":             global.TradeSwitch.UseBidAsk,
+		"EnableSellFirst":       global.TradeSwitch.SellFirst,
+		"EnableBuyLater":        global.TradeSwitch.BuyLater,
 		"MeanTimeTradeStockNum": global.TradeSwitch.MeanTimeTradeStockNum,
 	}).Info("Trade Switch Status")
 	c.JSON(http.StatusOK, nil)

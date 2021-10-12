@@ -110,23 +110,6 @@ func TickProcess(stockNum string, lastClose float64, cond simulationcond.Analyze
 				Volume:           outSum + inSum,
 			}
 			analyzeChan <- &analyze
-			// if unSavedTicksInOutRatio >= cond.OutInRatio && outSum >= cond.OutSum && closeDiff > cond.CloseDiff {
-			// 	if closeChangeRatio >= cond.CloseChangeRatioLow && closeChangeRatio <= cond.CloseChangeRatioHigh && closeChangeRatio <= cond.OpenChangeRatio && analyze.Rsi <= float64(cond.RsiLow) {
-			// name := global.AllStockNameMap.GetName(stockNum)
-			// tickTime := time.Unix(0, tick.TimeStamp).UTC().Format(global.LongTimeLayout)
-			// replaceDate := tickTime[:10]
-			// clockTime := tickTime[11:19]
-			// logger.Logger.WithFields(map[string]interface{}{
-			// 	"Close":       analyze.Close,
-			// 	"ChangeRatio": closeChangeRatio,
-			// 	"OutSum":      outSum,
-			// 	"InSum":       inSum,
-			// 	"OutInRatio":  unSavedTicksInOutRatio,
-			// 	"Name":        name,
-			// 	"RSI":         analyze.Rsi,
-			// }).Infof("EntireTick Analyze: %s %s %s", replaceDate, clockTime, stockNum)
-			// }
-			// }
 			unSavedTicks.ClearAll()
 		}
 	}

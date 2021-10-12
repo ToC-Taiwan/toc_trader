@@ -13,7 +13,8 @@ import (
 
 // CheckOrderStatusLoop CheckOrderStatusLoop
 func CheckOrderStatusLoop() {
-	go ShowStatus()
+	go showStatus()
+	go tradeSwitch()
 	tick := time.Tick(1*time.Second + 500*time.Millisecond)
 	var initQuota bool
 	for range tick {
@@ -37,17 +38,13 @@ func CheckOrderStatusLoop() {
 	}
 }
 
-// ShowStatus ShowStatus
-func ShowStatus() {
+// showStatus showStatus
+func showStatus() {
 	tick := time.Tick(60 * time.Second)
 	for range tick {
-		if time.Now().After(global.TradeDayEndTime) && global.TradeSwitch.Buy {
-			global.TradeSwitch.Buy = false
-			logger.Logger.Warn("Trun enable buy off")
-		}
-		if FilledBuyOrderMap.GetCount() == FilledSellOrderMap.GetCount() && FilledSellOrderMap.GetCount() != 0 {
+		if isCurrentOrderAllFinished() && time.Now().Before(global.TradeDayEndTime.Add(2*time.Hour)) {
 			balance := FilledSellOrderMap.GetTotalSellCost() + FilledSellFirstOrderMap.GetTotalSellCost() - FilledBuyLaterOrderMap.GetTotalBuyCost() - FilledBuyOrderMap.GetTotalBuyCost()
-			back := FilledSellOrderMap.GetTotalCostBack() + FilledBuyOrderMap.GetTotalCostBack() + FilledSellFirstOrderMap.GetTotalCostBack() + FilledBuyLaterOrderMap.GetTotalCostBack()
+			back := FilledBuyOrderMap.GetTotalCostBack() + FilledSellOrderMap.GetTotalCostBack() + FilledSellFirstOrderMap.GetTotalCostBack() + FilledBuyLaterOrderMap.GetTotalCostBack()
 			logger.Logger.WithFields(map[string]interface{}{
 				"Current":         BuyOrderMap.GetCount(),
 				"Maximum":         global.TradeSwitch.MeanTimeTradeStockNum,
@@ -57,14 +54,32 @@ func ShowStatus() {
 				"Real":            balance + back,
 			}).Info("Current Trade Status")
 		}
-		if time.Now().After(global.TradeDayEndTime.Add(1 * time.Hour)) {
-			FilledBuyOrderMap.ClearAll()
-			FilledSellOrderMap.ClearAll()
+	}
+}
+
+func tradeSwitch() {
+	tick := time.Tick(20 * time.Second)
+	for range tick {
+		if time.Now().After(global.TradeDayEndTime) && global.TradeSwitch.Buy {
+			global.TradeSwitch.Buy = false
+			global.TradeSwitch.SellFirst = false
+			logger.Logger.Warn("Enable buy and Sell first are all OFF")
 		}
 	}
 }
 
+func isCurrentOrderAllFinished() bool {
+	if BuyOrderMap.GetCount() != 0 || SellFirstOrderMap.GetCount() != 0 {
+		return false
+	}
+	if FilledSellOrderMap.GetCount() == 0 && FilledBuyLaterOrderMap.GetCount() == 0 {
+		return false
+	}
+	return FilledBuyOrderMap.GetCount() == FilledSellOrderMap.GetCount() && FilledSellFirstOrderMap.GetCount() == FilledBuyLaterOrderMap.GetCount()
+}
+
 func initBalance(orders []traderecord.TradeRecord) {
+	var tmpBuyOrder, tmpSellOrder []traderecord.TradeRecord
 	for _, val := range orders {
 		record := traderecord.TradeRecord{
 			StockNum:  val.StockNum,
@@ -78,21 +93,27 @@ func initBalance(orders []traderecord.TradeRecord) {
 		}
 		if val.Action == 1 && val.Status == 6 && !FilledBuyOrderMap.CheckStockExist(val.StockNum) {
 			FilledBuyOrderMap.Set(record)
-			logger.Logger.WithFields(map[string]interface{}{
-				"StockNum": record.StockNum,
-				"Name":     record.StockName,
-				"Quantity": record.Quantity,
-				"Price":    record.Price,
-			}).Warn("Filled Buy Order")
+			tmpBuyOrder = append(tmpBuyOrder, record)
 		} else if val.Action == 2 && val.Status == 6 && !FilledSellOrderMap.CheckStockExist(val.StockNum) {
 			FilledSellOrderMap.Set(record)
-			logger.Logger.WithFields(map[string]interface{}{
-				"StockNum": record.StockNum,
-				"Name":     record.StockName,
-				"Quantity": record.Quantity,
-				"Price":    record.Price,
-			}).Warn("Filled Sell Order")
+			tmpSellOrder = append(tmpSellOrder, record)
 		}
+	}
+	for _, v := range tmpBuyOrder {
+		logger.Logger.WithFields(map[string]interface{}{
+			"StockNum": v.StockNum,
+			"Name":     v.StockName,
+			"Quantity": v.Quantity,
+			"Price":    v.Price,
+		}).Warn("Filled Buy Order")
+	}
+	for _, v := range tmpSellOrder {
+		logger.Logger.WithFields(map[string]interface{}{
+			"StockNum": v.StockNum,
+			"Name":     v.StockName,
+			"Quantity": v.Quantity,
+			"Price":    v.Price,
+		}).Warn("Filled Sell Order")
 	}
 }
 

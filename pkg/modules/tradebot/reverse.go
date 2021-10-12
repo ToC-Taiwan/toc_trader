@@ -27,6 +27,9 @@ var FilledSellFirstOrderMap tradeRecordMutexMap
 // FilledBuyLaterOrderMap FilledBuyLaterOrderMap
 var FilledBuyLaterOrderMap tradeRecordMutexMap
 
+// ManualBuyLaterMap ManualBuyLaterMap
+var ManualBuyLaterMap tradeRecordMutexMap
+
 // SellFirstBot SellFirstBot
 func SellFirstBot(analyzeTick *analyzestreamtick.AnalyzeStreamTick) {
 	name := global.AllStockNameMap.GetName(analyzeTick.StockNum)
@@ -156,6 +159,11 @@ func GetBuyLaterPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyC
 		buyPrice = tick.Close
 	case rsi < float64(cond.ReverseRsiLow):
 		buyPrice = tick.Close
+	case ManualBuyLaterMap.CheckStockExist(tick.StockNum):
+		buyPrice = ManualBuyLaterMap.GetClose(tick.StockNum)
+		if buyPrice == 0 {
+			buyPrice = tick.Close
+		}
 	case tickTimeUnix.After(lastTime):
 		buyPrice = tick.Close
 	default:
@@ -250,6 +258,9 @@ func CheckBuyLaterOrderStatus(record traderecord.TradeRecord) {
 			FilledBuyLaterOrderMap.Set(order)
 			SellFirstOrderMap.Delete(record.StockNum)
 			BuyLaterOrderMap.Delete(record.StockNum)
+			if ManualBuyLaterMap.CheckStockExist(record.StockNum) {
+				ManualBuyLaterMap.Delete(record.StockNum)
+			}
 			logger.Logger.WithFields(map[string]interface{}{
 				"StockNum": order.StockNum,
 				"Name":     order.StockName,

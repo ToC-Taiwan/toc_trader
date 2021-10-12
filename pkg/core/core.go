@@ -41,7 +41,7 @@ func TradeProcess() {
 			panic(err)
 		}
 		if ans == "y\n" {
-			logger.Logger.Warn("Simulating")
+			logger.Logger.Info("Simulating")
 			simulateprocess.Simulate()
 		}
 	}

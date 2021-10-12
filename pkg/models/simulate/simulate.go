@@ -9,9 +9,12 @@ import (
 // Result Result
 type Result struct {
 	gorm.Model
-	Balance int64                           `gorm:"column:balance;"`
-	Cond    simulationcond.AnalyzeCondition `gorm:"foreignKey:CondID"`
-	CondID  int64
+	Balance        int64 `gorm:"column:balance;"`
+	ForwardBalance int64 `gorm:"column:forward_balance;"`
+	ReverseBalance int64 `gorm:"column:reverse_balance;"`
+	TradeCount     int64 `gorm:"column:trade_count;"`
+	CondID         int64
+	Cond           simulationcond.AnalyzeCondition `gorm:"foreignKey:CondID"`
 }
 
 // Tabler Tabler

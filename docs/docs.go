@@ -362,6 +362,42 @@ var doc = `{
                 }
             }
         },
+        "/trade/manual/buy_later": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tradebot"
+                ],
+                "summary": "ManualBuyLaterStock",
+                "parameters": [
+                    {
+                        "description": "Body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/tradebothandler.ManualBuyLaterBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/trade/manual/sell": {
             "post": {
                 "consumes": [
@@ -481,7 +517,13 @@ var doc = `{
                 "enable_buy": {
                     "type": "boolean"
                 },
+                "enable_buy_later": {
+                    "type": "boolean"
+                },
                 "enable_sell": {
+                    "type": "boolean"
+                },
+                "enable_sell_first": {
                     "type": "boolean"
                 },
                 "mean_time_trade_stock_num": {
@@ -578,6 +620,17 @@ var doc = `{
                     "type": "string"
                 },
                 "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "tradebothandler.ManualBuyLaterBody": {
+            "type": "object",
+            "properties": {
+                "price": {
+                    "type": "number"
+                },
+                "stock_num": {
                     "type": "string"
                 }
             }

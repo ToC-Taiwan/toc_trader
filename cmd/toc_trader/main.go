@@ -35,7 +35,6 @@ func main() {
 	}
 	// Main service
 	go core.TradeProcess()
-
 	// Keep thread running
 	for range time.NewTicker(1 * time.Second).C {
 		exit := <-global.ExitChannel

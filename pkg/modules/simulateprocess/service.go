@@ -72,13 +72,13 @@ func Simulate() {
 	storeAllEntireTick(targetArr)
 	resultChan = make(chan simulate.Result)
 	totalTimesChan = make(chan int)
-	go catchResult(targetArr)
+	go catchResult(targetArr, useGlobal)
 	go totalTimesReceiver()
 	var wg sync.WaitGroup
 	if useGlobal {
 		getBestCond(targetArr, int(global.TickAnalyzeCondition.HistoryCloseCount), useGlobal)
 	} else {
-		for i := 2500; i >= 500; i -= 500 {
+		for i := 2500; i >= 1500; i -= 500 {
 			wg.Add(1)
 			go func(historyCount int) {
 				defer wg.Done()
@@ -144,7 +144,8 @@ func GetBalance(analyzeMap []map[string]*analyzeentiretick.AnalyzeEntireTick, co
 		return
 	}
 	sellTimeStamp := make(map[string]int64)
-	var balance int64
+	var forwardBalance, reverseBalance int64
+	var tradeCount int64
 	for stockNum, v := range analyzeMap[0] {
 		ticks := allTickMap.getAllTicksByStockNum(stockNum)
 		endTradeTime := getLastTradeTimeByEntireTickTimeStamp(ticks[0].TimeStamp)
@@ -172,10 +173,11 @@ func GetBalance(analyzeMap []map[string]*analyzeentiretick.AnalyzeEntireTick, co
 		} else {
 			buyCost := tradebot.GetStockBuyCost(buyPrice, global.OneTimeQuantity)
 			sellCost := tradebot.GetStockSellCost(sellPrice, global.OneTimeQuantity)
-			balance += (sellCost - buyCost)
-			if sellTimeStamp[v.StockNum]-endTradeTime > 10800*1000*1000*1000 && training {
+			forwardBalance += (sellCost - buyCost)
+			if sellTimeStamp[v.StockNum] > endTradeTime && training {
 				return
 			}
+			tradeCount++
 			if !training {
 				logger.Logger.Warnf("Forward Balance: %d, Stock: %s, Name: %s, Total Time: %d, %.2f, %.2f", sellCost-buyCost, v.StockNum, global.AllStockNameMap.GetName(v.StockNum), (sellTimeStamp[v.StockNum]-v.TimeStamp)/1000/1000/1000, buyPrice, sellPrice)
 			}
@@ -209,27 +211,31 @@ func GetBalance(analyzeMap []map[string]*analyzeentiretick.AnalyzeEntireTick, co
 		} else {
 			buyCost := tradebot.GetStockBuyCost(buyLaterPrice, global.OneTimeQuantity)
 			sellCost := tradebot.GetStockSellCost(sellFirstPrice, global.OneTimeQuantity)
-			if sellTimeStamp[v.StockNum]-endTradeTime > 10800*1000*1000*1000 && training {
+			if sellTimeStamp[v.StockNum] > endTradeTime && training {
 				return
 			}
-			balance += (sellCost - buyCost)
+			tradeCount++
+			reverseBalance += (sellCost - buyCost)
 			if !training {
 				logger.Logger.Warnf("Reverse Balance: %d, Stock: %s, Name: %s, Total Time: %d, %.2f, %.2f", sellCost-buyCost, v.StockNum, global.AllStockNameMap.GetName(v.StockNum), (sellTimeStamp[v.StockNum]-v.TimeStamp)/1000/1000/1000, buyLaterPrice, sellFirstPrice)
 			}
 		}
 	}
 	tmp := simulate.Result{
-		Cond:    cond,
-		Balance: balance,
+		Balance:        forwardBalance + reverseBalance,
+		ForwardBalance: forwardBalance,
+		ReverseBalance: reverseBalance,
+		TradeCount:     tradeCount,
+		Cond:           cond,
 	}
 	if training {
 		resultChan <- tmp
 	} else {
-		logger.Logger.Warnf("Total Balance: %d, TradeCount: %d, Cond: %+v", balance, len(analyzeMap[0])+len(analyzeMap[1]), cond)
+		logger.Logger.Warnf("Total Balance: %d, TradeCount: %d, Cond: %+v", tmp.Balance, len(analyzeMap[0])+len(analyzeMap[1]), cond)
 	}
 }
 
-func catchResult(targetArr []string) {
+func catchResult(targetArr []string, useGlobal bool) {
 	var save []simulate.Result
 	var tmp []simulate.Result
 	var count int
@@ -250,7 +256,7 @@ func catchResult(targetArr []string) {
 					go GetBalance(SearchTradePoint(targetArr, k.Cond), k.Cond, false, &wg)
 				}
 				wg.Wait()
-			} else {
+			} else if !useGlobal {
 				logger.Logger.Info("No best result")
 			}
 			break

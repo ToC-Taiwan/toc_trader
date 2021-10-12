@@ -114,6 +114,7 @@ func (c *tradeRecordMutexMap) GetClose(stockNum string) float64 {
 	return tmp
 }
 
+// GetTotalBuyCost GetTotalBuyCost
 func (c *tradeRecordMutexMap) GetTotalBuyCost() int64 {
 	if c.tMap == nil {
 		c.tMap = make(map[string]traderecord.TradeRecord)
@@ -127,6 +128,7 @@ func (c *tradeRecordMutexMap) GetTotalBuyCost() int64 {
 	return cost
 }
 
+// GetTotalSellCost GetTotalSellCost
 func (c *tradeRecordMutexMap) GetTotalSellCost() int64 {
 	if c.tMap == nil {
 		c.tMap = make(map[string]traderecord.TradeRecord)
@@ -140,6 +142,7 @@ func (c *tradeRecordMutexMap) GetTotalSellCost() int64 {
 	return cost
 }
 
+// GetTotalCostBack GetTotalCostBack
 func (c *tradeRecordMutexMap) GetTotalCostBack() int64 {
 	if c.tMap == nil {
 		c.tMap = make(map[string]traderecord.TradeRecord)

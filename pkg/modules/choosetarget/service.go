@@ -263,16 +263,6 @@ func TSEProcess() {
 	TSE001 = &snapshot.SnapShot{}
 	for {
 		tse := <-TSEChannel
-		// if TSE001.Close < tse.Close {
-		// 	logger.Logger.WithFields(map[string]interface{}{
-		// 		"Close":       tse.Close,
-		// 		"Open":        tse.Open,
-		// 		"High":        tse.High,
-		// 		"Low":         tse.Low,
-		// 		"ChangeRatio": tse.ChangeRate,
-		// 		"Diff":        tse.ChangePrice,
-		// 	}).Info("TSE001")
-		// }
 		TSE001 = tse
 	}
 }

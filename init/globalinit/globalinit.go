@@ -24,14 +24,14 @@ func init() {
 		SellFirst:                    true,
 		BuyLater:                     true,
 		UseBidAsk:                    false,
-		MeanTimeTradeStockNum:        3,
-		MeanTimeReverseTradeStockNum: 3,
+		MeanTimeTradeStockNum:        5,
+		MeanTimeReverseTradeStockNum: 5,
 	}
 
 	global.TickAnalyzeCondition = simulationcond.AnalyzeCondition{
 		HistoryCloseCount:    2000,
-		OutInRatio:           65,
-		ReverseOutInRatio:    10,
+		OutInRatio:           75,
+		ReverseOutInRatio:    20,
 		CloseDiff:            0,
 		CloseChangeRatioLow:  -3,
 		CloseChangeRatioHigh: 6,
@@ -40,10 +40,10 @@ func init() {
 		RsiLow:               50,
 		ReverseRsiHigh:       50,
 		ReverseRsiLow:        50,
-		TicksPeriodThreshold: 10,
-		TicksPeriodLimit:     13,
+		TicksPeriodThreshold: 20,
+		TicksPeriodLimit:     26,
 		TicksPeriodCount:     1,
-		Volume:               50,
+		Volume:               200,
 	}
 
 	if err := importbasic.ImportHoliday(); err != nil {

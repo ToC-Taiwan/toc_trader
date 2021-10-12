@@ -21,11 +21,9 @@ func TickProcess(lastClose float64, cond simulationcond.AnalyzeCondition, ch cha
 	buyChan := make(chan *analyzestreamtick.AnalyzeStreamTick)
 	sellChan := make(chan *streamtick.StreamTick)
 	buyLaterChan := make(chan *streamtick.StreamTick)
-	// analyzeChan := make(chan *analyzestreamtick.AnalyzeStreamTick)
 	go tradebot.BuyBot(buyChan, cond)
 	go tradebot.SellBot(sellChan, cond)
 	go tradebot.BuyLaterBot(buyLaterChan, cond)
-	// go AnalyzeStreamTickSaver(analyzeChan)
 
 	var input quote.Quote
 	var unSavedTicks streamtick.PtrArrArr
@@ -95,7 +93,6 @@ func TickProcess(lastClose float64, cond simulationcond.AnalyzeCondition, ch cha
 				Rsi:              rsi,
 				Volume:           outSum + inSum,
 			}
-			// analyzeChan <- analyze
 			buyChan <- &analyze
 			unSavedTicks.ClearAll()
 		}
@@ -114,40 +111,3 @@ func SaveStreamTicks(saveCh chan []*streamtick.StreamTick) {
 		}
 	}
 }
-
-// var analyzeStreamTickTmpArr analyzestreamtick.AnalyzeStreamArrMutexStruct
-
-// // AnalyzeStreamTickSaver AnalyzeStreamTickSaver
-// func AnalyzeStreamTickSaver(ch chan *analyzestreamtick.AnalyzeStreamTick) {
-// 	var err error
-// 	defer func() {
-// 		if r := recover(); r != nil {
-// 			switch x := r.(type) {
-// 			case string:
-// 				err = errors.New(x)
-// 			case error:
-// 				err = x
-// 			default:
-// 				err = errors.New("unknown panic")
-// 			}
-// 			logger.Logger.Error(err.Error() + "\n" + string(debug.Stack()))
-// 		}
-// 	}()
-// 	go func() {
-// 		tick := time.Tick(5 * time.Second)
-// 		for range tick {
-// 			if analyzeStreamTickTmpArr.GetTotalCount() != 0 {
-// 				analyzeStreamTickTmpArr.Mutex.Lock()
-// 				if err := analyzestreamtick.InsertMultiRecord(analyzeStreamTickTmpArr.Ticks, global.GlobalDB); err != nil {
-// 					panic(err)
-// 				}
-// 				analyzeStreamTickTmpArr.Ticks = []*analyzestreamtick.AnalyzeStreamTick{}
-// 				analyzeStreamTickTmpArr.Mutex.Unlock()
-// 			}
-// 		}
-// 	}()
-// 	for {
-// 		tick := <-ch
-// 		analyzeStreamTickTmpArr.Append(tick)
-// 	}
-// }
