@@ -2,9 +2,9 @@ package main
 
 import (
 	_ "gitlab.tocraw.com/root/toc_trader/init/sysinit"
+	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 	"gitlab.tocraw.com/root/toc_trader/tools/network"
 
-	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -36,10 +36,11 @@ func main() {
 	// Main service
 	go core.TradeProcess()
 	// Keep thread running
-	for range time.NewTicker(1 * time.Second).C {
+	for {
 		exit := <-global.ExitChannel
 		if exit == "exit" {
-			os.Exit(0)
+			logger.Logger.Panic("manual exit")
+			// os.Exit(0)
 		}
 	}
 }

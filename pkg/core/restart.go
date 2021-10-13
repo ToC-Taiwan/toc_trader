@@ -7,7 +7,6 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/pyresponse"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/process"
-	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 )
 
 // FullRestart FullRestart
@@ -30,8 +29,7 @@ func askSinopacSRVRestart() error {
 	}
 	res := *resp.Result().(*pyresponse.PyServerResponse)
 	if res.Status != "success" {
-		logger.Logger.Error(res.Status)
-		return errors.New("askSinopacSRVRestart fail")
+		return errors.New(res.Status)
 	}
 	return err
 }

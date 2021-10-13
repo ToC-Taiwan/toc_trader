@@ -260,6 +260,22 @@ paths:
       summary: GetTarget
       tags:
       - tradebot
+  /system/full_restart:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: FullRestart
+      tags:
+      - mainsystem
   /system/pyserver/host:
     post:
       consumes:

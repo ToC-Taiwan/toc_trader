@@ -139,6 +139,31 @@ var doc = `{
                 }
             }
         },
+        "/system/full_restart": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "mainsystem"
+                ],
+                "summary": "FullRestart",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/system/pyserver/host": {
             "post": {
                 "consumes": [

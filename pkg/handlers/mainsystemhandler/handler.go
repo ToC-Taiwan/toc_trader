@@ -9,6 +9,7 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"gitlab.tocraw.com/root/toc_trader/pkg/core"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/handlers"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/process"
@@ -18,6 +19,7 @@ import (
 // AddHandlers AddHandlers
 func AddHandlers(group *gin.RouterGroup) {
 	group.GET("/system/restart", Restart)
+	group.GET("/system/full_restart", FullRestart)
 	group.GET("/system/trade/switch", GetTradeBotCondition)
 	group.PUT("/system/trade/switch", UpdateTradeBotCondition)
 	group.POST("/system/pyserver/host", UpdatePyServerHost)
@@ -32,13 +34,13 @@ func AddHandlers(group *gin.RouterGroup) {
 // @failure 500 {object} string
 // @Router /system/restart [get]
 func Restart(c *gin.Context) {
-	var res handlers.ErrorResponse
-	deployment := os.Getenv("DEPLOYMENT")
-	if deployment != "docker" {
-		res.Response = "you should be in the docker container"
-		c.JSON(http.StatusInternalServerError, res)
-		return
-	}
+	// var res handlers.ErrorResponse
+	// deployment := os.Getenv("DEPLOYMENT")
+	// if deployment != "docker" {
+	// 	res.Response = "you should be in the docker container(from toc_trader)"
+	// 	c.JSON(http.StatusInternalServerError, res)
+	// 	return
+	// }
 	process.RestartService()
 	c.JSON(http.StatusOK, nil)
 }
@@ -118,5 +120,29 @@ func UpdatePyServerHost(c *gin.Context) {
 		return
 	}
 	global.PyServerHost = host
+	c.JSON(http.StatusOK, nil)
+}
+
+// FullRestart FullRestart
+// @Summary FullRestart
+// @tags mainsystem
+// @accept json
+// @produce json
+// @success 200
+// @failure 500 {object} string
+// @Router /system/full_restart [get]
+func FullRestart(c *gin.Context) {
+	var res handlers.ErrorResponse
+	deployment := os.Getenv("DEPLOYMENT")
+	if deployment != "docker" {
+		res.Response = "you should be in the docker container(full_restart)"
+		c.JSON(http.StatusInternalServerError, res)
+		return
+	}
+	if err := core.FullRestart(); err != nil {
+		res.Response = err.Error()
+		c.JSON(http.StatusInternalServerError, res)
+		return
+	}
 	c.JSON(http.StatusOK, nil)
 }
