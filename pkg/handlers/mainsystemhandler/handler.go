@@ -9,10 +9,10 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
-	"gitlab.tocraw.com/root/toc_trader/pkg/core"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/handlers"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/process"
+	"gitlab.tocraw.com/root/toc_trader/tools/heartbeat"
 	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 )
 
@@ -34,13 +34,13 @@ func AddHandlers(group *gin.RouterGroup) {
 // @failure 500 {object} string
 // @Router /system/restart [get]
 func Restart(c *gin.Context) {
-	// var res handlers.ErrorResponse
-	// deployment := os.Getenv("DEPLOYMENT")
-	// if deployment != "docker" {
-	// 	res.Response = "you should be in the docker container(from toc_trader)"
-	// 	c.JSON(http.StatusInternalServerError, res)
-	// 	return
-	// }
+	var res handlers.ErrorResponse
+	deployment := os.Getenv("DEPLOYMENT")
+	if deployment != "docker" {
+		res.Response = "you should be in the docker container(from toc_trader)"
+		c.JSON(http.StatusInternalServerError, res)
+		return
+	}
 	process.RestartService()
 	c.JSON(http.StatusOK, nil)
 }
@@ -139,7 +139,7 @@ func FullRestart(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, res)
 		return
 	}
-	if err := core.FullRestart(); err != nil {
+	if err := heartbeat.FullRestart(); err != nil {
 		res.Response = err.Error()
 		c.JSON(http.StatusInternalServerError, res)
 		return

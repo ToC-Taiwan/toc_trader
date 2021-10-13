@@ -1,5 +1,5 @@
-// Package core package core
-package core
+// Package heartbeat package heartbeat
+package heartbeat
 
 import (
 	"errors"

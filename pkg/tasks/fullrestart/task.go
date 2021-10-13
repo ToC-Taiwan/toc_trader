@@ -4,7 +4,7 @@ package fullrestart
 import (
 	"sync"
 
-	"gitlab.tocraw.com/root/toc_trader/pkg/core"
+	"gitlab.tocraw.com/root/toc_trader/tools/heartbeat"
 )
 
 var lock sync.RWMutex
@@ -13,7 +13,7 @@ var lock sync.RWMutex
 func Run() {
 	lock.Lock()
 	defer lock.Unlock()
-	if err := core.FullRestart(); err != nil {
+	if err := heartbeat.FullRestart(); err != nil {
 		panic(err)
 	}
 }

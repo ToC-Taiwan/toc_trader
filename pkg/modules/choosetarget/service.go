@@ -16,6 +16,8 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/fetchentiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/importbasic"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/subscribe"
+	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot"
+	"gitlab.tocraw.com/root/toc_trader/tools/heartbeat"
 	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 	"google.golang.org/protobuf/proto"
 )
@@ -29,9 +31,22 @@ func init() {
 
 // SubscribeTarget SubscribeTarget
 func SubscribeTarget(targetArr []string) {
+	var errorTimes int
 	// Update last 2 trade day close in map
-	if err := UpdateStockCloseMapByDate(targetArr, global.LastTradeDayArr); err != nil {
-		logger.Logger.Error(err)
+	for {
+		err := UpdateStockCloseMapByDate(targetArr, global.LastTradeDayArr)
+		if errorTimes >= 5 {
+			if err = heartbeat.FullRestart(); err != nil && tradebot.BuyOrderMap.GetCount() != 0 && tradebot.SellFirstOrderMap.GetCount() != 0 {
+				logger.Logger.Fatal(err)
+			}
+			return
+		}
+		if err != nil {
+			logger.Logger.Error(err)
+			errorTimes++
+		} else {
+			break
+		}
 	}
 	// Subscribe all target stock and bidask and unsubscribefirst
 	// subscribe.SubBidAsk(targetArr)

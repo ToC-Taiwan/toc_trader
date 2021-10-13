@@ -27,5 +27,5 @@ func init() {
 		})
 	}
 	Logger.SetLevel(log.TraceLevel)
-	// Logger.SetOutput(os.Stdout)
+	Logger.SetOutput(os.Stdout)
 }
