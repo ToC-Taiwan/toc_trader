@@ -11,6 +11,9 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 )
 
+// StatusFirstBack StatusFirstBack
+var StatusFirstBack bool
+
 // CheckOrderStatusLoop CheckOrderStatusLoop
 func CheckOrderStatusLoop() {
 	go showStatus()
@@ -22,7 +25,7 @@ func CheckOrderStatusLoop() {
 			logger.Logger.Error(err)
 			continue
 		}
-		if !initQuota {
+		if !initQuota && StatusFirstBack {
 			if err := InitStartUpQuota(); err != nil {
 				panic(err)
 			}

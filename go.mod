@@ -15,8 +15,8 @@ require (
 	github.com/swaggo/swag v1.7.3
 	google.golang.org/protobuf v1.27.1
 	gorm.io/driver/postgres v1.1.2
-	gorm.io/driver/sqlite v1.1.5
-	gorm.io/gorm v1.21.15
+	gorm.io/driver/sqlite v1.1.6
+	gorm.io/gorm v1.21.16
 )
 
 require (

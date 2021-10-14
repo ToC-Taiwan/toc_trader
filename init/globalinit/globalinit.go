@@ -29,21 +29,21 @@ func init() {
 	}
 
 	global.TickAnalyzeCondition = simulationcond.AnalyzeCondition{
-		HistoryCloseCount:    2000,
+		HistoryCloseCount:    1500,
 		OutInRatio:           75,
-		ReverseOutInRatio:    25,
+		ReverseOutInRatio:    10,
 		CloseDiff:            0,
-		CloseChangeRatioLow:  -3,
-		CloseChangeRatioHigh: 6,
-		OpenChangeRatio:      6,
+		CloseChangeRatioLow:  -2,
+		CloseChangeRatioHigh: 5,
+		OpenChangeRatio:      3,
 		RsiHigh:              50,
 		RsiLow:               50,
 		ReverseRsiHigh:       50,
 		ReverseRsiLow:        50,
-		TicksPeriodThreshold: 10,
-		TicksPeriodLimit:     13,
+		TicksPeriodThreshold: 9,
+		TicksPeriodLimit:     11.7,
 		TicksPeriodCount:     3,
-		Volume:               250,
+		Volume:               270,
 	}
 
 	if err := importbasic.ImportHoliday(); err != nil {

@@ -78,7 +78,7 @@ func Simulate() {
 	if useGlobal {
 		getBestCond(targetArr, int(global.TickAnalyzeCondition.HistoryCloseCount), useGlobal)
 	} else {
-		for i := 2500; i >= 1500; i -= 500 {
+		for i := 2500; i >= 1500; i -= 1000 {
 			wg.Add(1)
 			go func(historyCount int) {
 				defer wg.Done()
@@ -139,7 +139,7 @@ func SearchTradePoint(targetArr []string, cond simulationcond.AnalyzeCondition) 
 // GetBalance GetBalance
 func GetBalance(analyzeMap []map[string]*analyzeentiretick.AnalyzeEntireTick, cond simulationcond.AnalyzeCondition, training bool, wg *sync.WaitGroup) {
 	defer wg.Done()
-	if balanceType == "c" && (len(analyzeMap[0]) == 0 || len(analyzeMap[1]) == 0) {
+	if balanceType == "c" && (len(analyzeMap[0]) == 0 || len(analyzeMap[1]) == 0) && training {
 		totalTimesChan <- -1
 		return
 	}
@@ -173,7 +173,8 @@ func GetBalance(analyzeMap []map[string]*analyzeentiretick.AnalyzeEntireTick, co
 		} else {
 			buyCost := tradebot.GetStockBuyCost(buyPrice, global.OneTimeQuantity)
 			sellCost := tradebot.GetStockSellCost(sellPrice, global.OneTimeQuantity)
-			forwardBalance += (sellCost - buyCost)
+			back := tradebot.GetStockTradeFeeDiscount(buyPrice, global.OneTimeQuantity) + tradebot.GetStockTradeFeeDiscount(sellPrice, global.OneTimeQuantity)
+			forwardBalance += (sellCost - buyCost + back)
 			if sellTimeStamp[v.StockNum] > endTradeTime && training {
 				return
 			}
@@ -211,11 +212,12 @@ func GetBalance(analyzeMap []map[string]*analyzeentiretick.AnalyzeEntireTick, co
 		} else {
 			buyCost := tradebot.GetStockBuyCost(buyLaterPrice, global.OneTimeQuantity)
 			sellCost := tradebot.GetStockSellCost(sellFirstPrice, global.OneTimeQuantity)
+			back := tradebot.GetStockTradeFeeDiscount(buyLaterPrice, global.OneTimeQuantity) + tradebot.GetStockTradeFeeDiscount(sellFirstPrice, global.OneTimeQuantity)
 			if sellTimeStamp[v.StockNum] > endTradeTime && training {
 				return
 			}
 			tradeCount++
-			reverseBalance += (sellCost - buyCost)
+			reverseBalance += (sellCost - buyCost + back)
 			if !training {
 				logger.Logger.Warnf("Reverse Balance: %d, Stock: %s, Name: %s, Total Time: %d, %.2f, %.2f", sellCost-buyCost, v.StockNum, global.AllStockNameMap.GetName(v.StockNum), (sellTimeStamp[v.StockNum]-v.TimeStamp)/1000/1000/1000, buyLaterPrice, sellFirstPrice)
 			}
@@ -288,21 +290,21 @@ func getBestCond(targetArr []string, historyCount int, useGlobal bool) {
 		conds = append(conds, &global.TickAnalyzeCondition)
 	} else {
 		for m := 75; m >= 50; m -= 5 {
-			for u := 5; u <= 25; u += 5 {
+			for u := 5; u <= 10; u += 5 {
 				for i := 35; i <= 50; i += 5 {
-					for z := 0; z <= 15; z += 5 {
-						for o := 20; o >= 5; o -= 5 {
+					for z := 0; z <= 10; z += 5 {
+						for o := 10; o >= 1; o-- {
 							for p := 3; p >= 1; p-- {
-								for v := 250; v >= 50; v -= 50 {
+								for v := 1; v <= 10; v++ {
 									j := historyCount
 									cond := simulationcond.AnalyzeCondition{
 										HistoryCloseCount:    int64(j),
 										OutInRatio:           float64(m),
 										ReverseOutInRatio:    float64(u),
 										CloseDiff:            0,
-										CloseChangeRatioLow:  -3,
-										CloseChangeRatioHigh: 6,
-										OpenChangeRatio:      6,
+										CloseChangeRatioLow:  -1,
+										CloseChangeRatioHigh: 5,
+										OpenChangeRatio:      3,
 										RsiHigh:              int64(i + z),
 										RsiLow:               int64(i),
 										ReverseRsiHigh:       int64(i + z),
@@ -310,7 +312,7 @@ func getBestCond(targetArr []string, historyCount int, useGlobal bool) {
 										TicksPeriodThreshold: float64(o),
 										TicksPeriodLimit:     float64(o) * 1.3,
 										TicksPeriodCount:     p,
-										Volume:               int64(v),
+										Volume:               int64(v * o * p),
 									}
 									conds = append(conds, &cond)
 								}
