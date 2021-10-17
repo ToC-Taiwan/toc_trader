@@ -34,14 +34,13 @@ func TradeProcess() {
 		// Send ip to sinopac srv
 		sendCurrentIP()
 		// Simulate
-		fmt.Print("Need simulate?(y/n): ")
+		fmt.Print("* Simulate?(y/n): ")
 		reader := bufio.NewReader(os.Stdin)
 		ans, err := reader.ReadString('\n')
 		if err != nil {
 			panic(err)
 		}
 		if ans == "y\n" {
-			logger.Logger.Info("Simulating")
 			simulateprocess.Simulate()
 		}
 	}
@@ -57,7 +56,7 @@ func TradeProcess() {
 		// Subscribe all target
 		choosetarget.SubscribeTarget(global.TargetArr)
 		// Put data into channel, it will wait for all fetch done. Final close all channel.
-		fetchentiretick.FetchEntireTick(global.TargetArr, global.LastTradeDayArr, global.TickAnalyzeCondition)
+		fetchentiretick.FetchEntireTick(global.TargetArr, global.LastTradeDayArr[:len(global.LastTradeDayArr)-1], global.TickAnalyzeCondition)
 		logger.Logger.Info("FetchEntireTick Done")
 		// Background get trade record
 		go tradebot.CheckOrderStatusLoop()

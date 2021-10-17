@@ -125,7 +125,6 @@ func SaveEntireTicks(saveCh chan []*entiretick.EntireTick) {
 		if len(saveData) != 0 {
 			if err := entiretick.InsertMultiRecord(saveData, global.GlobalDB); err != nil {
 				logger.Logger.Error(err)
-				continue
 			}
 		}
 	}

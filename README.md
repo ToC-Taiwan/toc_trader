@@ -48,11 +48,45 @@ git check-ignore *
 
 ### Simulation
 
+- Forward
+
 ```log
-WARN[2021/09/30 16:00:51] Total Balance: 1211, TradeCount: 6, Cond: {500 150 55 0 -3 5 5 50 50}
-WARN[2021/10/01 03:10:33] Total Balance: 676, TradeCount: 33, Cond: {400 150 55 0 -1 7 7 45 55}
-WARN[2021/10/01 03:49:41] Total Balance: 1014, TradeCount: 9, Cond: {500 150 55 0 -3 5 5 45 55 5 6.5 4}
-WARN[2021/10/01 04:48:41] Total Balance: 5163, TradeCount: 4, Cond: {500 200 60 0 -3 5 5 55 50 20 26 3}
+WARN[2021/10/18 02:41:25] 2021-10-15 Forward Balance: -538, Stock: 2609, Name: 陽明, Total Time: 1168, 92.60, 92.30
+WARN[2021/10/18 02:41:25] 2021-10-15 Forward Balance: 448, Stock: 2303, Name: 聯電, Total Time: 761, 58.20, 58.80
+WARN[2021/10/18 02:41:25] 2021-10-15 Forward Balance: -743, Stock: 2603, Name: 長榮, Total Time: 808, 94.70, 94.20
+WARN[2021/10/18 02:41:25] 2021-10-14 Forward Balance: -1739, Stock: 2603, Name: 長榮, Total Time: 230, 93.60, 92.10
+WARN[2021/10/18 02:41:25] 2021-10-14 Forward Balance: 1768, Stock: 2609, Name: 陽明, Total Time: 1077, 88.00, 90.00
+WARN[2021/10/18 02:41:25] 2021-10-14 Forward Balance: 353, Stock: 2303, Name: 聯電, Total Time: 1533, 56.70, 57.20
+WARN[2021/10/18 02:41:25] 2021-10-13 Forward Balance: -450, Stock: 2303, Name: 聯電, Total Time: 369, 58.10, 57.80
+WARN[2021/10/18 02:41:25] 2021-10-13 Forward Balance: -936, Stock: 2609, Name: 陽明, Total Time: 630, 92.00, 91.30
+WARN[2021/10/18 02:41:25] 2021-10-13 Forward Balance: -1068, Stock: 2606, Name: 裕民, Total Time: 2684, 65.70, 64.80
+WARN[2021/10/18 02:41:25] 2021-10-13 Forward Balance: -146, Stock: 2603, Name: 長榮, Total Time: 368, 95.20, 95.30
+WARN[2021/10/18 02:41:25] Total Balance: -3051, TradeCount: 10
+WARN[2021/10/18 02:41:25] Cond: {Model:{ID:43376 CreatedAt:2021-10-18 02:38:52.820999 +0800 CST UpdatedAt:2021-10-18 02:38:52.820999 +0800 CST DeletedAt:{Time:0001-01-01 00:00:00 +0000 UTC Valid:false}} HistoryCloseCount:2500 OutInRatio:55 ReverseOutInRatio:5 CloseDiff:0 CloseChangeRatioLow:-1 CloseChangeRatioHigh:8 OpenChangeRatio:4 RsiHigh:50.2 RsiLow:50 ReverseRsiHigh:50.2 ReverseRsiLow:50 TicksPeriodThreshold:7 TicksPeriodLimit:9.1 TicksPeriodCount:3 VolumePerSecond:3}
+```
+
+- Reverse
+
+```log
+WARN[2021/10/18 02:34:42] 2021-10-15 Reverse Balance: 654, Stock: 2603, Name: 長榮, Total Time: 183, 94.60, 95.50
+WARN[2021/10/18 02:34:42] 2021-10-15 Reverse Balance: 359, Stock: 2609, Name: 陽明, Total Time: 298, 92.70, 93.30
+WARN[2021/10/18 02:34:42] 2021-10-15 Reverse Balance: -51, Stock: 2303, Name: 聯電, Total Time: 448, 58.40, 58.50
+WARN[2021/10/18 02:34:42] 2021-10-15 Reverse Balance: 543, Stock: 2606, Name: 裕民, Total Time: 2936, 60.10, 60.80
+WARN[2021/10/18 02:34:42] 2021-10-14 Reverse Balance: 353, Stock: 2303, Name: 聯電, Total Time: 503, 56.80, 57.30
+WARN[2021/10/18 02:34:42] 2021-10-14 Reverse Balance: 1155, Stock: 2603, Name: 長榮, Total Time: 260, 93.40, 94.80
+WARN[2021/10/18 02:34:42] 2021-10-14 Reverse Balance: -1329, Stock: 2609, Name: 陽明, Total Time: 628, 89.50, 88.40
+WARN[2021/10/18 02:34:42] 2021-10-14 Reverse Balance: -654, Stock: 2606, Name: 裕民, Total Time: 858, 59.90, 59.40
+WARN[2021/10/18 02:34:42] 2021-10-14 Reverse Balance: 1565, Stock: 8121, Name: 越峰, Total Time: 988, 50.90, 52.60
+WARN[2021/10/18 02:34:42] 2021-10-13 Reverse Balance: 955, Stock: 2603, Name: 長榮, Total Time: 239, 93.90, 95.10
+WARN[2021/10/18 02:34:42] 2021-10-13 Reverse Balance: 349, Stock: 2303, Name: 聯電, Total Time: 484, 58.00, 58.50
+WARN[2021/10/18 02:34:42] 2021-10-13 Reverse Balance: -1236, Stock: 2609, Name: 陽明, Total Time: 168, 92.30, 91.30
+WARN[2021/10/18 02:34:42] 2021-10-13 Reverse Balance: 1224, Stock: 2606, Name: 裕民, Total Time: 601, 66.80, 68.20
+WARN[2021/10/18 02:34:42] 2021-10-12 Reverse Balance: 2058, Stock: 2609, Name: 陽明, Total Time: 557, 92.20, 94.50
+WARN[2021/10/18 02:34:42] 2021-10-12 Reverse Balance: -242, Stock: 3711, Name: 日月光投控, Total Time: 2069, 93.90, 93.90
+WARN[2021/10/18 02:34:42] 2021-10-12 Reverse Balance: 2224, Stock: 2606, Name: 裕民, Total Time: 4259, 66.30, 68.70
+WARN[2021/10/18 02:34:42] 2021-10-12 Reverse Balance: -352, Stock: 2303, Name: 聯電, Total Time: 644, 59.40, 59.20
+WARN[2021/10/18 02:34:42] Total Balance: 7575, TradeCount: 17
+WARN[2021/10/18 02:34:42] Cond: {Model:{ID:37659 CreatedAt:2021-10-18 02:29:41.251255 +0800 CST UpdatedAt:2021-10-18 02:29:41.251255 +0800 CST DeletedAt:{Time:0001-01-01 00:00:00 +0000 UTC Valid:false}} HistoryCloseCount:1500 OutInRatio:55 ReverseOutInRatio:5 CloseDiff:0 CloseChangeRatioLow:-1 CloseChangeRatioHigh:8 OpenChangeRatio:4 RsiHigh:50 RsiLow:50 ReverseRsiHigh:50 ReverseRsiLow:50 TicksPeriodThreshold:1 TicksPeriodLimit:1.3 TicksPeriodCount:2 VolumePerSecond:6}
 ```
 
 ### Trade Bot Service

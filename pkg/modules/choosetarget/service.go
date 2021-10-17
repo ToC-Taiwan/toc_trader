@@ -5,14 +5,18 @@ import (
 	"errors"
 	"runtime/debug"
 	"sort"
+	"strconv"
+	"sync"
 	"time"
 
 	"gitlab.tocraw.com/root/toc_trader/init/sysparminit"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
+	"gitlab.tocraw.com/root/toc_trader/pkg/models/entiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/snapshot"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/stock"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/sysparm"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/targetstock"
+	"gitlab.tocraw.com/root/toc_trader/pkg/models/volumerank"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/fetchentiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/importbasic"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/subscribe"
@@ -233,6 +237,8 @@ func UpdateLastStockVolume() {
 	logger.Logger.Info("Volume and close update done")
 }
 
+var fetchSaveLock sync.RWMutex
+
 // UpdateStockCloseMapByDate UpdateStockCloseMapByDate
 func UpdateStockCloseMapByDate(stockNumArr []string, dateArr []time.Time) error {
 	stockArr := FetchLastCountBody{
@@ -255,15 +261,28 @@ func UpdateStockCloseMapByDate(stockNumArr []string, dateArr []time.Time) error 
 			if len(val.Close) != 0 {
 				global.StockCloseByDateMap.Set(val.Date, val.Code, val.Close[0])
 			} else {
-				res, err := fetchentiretick.FetchByDate(val.Code, val.Date)
+				tmpClose, err := entiretick.GetLastCloseByDate(val.Code, val.Date, global.GlobalDB)
 				if err != nil {
 					return err
 				}
-				if len(res) == 0 {
-					logger.Logger.Errorf("%s does not have %s close", val.Code, val.Date)
-					continue
+				if tmpClose == 0 {
+					res, err := fetchentiretick.FetchByDate(val.Code, val.Date)
+					if err != nil {
+						return err
+					}
+					if len(res) == 0 {
+						logger.Logger.Errorf("%s cannot fetch %s close", val.Code, val.Date)
+						continue
+					} else {
+						fetchSaveLock.Lock()
+						if err := entiretick.InsertMultiRecord(res, global.GlobalDB); err != nil {
+							return err
+						}
+						fetchSaveLock.Unlock()
+						tmpClose = res[len(res)-1].Close
+					}
 				}
-				global.StockCloseByDateMap.Set(val.Date, val.Code, res[len(res)-1].Close)
+				global.StockCloseByDateMap.Set(val.Date, val.Code, tmpClose)
 			}
 		}
 	}
@@ -280,4 +299,38 @@ func TSEProcess() {
 		tse := <-TSEChannel
 		TSE001 = tse
 	}
+}
+
+// GetTargetByVolumeRankByDate GetTargetByVolumeRankByDate
+func GetTargetByVolumeRankByDate(date string, count int64) (rankArr []string, err error) {
+	countStr := strconv.FormatInt(count, 10)
+	resp, err := global.RestyClient.R().
+		SetHeader("X-Count", countStr).
+		SetHeader("X-Date", date).
+		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/trade/volumerank")
+	if err != nil {
+		return rankArr, err
+	} else if resp.StatusCode() != 200 {
+		return rankArr, errors.New("GetVolumeRankByDate api fail")
+	}
+	body := volumerank.VolumeRankArrProto{}
+	if err = proto.Unmarshal(resp.Body(), &body); err != nil {
+		logger.Logger.Error(err)
+		return rankArr, err
+	}
+	blackStockMap := sysparminit.GlobalSettings.GetBlackStockMap()
+	blackCategoryMap := sysparminit.GlobalSettings.GetBlackCategoryMap()
+	conditionArr := sysparminit.GlobalSettings.GetTargetCondArr()
+	for _, v := range body.Data {
+		if _, ok := blackStockMap[v.Code]; ok {
+			continue
+		}
+		if _, ok := blackCategoryMap[importbasic.AllStockDetailMap.GetCategory(v.Code)]; ok {
+			continue
+		}
+		if v.TotalVolume > conditionArr[0].LimitVolume && v.Close > conditionArr[0].LimitPriceLow && v.Close < conditionArr[0].LimitPriceHigh {
+			rankArr = append(rankArr, v.Code)
+		}
+	}
+	return rankArr, err
 }

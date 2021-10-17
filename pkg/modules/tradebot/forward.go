@@ -94,7 +94,7 @@ func BuyBot(ch chan *analyzestreamtick.AnalyzeStreamTick, cond simulationcond.An
 // IsBuyPoint IsBuyPoint
 func IsBuyPoint(analyzeTick *analyzestreamtick.AnalyzeStreamTick, cond simulationcond.AnalyzeCondition) bool {
 	closeChangeRatio := analyzeTick.CloseChangeRatio
-	if analyzeTick.Volume < cond.Volume {
+	if analyzeTick.Volume < cond.VolumePerSecond*int64(analyzeTick.TotalTime) {
 		return false
 	}
 	if analyzeTick.OpenChangeRatio > cond.OpenChangeRatio || closeChangeRatio < cond.CloseChangeRatioLow || closeChangeRatio > cond.CloseChangeRatioHigh {
@@ -103,7 +103,7 @@ func IsBuyPoint(analyzeTick *analyzestreamtick.AnalyzeStreamTick, cond simulatio
 	if analyzeTick.OutInRatio < cond.OutInRatio || analyzeTick.CloseDiff <= cond.CloseDiff {
 		return false
 	}
-	if analyzeTick.Rsi > float64(cond.RsiLow) {
+	if analyzeTick.Rsi > cond.RsiLow {
 		return false
 	}
 	return true
@@ -156,7 +156,7 @@ func SellBot(ch chan *streamtick.StreamTick, cond simulationcond.AnalyzeConditio
 // GetSellPrice GetSellPrice
 func GetSellPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyClose []float64, originalOrderClose float64, cond simulationcond.AnalyzeCondition) float64 {
 	tickTimeUnix := time.Unix(0, tick.TimeStamp)
-	lastTime := time.Date(tickTimeUnix.Year(), tickTimeUnix.Month(), tickTimeUnix.Day(), 13, 0, 0, 0, time.Local)
+	lastTime := time.Date(tickTimeUnix.Year(), tickTimeUnix.Month(), tickTimeUnix.Day(), global.TradeEndHour, global.TradeEndMinute, 0, 0, time.Local)
 	if len(historyClose) < int(cond.HistoryCloseCount) && tickTimeUnix.Before(lastTime) {
 		return 0
 	}
@@ -169,9 +169,9 @@ func GetSellPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyClose
 		return 0
 	}
 	switch {
-	case tick.Close < stockutil.GetNewClose(originalOrderClose, -1) && rsi < float64(cond.RsiLow):
+	case tick.Close < stockutil.GetNewClose(originalOrderClose, -1) && rsi < cond.RsiLow:
 		sellPrice = tick.Close
-	case rsi > float64(cond.RsiHigh):
+	case rsi > cond.RsiHigh:
 		sellPrice = tick.Close
 	case ManualSellMap.CheckStockExist(tick.StockNum):
 		sellPrice = ManualSellMap.GetClose(tick.StockNum)

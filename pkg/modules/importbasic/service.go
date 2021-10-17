@@ -146,16 +146,52 @@ func GetAllWeekend() (weekendArr []int64) {
 	return weekendArr
 }
 
-// GetTradeDayTime GetTradeDayTime
-func GetTradeDayTime(today time.Time) (tradeDay time.Time, err error) {
-	tmp := time.Date(today.Year(), today.Month(), today.Day(), 0, 0, 0, 0, time.UTC)
+// GetTradeDay GetTradeDay
+func GetTradeDay() (tradeDay time.Time, err error) {
+	var today time.Time
+	if time.Now().Hour() >= 15 {
+		today = time.Now().AddDate(0, 0, 1)
+	} else {
+		today = time.Now()
+	}
+	tradeDay, err = GetNextTradeDayTime(today)
+	if err != nil {
+		return tradeDay, err
+	}
+	return tradeDay, err
+}
+
+// GetLastNTradeDay GetLastNTradeDay
+func GetLastNTradeDay(n int) (lastTradeDayArr []time.Time, err error) {
+	var thisTradeDay, tmp time.Time
+	if thisTradeDay, err = GetTradeDay(); err != nil {
+		return lastTradeDayArr, err
+	}
+	for {
+		if len(lastTradeDayArr) == n {
+			break
+		}
+		tmp, err = GetLastTradeDayTime(thisTradeDay)
+		if err != nil {
+			lastTradeDayArr = []time.Time{}
+			return lastTradeDayArr, err
+		}
+		lastTradeDayArr = append(lastTradeDayArr, tmp)
+		thisTradeDay = tmp
+	}
+	return lastTradeDayArr, err
+}
+
+// GetNextTradeDayTime GetNextTradeDayTime
+func GetNextTradeDayTime(nowTime time.Time) (tradeDay time.Time, err error) {
+	tmp := time.Date(nowTime.Year(), nowTime.Month(), nowTime.Day(), 0, 0, 0, 0, time.UTC)
 	exist, err := holiday.CheckIsHolidayByTimeStamp(tmp.Unix(), global.GlobalDB)
 	if err != nil {
 		return tradeDay, err
 	}
 	if exist {
-		today = today.AddDate(0, 0, 1)
-		return GetTradeDayTime(today)
+		nowTime = nowTime.AddDate(0, 0, 1)
+		return GetNextTradeDayTime(nowTime)
 	}
 	return tmp, err
 }

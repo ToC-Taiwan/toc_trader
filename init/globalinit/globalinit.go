@@ -12,14 +12,14 @@ import (
 )
 
 func init() {
+	var err error
 	global.ExitChannel = make(chan string)
-
 	global.HTTPPort = sysparminit.GlobalSettings.GetHTTPPort()
 	global.PyServerHost = sysparminit.GlobalSettings.GetPyServerHost()
 	global.PyServerPort = sysparminit.GlobalSettings.GetPyServerPort()
 
 	global.TradeSwitch = global.SystemSwitch{
-		Buy:                          true,
+		Buy:                          false,
 		Sell:                         true,
 		SellFirst:                    true,
 		BuyLater:                     true,
@@ -30,52 +30,45 @@ func init() {
 
 	global.TickAnalyzeCondition = simulationcond.AnalyzeCondition{
 		HistoryCloseCount:    1500,
-		OutInRatio:           75,
-		ReverseOutInRatio:    10,
+		OutInRatio:           55,
+		ReverseOutInRatio:    5,
 		CloseDiff:            0,
-		CloseChangeRatioLow:  -2,
-		CloseChangeRatioHigh: 5,
-		OpenChangeRatio:      3,
+		CloseChangeRatioLow:  -1,
+		CloseChangeRatioHigh: 8,
+		OpenChangeRatio:      4,
 		RsiHigh:              50,
 		RsiLow:               50,
 		ReverseRsiHigh:       50,
 		ReverseRsiLow:        50,
-		TicksPeriodThreshold: 9,
-		TicksPeriodLimit:     11.7,
-		TicksPeriodCount:     3,
-		Volume:               270,
+		TicksPeriodThreshold: 1,
+		TicksPeriodLimit:     1 * 1.3,
+		TicksPeriodCount:     2,
+		VolumePerSecond:      6,
 	}
 
-	if err := importbasic.ImportHoliday(); err != nil {
+	if err = importbasic.ImportHoliday(); err != nil {
 		panic(err)
 	}
-
-	var today time.Time
-	var err error
-	if time.Now().Hour() >= 15 {
-		today = time.Now().AddDate(0, 0, 1)
-	} else {
-		today = time.Now()
-	}
-	global.TradeDay, err = importbasic.GetTradeDayTime(today)
+	global.TradeDay, err = importbasic.GetTradeDay()
 	if err != nil {
 		panic(err)
 	}
-
-	global.TradeDayEndTime = time.Date(global.TradeDay.Year(), global.TradeDay.Month(), global.TradeDay.Day(), 13, 0, 0, 0, time.Local)
-
-	global.LastTradeDay, err = importbasic.GetLastTradeDayTime(global.TradeDay)
+	global.TradeDayEndTime = time.Date(
+		global.TradeDay.Year(),
+		global.TradeDay.Month(),
+		global.TradeDay.Day(),
+		global.TradeEndHour,
+		global.TradeEndMinute,
+		0,
+		0,
+		time.Local)
+	lastTradeDayArr, err := importbasic.GetLastNTradeDay(2)
 	if err != nil {
 		panic(err)
 	}
-
-	global.LastLastTradeDay, err = importbasic.GetLastTradeDayTime(global.LastTradeDay)
-	if err != nil {
-		panic(err)
-	}
-
-	global.LastTradeDayArr = append(global.LastTradeDayArr, global.LastLastTradeDay, global.LastTradeDay)
-
+	global.LastTradeDay = lastTradeDayArr[0]
+	global.LastLastTradeDay = lastTradeDayArr[1]
+	global.LastTradeDayArr = append(global.LastTradeDayArr, global.LastTradeDay, global.LastLastTradeDay)
 	logger.Logger.WithFields(map[string]interface{}{
 		"TradeDay":         global.TradeDay.Format(global.ShortTimeLayout),
 		"LastTradeDay":     global.LastTradeDay.Format(global.ShortTimeLayout),

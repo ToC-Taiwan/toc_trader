@@ -15,14 +15,14 @@ type AnalyzeCondition struct {
 	CloseChangeRatioLow  float64 `gorm:"column:close_change_ratio_low"`
 	CloseChangeRatioHigh float64 `gorm:"column:close_change_ratio_high"`
 	OpenChangeRatio      float64 `gorm:"column:open_change_ratio"`
-	RsiHigh              int64   `gorm:"column:rsi_high"`
-	RsiLow               int64   `gorm:"column:rsi_low"`
-	ReverseRsiHigh       int64   `gorm:"column:reverse_rsi_high"`
-	ReverseRsiLow        int64   `gorm:"column:reverse_rsi_low"`
+	RsiHigh              float64 `gorm:"column:rsi_high"`
+	RsiLow               float64 `gorm:"column:rsi_low"`
+	ReverseRsiHigh       float64 `gorm:"column:reverse_rsi_high"`
+	ReverseRsiLow        float64 `gorm:"column:reverse_rsi_low"`
 	TicksPeriodThreshold float64 `gorm:"column:ticks_period_threshold"`
 	TicksPeriodLimit     float64 `gorm:"column:ticks_period_limit"`
 	TicksPeriodCount     int     `gorm:"column:ticks_period_count"`
-	Volume               int64   `gorm:"column:volume"`
+	VolumePerSecond      int64   `gorm:"column:volume_per_second"`
 }
 
 // Tabler Tabler

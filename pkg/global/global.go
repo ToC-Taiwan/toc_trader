@@ -18,6 +18,10 @@ const (
 	LongTimeLayout string = "2006-01-02 15:04:05"
 	// ShortTimeLayout ShortTimeLayout
 	ShortTimeLayout string = "2006-01-02"
+	// TradeEndHour TradeEndHour
+	TradeEndHour int = 13
+	// TradeEndMinute TradeEndMinute
+	TradeEndMinute int = 0
 )
 
 // GlobalDB GlobalDB

@@ -36,3 +36,10 @@ func (c *AnalyzeEntireTickMap) GetAllTicks() []*analyzeentiretick.AnalyzeEntireT
 	c.mutex.Unlock()
 	return tmp
 }
+
+// ClearAll ClearAll
+func (c *AnalyzeEntireTickMap) ClearAll() {
+	c.mutex.Lock()
+	c.tickMap = make(map[string][]*analyzeentiretick.AnalyzeEntireTick)
+	c.mutex.Unlock()
+}

@@ -36,7 +36,7 @@ func FetchEntireTick(stockNumArr []string, dateArr []time.Time, cond simulationc
 	}()
 	saveCh := make(chan []*entiretick.EntireTick, len(stockNumArr))
 	go entiretickprocess.SaveEntireTicks(saveCh)
-	for _, d := range dateArr[1:] {
+	for _, d := range dateArr {
 		for _, s := range stockNumArr {
 			rows, err := entiretick.GetCntByStockAndDate(s, d.Format(global.ShortTimeLayout), global.GlobalDB)
 			if err != nil {
@@ -54,8 +54,8 @@ func FetchEntireTick(stockNumArr []string, dateArr []time.Time, cond simulationc
 				}
 			}
 		}
+		wg.Wait()
 	}
-	wg.Wait()
 	close(saveCh)
 }
 
@@ -102,7 +102,7 @@ func GetAndSaveEntireTick(stockNum, date string, cond simulationcond.AnalyzeCond
 	if lastClose != 0 {
 		go entiretickprocess.TickProcess(stockNum, lastClose, cond, ch, &wg, saveCh, false, &simulateMap)
 	} else {
-		logger.Logger.Warnf("%s has %s's close", stockNum, date)
+		logger.Logger.Warnf("%s has no %s's close", stockNum, date)
 	}
 
 	for _, tmpTick := range res.Data {
@@ -116,7 +116,7 @@ func GetAndSaveEntireTick(stockNum, date string, cond simulationcond.AnalyzeCond
 }
 
 // FetchByDate FetchByDate
-func FetchByDate(stockNum, date string) (data []entiretick.EntireTick, err error) {
+func FetchByDate(stockNum, date string) (data []*entiretick.EntireTick, err error) {
 	stockAndDateArr := FetchBody{
 		StockNum: stockNum,
 		Date:     date,
@@ -139,7 +139,7 @@ func FetchByDate(stockNum, date string) (data []entiretick.EntireTick, err error
 		if err != nil {
 			panic(err)
 		}
-		data = append(data, *tick)
+		data = append(data, tick)
 	}
 	return data, err
 }

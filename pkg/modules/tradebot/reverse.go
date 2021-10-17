@@ -84,13 +84,13 @@ func IsSellFirstPoint(analyzeTick *analyzestreamtick.AnalyzeStreamTick, cond sim
 	// if analyzeTick.OpenChangeRatio > cond.OpenChangeRatio || closeChangeRatio < cond.CloseChangeRatioLow || closeChangeRatio > cond.CloseChangeRatioHigh {
 	// 	return false
 	// }
-	if analyzeTick.Volume < cond.Volume {
+	if analyzeTick.Volume < cond.VolumePerSecond*int64(analyzeTick.TotalTime) {
 		return false
 	}
 	if analyzeTick.OutInRatio > cond.ReverseOutInRatio || analyzeTick.CloseDiff > cond.CloseDiff {
 		return false
 	}
-	if analyzeTick.Rsi < float64(cond.ReverseRsiHigh) {
+	if analyzeTick.Rsi < cond.ReverseRsiHigh {
 		return false
 	}
 	return true
@@ -142,7 +142,7 @@ func BuyLaterBot(ch chan *streamtick.StreamTick, cond simulationcond.AnalyzeCond
 // GetBuyLaterPrice GetBuyLaterPrice
 func GetBuyLaterPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyClose []float64, originalOrderClose float64, cond simulationcond.AnalyzeCondition) float64 {
 	tickTimeUnix := time.Unix(0, tick.TimeStamp)
-	lastTime := time.Date(tickTimeUnix.Year(), tickTimeUnix.Month(), tickTimeUnix.Day(), 13, 0, 0, 0, time.Local)
+	lastTime := time.Date(tickTimeUnix.Year(), tickTimeUnix.Month(), tickTimeUnix.Day(), global.TradeEndHour, global.TradeEndMinute, 0, 0, time.Local)
 	if len(historyClose) < int(cond.HistoryCloseCount) && tickTimeUnix.Before(lastTime) {
 		return 0
 	}
@@ -155,9 +155,9 @@ func GetBuyLaterPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyC
 		return 0
 	}
 	switch {
-	case tick.Close > stockutil.GetNewClose(originalOrderClose, 1) && rsi > float64(cond.ReverseRsiHigh):
+	case tick.Close > stockutil.GetNewClose(originalOrderClose, 1) && rsi > cond.ReverseRsiHigh:
 		buyPrice = tick.Close
-	case rsi < float64(cond.ReverseRsiLow):
+	case rsi < cond.ReverseRsiLow:
 		buyPrice = tick.Close
 	case ManualBuyLaterMap.CheckStockExist(tick.StockNum):
 		buyPrice = ManualBuyLaterMap.GetClose(tick.StockNum)
