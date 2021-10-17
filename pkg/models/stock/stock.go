@@ -10,13 +10,13 @@ import (
 // Stock Stock
 type Stock struct {
 	gorm.Model
-	StockNum   string  `gorm:"column:stock_num;uniqueIndex;index:idx_stock"`
-	Category   string  `gorm:"column:category"`
-	StockName  string  `gorm:"column:stock_name"`
-	StockType  string  `gorm:"column:stock_type"`
-	DayTrade   bool    `gorm:"column:day_trade;index:idx_stock"`
-	LastClose  float64 `gorm:"column:last_close"`
-	LastVolume int64   `gorm:"column:last_volume"`
+	StockNum  string  `gorm:"column:stock_num;uniqueIndex;index:idx_stock"`
+	Category  string  `gorm:"column:category"`
+	StockName string  `gorm:"column:stock_name"`
+	StockType string  `gorm:"column:stock_type"`
+	DayTrade  bool    `gorm:"column:day_trade;index:idx_stock"`
+	LastClose float64 `gorm:"column:last_close"`
+	// LastVolume int64   `gorm:"column:last_volume"`
 }
 
 // Tabler Tabler

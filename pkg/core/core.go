@@ -9,9 +9,10 @@ import (
 	"os"
 	"time"
 
-	"gitlab.tocraw.com/root/toc_trader/init/sysparminit"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/pyresponse"
+	"gitlab.tocraw.com/root/toc_trader/pkg/models/stock"
+	"gitlab.tocraw.com/root/toc_trader/pkg/models/targetstock"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/choosetarget"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/fetchentiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/importbasic"
@@ -24,8 +25,6 @@ import (
 func TradeProcess() {
 	// Import all stock and update AllStockNameMap
 	importbasic.ImportAllStock()
-	// If needed, it will update StockCloseMap and volume, close in database
-	choosetarget.UpdateLastStockVolume()
 	// Monitor TSE001 Status
 	go choosetarget.TSEProcess()
 	// Development
@@ -45,7 +44,45 @@ func TradeProcess() {
 		}
 	}
 	// Generate global target array
-	choosetarget.GetTargetFromStockList(sysparminit.GlobalSettings.GetTargetCondArr())
+	var savedTarget []targetstock.Target
+	for i, date := range global.LastTradeDayArr {
+		if i == 0 {
+			continue
+		}
+		if targets, err := choosetarget.GetTargetByVolumeRankByDate(date.Format(global.ShortTimeLayout), 200); err != nil {
+			panic(err)
+		} else {
+			for i, v := range targets {
+				fmt.Printf("%s volume rank no. %d is %s\n", date.Format(global.ShortTimeLayout), i+1, global.AllStockNameMap.GetName(v))
+			}
+			for {
+				tmp := []time.Time{date}
+				err := choosetarget.UpdateStockCloseMapByDate(targets, tmp)
+				if err != nil {
+					logger.Logger.Error(err)
+				} else {
+					break
+				}
+			}
+			tmp := []time.Time{global.LastTradeDayArr[i-1]}
+			fetchentiretick.FetchEntireTick(targets, tmp, global.TickAnalyzeCondition)
+			global.TargetArr = targets
+			targetStockArr, err := stock.GetStocksFromNumArr(targets, global.GlobalDB)
+			if err != nil {
+				panic(err)
+			}
+			for _, v := range targetStockArr {
+				savedTarget = append(savedTarget, targetstock.Target{
+					LastTradeDay: global.LastTradeDay,
+					Stock:        v,
+				})
+			}
+			if err := targetstock.InsertMultiTarget(savedTarget, global.GlobalDB); err != nil {
+				panic(err)
+			}
+		}
+	}
+	logger.Logger.Info("FetchEntireTick Done")
 	// UnSubscribeAll first
 	choosetarget.UnSubscribeAll()
 
@@ -55,9 +92,6 @@ func TradeProcess() {
 	} else {
 		// Subscribe all target
 		choosetarget.SubscribeTarget(global.TargetArr)
-		// Put data into channel, it will wait for all fetch done. Final close all channel.
-		fetchentiretick.FetchEntireTick(global.TargetArr, global.LastTradeDayArr[:len(global.LastTradeDayArr)-1], global.TickAnalyzeCondition)
-		logger.Logger.Info("FetchEntireTick Done")
 		// Background get trade record
 		go tradebot.CheckOrderStatusLoop()
 		go addRankTarget()

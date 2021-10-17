@@ -32,11 +32,12 @@ var totalTimesChan chan int
 var totalTimes, finishTimes int
 var simulateDayArr []time.Time
 var targetArrMap targetArrMutex
+var discardOverTime bool
 
 // Simulate Simulate
 func Simulate() {
-	fmt.Print("* Balance type?(a: forward, b: reverse, c: force_both): ")
 	reader := bufio.NewReader(os.Stdin)
+	fmt.Print("* Balance type?(a: forward, b: reverse, c: force_both): ")
 	ans, err := reader.ReadString('\n')
 	if err != nil {
 		panic(err)
@@ -48,6 +49,14 @@ func Simulate() {
 		balanceType = "b"
 	case "c\n":
 		balanceType = "c"
+	}
+	fmt.Print("* Discard over time trade?(y/n): ")
+	ans4, err := reader.ReadString('\n')
+	if err != nil {
+		panic(err)
+	}
+	if ans4 == "y\n" {
+		discardOverTime = true
 	}
 	var useGlobal bool
 	fmt.Print("* Use global cond?(y/n): ")
@@ -273,7 +282,7 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 				sellCost := tradebot.GetStockSellCost(sellPrice, global.OneTimeQuantity)
 				back := tradebot.GetStockTradeFeeDiscount(buyPrice, global.OneTimeQuantity) + tradebot.GetStockTradeFeeDiscount(sellPrice, global.OneTimeQuantity)
 				forwardBalance += (sellCost - buyCost + back)
-				if sellTimeStamp[v.StockNum] > endTradeTime && training {
+				if sellTimeStamp[v.StockNum] > endTradeTime && training && discardOverTime {
 					totalTimesChan <- -1
 					return
 				}
@@ -312,7 +321,7 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 				buyCost := tradebot.GetStockBuyCost(buyLaterPrice, global.OneTimeQuantity)
 				sellCost := tradebot.GetStockSellCost(sellFirstPrice, global.OneTimeQuantity)
 				back := tradebot.GetStockTradeFeeDiscount(buyLaterPrice, global.OneTimeQuantity) + tradebot.GetStockTradeFeeDiscount(sellFirstPrice, global.OneTimeQuantity)
-				if sellTimeStamp[v.StockNum] > endTradeTime && training {
+				if sellTimeStamp[v.StockNum] > endTradeTime && training && discardOverTime {
 					totalTimesChan <- -1
 					return
 				}

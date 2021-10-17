@@ -41,6 +41,16 @@ func GetTargetByLowHighVolume(low, high, volume int64, db *gorm.DB) (data []Stoc
 	return data, result.Error
 }
 
+// GetStocksFromNumArr GetStocksFromNumArr
+func GetStocksFromNumArr(stockNumArr []string, db *gorm.DB) (data []Stock, err error) {
+	for _, v := range stockNumArr {
+		var tmpStock Stock
+		err = db.Model(&Stock{}).Where("stock_num = ?", v).Find(&tmpStock).Error
+		data = append(data, tmpStock)
+	}
+	return data, err
+}
+
 // GetTargetByMultiLowHighVolume GetTargetByMultiLowHighVolume
 func GetTargetByMultiLowHighVolume(conditionArr []sysparm.TargetCondArr, db *gorm.DB) (data []Stock, err error) {
 	for _, cond := range conditionArr {
