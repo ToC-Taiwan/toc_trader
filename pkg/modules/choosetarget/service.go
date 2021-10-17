@@ -322,6 +322,9 @@ func GetTargetByVolumeRankByDate(date string, count int64) (rankArr []string, er
 	blackCategoryMap := sysparminit.GlobalSettings.GetBlackCategoryMap()
 	conditionArr := sysparminit.GlobalSettings.GetTargetCondArr()
 	for _, v := range body.Data {
+		if !importbasic.AllStockDetailMap.CheckIsDayTrade(v.Code) {
+			continue
+		}
 		if _, ok := blackStockMap[v.Code]; ok {
 			continue
 		}
