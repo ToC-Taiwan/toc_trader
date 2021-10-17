@@ -25,6 +25,8 @@ import (
 func TradeProcess() {
 	// Import all stock and update AllStockNameMap
 	importbasic.ImportAllStock()
+	// UnSubscribeAll first
+	choosetarget.UnSubscribeAll()
 	// Monitor TSE001 Status
 	go choosetarget.TSEProcess()
 	// Development
@@ -45,54 +47,38 @@ func TradeProcess() {
 	}
 	// Generate global target array
 	var savedTarget []targetstock.Target
-	for i, date := range global.LastTradeDayArr {
-		if i == 0 {
-			continue
+	if targets, err := choosetarget.GetTargetByVolumeRankByDate(global.LastTradeDay.Format(global.ShortTimeLayout), 200); err != nil {
+		panic(err)
+	} else {
+		// Subscribe all target
+		global.TargetArr = targets
+		choosetarget.SubscribeTarget(global.TargetArr)
+		for i, v := range targets {
+			fmt.Printf("%s volume rank no. %d is %s\n", global.LastTradeDay.Format(global.ShortTimeLayout), i+1, global.AllStockNameMap.GetName(v))
 		}
-		if targets, err := choosetarget.GetTargetByVolumeRankByDate(date.Format(global.ShortTimeLayout), 200); err != nil {
+		tmp := []time.Time{global.LastTradeDay}
+		fetchentiretick.FetchEntireTick(targets, tmp, global.TickAnalyzeCondition)
+		targetStockArr, err := stock.GetStocksFromNumArr(targets, global.GlobalDB)
+		if err != nil {
 			panic(err)
-		} else {
-			for i, v := range targets {
-				fmt.Printf("%s volume rank no. %d is %s\n", date.Format(global.ShortTimeLayout), i+1, global.AllStockNameMap.GetName(v))
-			}
-			for {
-				tmp := []time.Time{date}
-				err := choosetarget.UpdateStockCloseMapByDate(targets, tmp)
-				if err != nil {
-					logger.Logger.Error(err)
-				} else {
-					break
-				}
-			}
-			tmp := []time.Time{global.LastTradeDayArr[i-1]}
-			fetchentiretick.FetchEntireTick(targets, tmp, global.TickAnalyzeCondition)
-			global.TargetArr = targets
-			targetStockArr, err := stock.GetStocksFromNumArr(targets, global.GlobalDB)
-			if err != nil {
-				panic(err)
-			}
-			for _, v := range targetStockArr {
-				savedTarget = append(savedTarget, targetstock.Target{
-					LastTradeDay: global.LastTradeDay,
-					Stock:        v,
-				})
-			}
-			if err := targetstock.InsertMultiTarget(savedTarget, global.GlobalDB); err != nil {
-				panic(err)
-			}
+		}
+		for _, v := range targetStockArr {
+			savedTarget = append(savedTarget, targetstock.Target{
+				LastTradeDay: global.LastTradeDay,
+				Stock:        v,
+			})
+		}
+		if err := targetstock.InsertMultiTarget(savedTarget, global.GlobalDB); err != nil {
+			panic(err)
 		}
 	}
 	logger.Logger.Info("FetchEntireTick Done")
-	// UnSubscribeAll first
-	choosetarget.UnSubscribeAll()
-
 	// Check tradeday or target exist
 	if len(global.LastTradeDayArr) == 0 || len(global.TargetArr) == 0 {
 		logger.Logger.Warn("no trade day or no target")
 	} else {
-		// Subscribe all target
-		choosetarget.SubscribeTarget(global.TargetArr)
 		// Background get trade record
+		logger.Logger.Info("Background tasks starts")
 		go tradebot.CheckOrderStatusLoop()
 		go addRankTarget()
 	}
