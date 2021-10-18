@@ -62,6 +62,15 @@ func (c GlobalSettingMap) GetDBTimeZone() string {
 	return c["dbtimezone"]
 }
 
+// GetKbarPeriod GetKbarPeriod
+func (c GlobalSettingMap) GetKbarPeriod() int64 {
+	tmp, err := common.StrToInt64(c["kbar_period"])
+	if err != nil {
+		panic(err)
+	}
+	return tmp
+}
+
 // GetCleanEventCron GetCleanEventCron
 func (c GlobalSettingMap) GetCleanEventCron() string {
 	return c["cleanevent_cron"]

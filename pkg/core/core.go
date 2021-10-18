@@ -7,8 +7,10 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strings"
 	"time"
 
+	"gitlab.tocraw.com/root/toc_trader/init/sysparminit"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/pyresponse"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/stock"
@@ -25,10 +27,6 @@ import (
 func TradeProcess() {
 	// Import all stock and update AllStockNameMap
 	importbasic.ImportAllStock()
-	// UnSubscribeAll first
-	choosetarget.UnSubscribeAll()
-	// Monitor TSE001 Status
-	go choosetarget.TSEProcess()
 	// Development
 	deployment := os.Getenv("DEPLOYMENT")
 	if deployment != "docker" {
@@ -41,7 +39,7 @@ func TradeProcess() {
 		if err != nil {
 			panic(err)
 		}
-		if ans == "y\n" {
+		if ans = strings.TrimSuffix(ans, "\n"); ans == "y" {
 			simulateprocess.Simulate()
 		}
 	}
@@ -50,6 +48,8 @@ func TradeProcess() {
 	if targets, err := choosetarget.GetTargetByVolumeRankByDate(global.LastTradeDay.Format(global.ShortTimeLayout), 200); err != nil {
 		panic(err)
 	} else {
+		// UnSubscribeAll first
+		choosetarget.UnSubscribeAll()
 		// Subscribe all target
 		global.TargetArr = targets
 		choosetarget.SubscribeTarget(global.TargetArr)
@@ -77,12 +77,12 @@ func TradeProcess() {
 			}
 		}
 	}
-	// 120 Trade Day Kbar
-	last120TradeDayArr, err := importbasic.GetLastNTradeDay(120)
+	// Fetch Kbar
+	kbarTradeDayArr, err := importbasic.GetLastNTradeDay(sysparminit.GlobalSettings.GetKbarPeriod())
 	if err != nil {
 		panic(err)
 	}
-	fetchentiretick.FetchKbar(global.TargetArr, last120TradeDayArr[len(last120TradeDayArr)-1], last120TradeDayArr[0])
+	fetchentiretick.FetchKbar(global.TargetArr, kbarTradeDayArr[len(kbarTradeDayArr)-1], kbarTradeDayArr[0])
 	logger.Logger.Info("FetchEntireTick and Kbar Done")
 
 	// Check tradeday or target exist
@@ -92,6 +92,9 @@ func TradeProcess() {
 		// Background get trade record
 		logger.Logger.Info("Background tasks starts")
 		go tradebot.CheckOrderStatusLoop()
+		// Monitor TSE001 Status
+		go choosetarget.TSEProcess()
+		// Add Top Rank Targets
 		go addRankTarget()
 	}
 }

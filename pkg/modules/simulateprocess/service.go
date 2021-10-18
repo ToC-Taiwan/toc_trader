@@ -38,51 +38,55 @@ var discardOverTime bool
 func Simulate() {
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Print("* Balance type?(a: forward, b: reverse, c: force_both): ")
-	ans, err := reader.ReadString('\n')
+	balanceTypeAns, err := reader.ReadString('\n')
 	if err != nil {
 		panic(err)
 	}
-	switch ans {
-	case "a\n":
+	balanceTypeAns = strings.TrimSuffix(balanceTypeAns, "\n")
+	switch balanceTypeAns {
+	case "a":
 		balanceType = "a"
-	case "b\n":
+	case "b":
 		balanceType = "b"
-	case "c\n":
+	case "c":
 		balanceType = "c"
 	}
+
 	fmt.Print("* Discard over time trade?(y/n): ")
-	ans4, err := reader.ReadString('\n')
+	discardOverTimeAns, err := reader.ReadString('\n')
 	if err != nil {
 		panic(err)
 	}
-	if ans4 == "y\n" {
+	if discardOverTimeAns = strings.TrimSuffix(discardOverTimeAns, "\n"); discardOverTimeAns == "y\n" {
 		discardOverTime = true
 	}
+
 	var useGlobal bool
 	fmt.Print("* Use global cond?(y/n): ")
-	ans2, err := reader.ReadString('\n')
+	useGlobalAns, err := reader.ReadString('\n')
 	if err != nil {
 		panic(err)
 	}
-	if ans2 == "y\n" {
+	if useGlobalAns = strings.TrimSuffix(useGlobalAns, "\n"); useGlobalAns == "y\n" {
 		useGlobal = true
 	}
+
 	fmt.Print("* N days?: ")
-	ans3, err := reader.ReadString('\n')
+	nDaysAns, err := reader.ReadString('\n')
 	if err != nil {
 		panic(err)
 	}
-	tmpn := strings.Trim(ans3, "\n")
-	n, err := common.StrToInt64(tmpn)
+	nDaysAns = strings.TrimSuffix(nDaysAns, "\n")
+	n, err := common.StrToInt64(nDaysAns)
 	if err != nil {
 		panic(err)
 	}
 	clearAllSimulation()
-
-	tradeDayArr, err := importbasic.GetLastNTradeDay(int(n + 1))
+	tradeDayArr, err := importbasic.GetLastNTradeDay(n + 1)
 	if err != nil {
 		panic(err)
 	}
+
 	for i, date := range tradeDayArr {
 		if i == 0 {
 			continue

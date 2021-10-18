@@ -162,13 +162,13 @@ func GetTradeDay() (tradeDay time.Time, err error) {
 }
 
 // GetLastNTradeDay GetLastNTradeDay
-func GetLastNTradeDay(n int) (lastTradeDayArr []time.Time, err error) {
+func GetLastNTradeDay(n int64) (lastTradeDayArr []time.Time, err error) {
 	var thisTradeDay, tmp time.Time
 	if thisTradeDay, err = GetTradeDay(); err != nil {
 		return lastTradeDayArr, err
 	}
 	for {
-		if len(lastTradeDayArr) == n {
+		if len(lastTradeDayArr) == int(n) {
 			break
 		}
 		tmp, err = GetLastTradeDayTime(thisTradeDay)
