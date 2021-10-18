@@ -2,13 +2,11 @@
 package simulateprocess
 
 import (
-	"bufio"
 	"fmt"
-	"os"
-	"strings"
 	"sync"
 	"time"
 
+	"github.com/manifoldco/promptui"
 	"github.com/vbauerster/mpb/v7"
 	"github.com/vbauerster/mpb/v7/decor"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
@@ -36,13 +34,13 @@ var discardOverTime bool
 
 // Simulate Simulate
 func Simulate() {
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Print("* Balance type?(a: forward, b: reverse, c: force_both): ")
-	balanceTypeAns, err := reader.ReadString('\n')
+	prompt := promptui.Prompt{
+		Label: "Balance type?(a: forward, b: reverse, c: force_both)",
+	}
+	balanceTypeAns, err := prompt.Run()
 	if err != nil {
 		panic(err)
 	}
-	balanceTypeAns = strings.TrimSuffix(balanceTypeAns, "\n")
 	switch balanceTypeAns {
 	case "a":
 		balanceType = "a"
@@ -52,32 +50,37 @@ func Simulate() {
 		balanceType = "c"
 	}
 
-	fmt.Print("* Discard over time trade?(y/n): ")
-	discardOverTimeAns, err := reader.ReadString('\n')
+	prompt = promptui.Prompt{
+		Label: "Discard over time trade?(y/n)",
+	}
+	result, err := prompt.Run()
 	if err != nil {
 		panic(err)
 	}
-	if discardOverTimeAns = strings.TrimSuffix(discardOverTimeAns, "\n"); discardOverTimeAns == "y\n" {
+	if result == "y" {
 		discardOverTime = true
 	}
 
 	var useGlobal bool
-	fmt.Print("* Use global cond?(y/n): ")
-	useGlobalAns, err := reader.ReadString('\n')
+	prompt = promptui.Prompt{
+		Label: "Use global cond?(y/n)",
+	}
+	result, err = prompt.Run()
 	if err != nil {
 		panic(err)
 	}
-	if useGlobalAns = strings.TrimSuffix(useGlobalAns, "\n"); useGlobalAns == "y\n" {
+	if result == "y" {
 		useGlobal = true
 	}
 
-	fmt.Print("* N days?: ")
-	nDaysAns, err := reader.ReadString('\n')
+	prompt = promptui.Prompt{
+		Label: "N days?",
+	}
+	result, err = prompt.Run()
 	if err != nil {
 		panic(err)
 	}
-	nDaysAns = strings.TrimSuffix(nDaysAns, "\n")
-	n, err := common.StrToInt64(nDaysAns)
+	n, err := common.StrToInt64(result)
 	if err != nil {
 		panic(err)
 	}

@@ -2,14 +2,13 @@
 package core
 
 import (
-	"bufio"
 	"errors"
 	"fmt"
 	"net"
 	"os"
-	"strings"
 	"time"
 
+	"github.com/manifoldco/promptui"
 	"gitlab.tocraw.com/root/toc_trader/init/sysparminit"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/pyresponse"
@@ -33,13 +32,14 @@ func TradeProcess() {
 		// Send ip to sinopac srv
 		sendCurrentIP()
 		// Simulate
-		fmt.Print("* Simulate?(y/n): ")
-		reader := bufio.NewReader(os.Stdin)
-		ans, err := reader.ReadString('\n')
+		prompt := promptui.Prompt{
+			Label: "Simulate?(y/n)",
+		}
+		result, err := prompt.Run()
 		if err != nil {
 			panic(err)
 		}
-		if ans = strings.TrimSuffix(ans, "\n"); ans == "y" {
+		if result == "y" {
 			simulateprocess.Simulate()
 		}
 	}

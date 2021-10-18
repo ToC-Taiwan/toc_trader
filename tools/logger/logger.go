@@ -24,6 +24,7 @@ func init() {
 			FullTimestamp:    true,
 			QuoteEmptyFields: true,
 			PadLevelText:     false,
+			ForceColors:      true,
 		})
 	}
 	Logger.SetLevel(log.TraceLevel)

@@ -240,7 +240,7 @@ func CheckBuyLaterOrderStatus(record traderecord.TradeRecord) {
 			}).Info("Place Order Fail")
 			return
 		}
-		if record.TradeTime.Add(30*time.Second).Before(time.Now()) && order.Status != 6 && order.Status != 5 {
+		if record.TradeTime.Add(45*time.Second).Before(time.Now()) && order.Status != 6 && order.Status != 5 {
 			if err := Cancel(record.OrderID); err != nil {
 				logger.Logger.Error(err)
 				return
