@@ -67,6 +67,7 @@ func insertDefaultSetting(db *gorm.DB) (err error) {
 	if deployment == "docker" {
 		sysparm.DefaultSetting["runmode"] = "release"
 		sysparm.DefaultSetting["database"] = "tradebot"
+		sysparm.DefaultSetting["dbhost"] = "172.20.10.10"
 		sysparm.DefaultSetting["py_server_host"] = "sinopac-srv.tocraw.com"
 	}
 	var inDB []sysparm.Parameters

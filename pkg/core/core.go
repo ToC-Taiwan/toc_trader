@@ -45,7 +45,7 @@ func TradeProcess() {
 			simulateprocess.Simulate()
 		}
 	}
-	// Generate global target array
+	// Generate global target array and fetch entireTick
 	var savedTarget []targetstock.Target
 	if targets, err := choosetarget.GetTargetByVolumeRankByDate(global.LastTradeDay.Format(global.ShortTimeLayout), 200); err != nil {
 		panic(err)
@@ -58,21 +58,33 @@ func TradeProcess() {
 		}
 		tmp := []time.Time{global.LastTradeDay}
 		fetchentiretick.FetchEntireTick(targets, tmp, global.TickAnalyzeCondition)
-		targetStockArr, err := stock.GetStocksFromNumArr(targets, global.GlobalDB)
-		if err != nil {
+		if dbTarget, err := targetstock.GetTargetByTime(global.LastTradeDay, global.GlobalDB); err != nil {
 			panic(err)
-		}
-		for _, v := range targetStockArr {
-			savedTarget = append(savedTarget, targetstock.Target{
-				LastTradeDay: global.LastTradeDay,
-				Stock:        v,
-			})
-		}
-		if err := targetstock.InsertMultiTarget(savedTarget, global.GlobalDB); err != nil {
-			panic(err)
+		} else if len(dbTarget) == 0 {
+			logger.Logger.Info("Saving targets")
+			targetStockArr, err := stock.GetStocksFromNumArr(targets, global.GlobalDB)
+			if err != nil {
+				panic(err)
+			}
+			for _, v := range targetStockArr {
+				savedTarget = append(savedTarget, targetstock.Target{
+					LastTradeDay: global.LastTradeDay,
+					Stock:        v,
+				})
+			}
+			if err := targetstock.InsertMultiTarget(savedTarget, global.GlobalDB); err != nil {
+				panic(err)
+			}
 		}
 	}
-	logger.Logger.Info("FetchEntireTick Done")
+	// 120 Trade Day Kbar
+	last120TradeDayArr, err := importbasic.GetLastNTradeDay(120)
+	if err != nil {
+		panic(err)
+	}
+	fetchentiretick.FetchKbar(global.TargetArr, last120TradeDayArr[len(last120TradeDayArr)-1], last120TradeDayArr[0])
+	logger.Logger.Info("FetchEntireTick and Kbar Done")
+
 	// Check tradeday or target exist
 	if len(global.LastTradeDayArr) == 0 || len(global.TargetArr) == 0 {
 		logger.Logger.Warn("no trade day or no target")
