@@ -25,9 +25,10 @@ RUN apt update -y && \
     apt autoremove -y && \
     apt clean && \
     mkdir toc_trader && \
-    mkdir toc_trader/configs && \
     mkdir toc_trader/cmd && \
     mkdir toc_trader/cmd/toc_trader && \
+    mkdir toc_trader/configs && \
+    mkdir toc_trader/logs && \
     mkdir toc_trader/scripts && \
     rm -rf /var/lib/apt/lists/*
 

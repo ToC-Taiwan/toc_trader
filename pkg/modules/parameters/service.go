@@ -5,6 +5,7 @@ import (
 	"errors"
 	"runtime/debug"
 
+	"gitlab.tocraw.com/root/toc_trader/init/sysparminit"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/sysparm"
 	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 	"gorm.io/driver/sqlite"
@@ -26,7 +27,7 @@ func UpdateSysparm(key string, value interface{}) (err error) {
 			logger.GetLogger().Error(err.Error() + "\n" + string(debug.Stack()))
 		}
 	}()
-	db, err := gorm.Open(sqlite.Open("./configs/global.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open(sysparminit.ConfigPath), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}

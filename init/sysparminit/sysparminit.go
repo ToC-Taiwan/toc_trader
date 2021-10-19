@@ -13,9 +13,27 @@ import (
 // GlobalSettings GlobalSettings
 var GlobalSettings sysparm.GlobalSettingMap
 
+// ConfigPath ConfigPath
+var ConfigPath string = "./configs/global.db"
+
+func init() {
+	deployment := os.Getenv("DEPLOYMENT")
+	if deployment == "docker" {
+		ConfigPath = "/toc_trader/configs"
+		sysparm.DefaultSetting["runmode"] = "release"
+		sysparm.DefaultSetting["database"] = "tradebot"
+		sysparm.DefaultSetting["dbhost"] = "172.20.10.10"
+		sysparm.DefaultSetting["py_server_host"] = "sinopac-srv.tocraw.com"
+	}
+	if runtime.GOOS == "windows" {
+		sysparm.DefaultSetting["dbhost"] = "172.20.10.10"
+		sysparm.DefaultSetting["py_server_host"] = "sinopac-srv.tocraw.com"
+	}
+}
+
 func init() {
 	GlobalSettings = make(map[string]string)
-	db, err := gorm.Open(sqlite.Open("./configs/global.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open(ConfigPath), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}
@@ -64,17 +82,6 @@ func init() {
 }
 
 func insertDefaultSetting(db *gorm.DB) (err error) {
-	deployment := os.Getenv("DEPLOYMENT")
-	if deployment == "docker" {
-		sysparm.DefaultSetting["runmode"] = "release"
-		sysparm.DefaultSetting["database"] = "tradebot"
-		sysparm.DefaultSetting["dbhost"] = "172.20.10.10"
-		sysparm.DefaultSetting["py_server_host"] = "sinopac-srv.tocraw.com"
-	}
-	if runtime.GOOS == "windows" {
-		sysparm.DefaultSetting["dbhost"] = "172.20.10.10"
-		sysparm.DefaultSetting["py_server_host"] = "sinopac-srv.tocraw.com"
-	}
 	var inDB []sysparm.Parameters
 	db.Model(&sysparm.Parameters{}).Find(&inDB)
 	for _, v := range inDB {
