@@ -30,67 +30,6 @@ var FilledSellOrderMap tradeRecordMutexMap
 // ManualSellMap ManualSellMap
 var ManualSellMap tradeRecordMutexMap
 
-// BuyBot BuyBot
-func BuyBot(ch chan *analyzestreamtick.AnalyzeStreamTick, cond simulationcond.AnalyzeCondition) {
-	for {
-		analyzeTick := <-ch
-		if checkInBuyMap(analyzeTick.StockNum) || checkInSellFirstMap(analyzeTick.StockNum) {
-			continue
-		}
-		if !IsBuyPoint(analyzeTick, cond) {
-			if IsSellFirstPoint(analyzeTick, cond) {
-				go SellFirstBot(analyzeTick)
-			}
-			continue
-		}
-
-		name := global.AllStockNameMap.GetName(analyzeTick.StockNum)
-		outSum := analyzeTick.OutSum
-		inSum := analyzeTick.InSum
-		closeChangeRatio := analyzeTick.CloseChangeRatio
-		outInRatio := analyzeTick.OutInRatio
-
-		tickTime := time.Unix(0, analyzeTick.TimeStamp).Local().Format(global.LongTimeLayout)
-		replaceDate := tickTime[:10]
-		clockTime := tickTime[11:19]
-		logger.Logger.WithFields(map[string]interface{}{
-			"Close":       analyzeTick.Close,
-			"ChangeRatio": closeChangeRatio,
-			"OutSum":      outSum,
-			"InSum":       inSum,
-			"OutInRatio":  outInRatio,
-			"Name":        name,
-		}).Infof("StreamTick Analyze: %s %s %s", replaceDate, clockTime, analyzeTick.StockNum)
-
-		buyCost := GetStockBuyCost(analyzeTick.Close, global.OneTimeQuantity)
-		if global.TradeSwitch.Buy && BuyOrderMap.GetCount() < global.TradeSwitch.MeanTimeTradeStockNum && TradeQuota-buyCost > 0 {
-			if order, err := PlaceOrder(BuyAction, analyzeTick.StockNum, global.OneTimeQuantity, analyzeTick.Close); err != nil {
-				logger.Logger.WithFields(map[string]interface{}{
-					"Msg":      err,
-					"StockNum": analyzeTick.StockNum,
-					"Quantity": global.OneTimeQuantity,
-					"Price":    analyzeTick.Close,
-				}).Error("Buy fail")
-			} else if order.OrderID != "" && order.Status != traderecord.Failed {
-				TradeQuota -= buyCost
-				record := traderecord.TradeRecord{
-					StockNum:  analyzeTick.StockNum,
-					Price:     analyzeTick.Close,
-					Quantity:  global.OneTimeQuantity,
-					Action:    int64(BuyAction),
-					BuyCost:   buyCost,
-					TradeTime: time.Unix(0, analyzeTick.TimeStamp),
-					OrderID:   order.OrderID,
-				}
-				BuyOrderMap.Set(record)
-				go CheckBuyOrderStatus(record)
-				continue
-			}
-			logger.Logger.Warn("Buy Order is failed")
-		}
-	}
-}
-
 // IsBuyPoint IsBuyPoint
 func IsBuyPoint(analyzeTick *analyzestreamtick.AnalyzeStreamTick, cond simulationcond.AnalyzeCondition) bool {
 	closeChangeRatio := analyzeTick.CloseChangeRatio
@@ -109,6 +48,36 @@ func IsBuyPoint(analyzeTick *analyzestreamtick.AnalyzeStreamTick, cond simulatio
 	return true
 }
 
+// BuyBot BuyBot
+func BuyBot(analyzeTick *analyzestreamtick.AnalyzeStreamTick) {
+	buyCost := GetStockBuyCost(analyzeTick.Close, global.OneTimeQuantity)
+	if BuyOrderMap.GetCount() < global.TradeSwitch.MeanTimeTradeStockNum && TradeQuota-buyCost > 0 {
+		if order, err := PlaceOrder(BuyAction, analyzeTick.StockNum, global.OneTimeQuantity, analyzeTick.Close); err != nil {
+			logger.Logger.WithFields(map[string]interface{}{
+				"Msg":      err,
+				"StockNum": analyzeTick.StockNum,
+				"Quantity": global.OneTimeQuantity,
+				"Price":    analyzeTick.Close,
+			}).Error("Buy fail")
+		} else if order.OrderID != "" && order.Status != traderecord.Failed {
+			TradeQuota -= buyCost
+			record := traderecord.TradeRecord{
+				StockNum:  analyzeTick.StockNum,
+				Price:     analyzeTick.Close,
+				Quantity:  global.OneTimeQuantity,
+				Action:    int64(BuyAction),
+				BuyCost:   buyCost,
+				TradeTime: time.Unix(0, analyzeTick.TimeStamp),
+				OrderID:   order.OrderID,
+			}
+			BuyOrderMap.Set(record)
+			go CheckBuyOrderStatus(record)
+		}
+	} else {
+		logger.Logger.Warn("Over MeanTimeTradeStockNum or Quota")
+	}
+}
+
 // SellBot SellBot
 func SellBot(ch chan *streamtick.StreamTick, cond simulationcond.AnalyzeCondition) {
 	var historyClose []float64
@@ -118,12 +87,12 @@ func SellBot(ch chan *streamtick.StreamTick, cond simulationcond.AnalyzeConditio
 		if len(historyClose) > int(cond.HistoryCloseCount) {
 			historyClose = historyClose[1:]
 		}
-		filled, err := traderecord.CheckIsFilledByOrderID(BuyOrderMap.GetOrderID(tick.StockNum), global.GlobalDB)
+		filled, err := traderecord.CheckIsFilledByOrderID(BuyOrderMap.GetOrderIDByStockNum(tick.StockNum), global.GlobalDB)
 		if err != nil {
 			logger.Logger.Error(err)
 			continue
 		}
-		if filled && !SellOrderMap.CheckStockExist(tick.StockNum) && global.TradeSwitch.Sell {
+		if filled && !SellOrderMap.CheckStockExist(tick.StockNum) {
 			originalOrderClose := BuyOrderMap.GetClose(tick.StockNum)
 			sellPrice := GetSellPrice(tick, BuyOrderMap.GetTradeTime(tick.StockNum), historyClose, originalOrderClose, cond)
 			if sellPrice == 0 {
@@ -146,9 +115,7 @@ func SellBot(ch chan *streamtick.StreamTick, cond simulationcond.AnalyzeConditio
 				}
 				SellOrderMap.Set(record)
 				go CheckSellOrderStatus(record)
-				continue
 			}
-			logger.Logger.Warn("Sell Order is failed")
 		}
 	}
 }
@@ -165,7 +132,7 @@ func GetSellPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyClose
 	input.Close = historyClose
 	rsi, err := tickanalyze.GenerateRSI(input)
 	if err != nil {
-		logger.Logger.Errorf("GetSellPrice Stock: %s, Err: %s", tick.StockNum, err)
+		logger.Logger.Errorf("GenerateRSI at GetSellPrice Stock: %s, Err: %s", tick.StockNum, err)
 		return 0
 	}
 	switch {
@@ -180,8 +147,6 @@ func GetSellPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyClose
 		}
 	case tickTimeUnix.After(lastTime):
 		sellPrice = tick.Close
-	default:
-		sellPrice = 0
 	}
 	return sellPrice
 }
@@ -189,7 +154,6 @@ func GetSellPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyClose
 // CheckBuyOrderStatus CheckBuyOrderStatus
 func CheckBuyOrderStatus(record traderecord.TradeRecord) {
 	for {
-		time.Sleep(1 * time.Second)
 		order, err := traderecord.GetOrderByOrderID(record.OrderID, global.GlobalDB)
 		if err != nil {
 			logger.Logger.Error(err)
@@ -197,7 +161,7 @@ func CheckBuyOrderStatus(record traderecord.TradeRecord) {
 		}
 		if order.Status == 4 {
 			TradeQuota += record.BuyCost
-			BuyOrderMap.Delete(record.StockNum)
+			BuyOrderMap.DeleteByStockNum(record.StockNum)
 			logger.Logger.WithFields(map[string]interface{}{
 				"StockNum": order.StockNum,
 				"Name":     order.StockName,
@@ -212,7 +176,7 @@ func CheckBuyOrderStatus(record traderecord.TradeRecord) {
 				return
 			}
 			TradeQuota += record.BuyCost
-			BuyOrderMap.Delete(record.StockNum)
+			BuyOrderMap.DeleteByStockNum(record.StockNum)
 			logger.Logger.WithFields(map[string]interface{}{
 				"StockNum": order.StockNum,
 				"Name":     order.StockName,
@@ -231,13 +195,13 @@ func CheckBuyOrderStatus(record traderecord.TradeRecord) {
 			}).Info("Buy Stock Success")
 			return
 		}
+		time.Sleep(1 * time.Second)
 	}
 }
 
 // CheckSellOrderStatus CheckSellOrderStatus
 func CheckSellOrderStatus(record traderecord.TradeRecord) {
 	for {
-		time.Sleep(1 * time.Second)
 		order, err := traderecord.GetOrderByOrderID(record.OrderID, global.GlobalDB)
 		if err != nil {
 			logger.Logger.Error(err)
@@ -245,7 +209,7 @@ func CheckSellOrderStatus(record traderecord.TradeRecord) {
 		}
 		if order.Status == 4 {
 			TradeQuota += record.BuyCost
-			BuyOrderMap.Delete(record.StockNum)
+			BuyOrderMap.DeleteByStockNum(record.StockNum)
 			logger.Logger.WithFields(map[string]interface{}{
 				"StockNum": order.StockNum,
 				"Name":     order.StockName,
@@ -259,7 +223,7 @@ func CheckSellOrderStatus(record traderecord.TradeRecord) {
 				logger.Logger.Error(err)
 				return
 			}
-			SellOrderMap.Delete(record.StockNum)
+			SellOrderMap.DeleteByStockNum(record.StockNum)
 			logger.Logger.WithFields(map[string]interface{}{
 				"StockNum": order.StockNum,
 				"Name":     order.StockName,
@@ -270,10 +234,10 @@ func CheckSellOrderStatus(record traderecord.TradeRecord) {
 		}
 		if order.Status == 6 {
 			FilledSellOrderMap.Set(order)
-			BuyOrderMap.Delete(record.StockNum)
-			SellOrderMap.Delete(record.StockNum)
+			BuyOrderMap.DeleteByStockNum(record.StockNum)
+			SellOrderMap.DeleteByStockNum(record.StockNum)
 			if ManualSellMap.CheckStockExist(record.StockNum) {
-				ManualSellMap.Delete(record.StockNum)
+				ManualSellMap.DeleteByStockNum(record.StockNum)
 			}
 			logger.Logger.WithFields(map[string]interface{}{
 				"StockNum": order.StockNum,
@@ -283,9 +247,6 @@ func CheckSellOrderStatus(record traderecord.TradeRecord) {
 			}).Info("Sell Stock Success")
 			return
 		}
+		time.Sleep(1 * time.Second)
 	}
-}
-
-func checkInBuyMap(stockNum string) bool {
-	return FilledBuyOrderMap.CheckStockExist(stockNum) || BuyOrderMap.CheckStockExist(stockNum)
 }

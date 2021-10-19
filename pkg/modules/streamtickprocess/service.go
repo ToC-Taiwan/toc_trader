@@ -15,29 +15,38 @@ import (
 
 // TickProcess TickProcess
 func TickProcess(lastClose float64, cond simulationcond.AnalyzeCondition, ch chan *streamtick.StreamTick, saveCh chan []*streamtick.StreamTick) {
+	var sellChan, buyLaterChan chan *streamtick.StreamTick
 	if lastClose == 0 {
 		return
 	}
-	buyChan := make(chan *analyzestreamtick.AnalyzeStreamTick)
-	sellChan := make(chan *streamtick.StreamTick)
-	buyLaterChan := make(chan *streamtick.StreamTick)
-	go tradebot.BuyBot(buyChan, cond)
-	go tradebot.SellBot(sellChan, cond)
-	go tradebot.BuyLaterBot(buyLaterChan, cond)
+	analyzeTickChan := make(chan *analyzestreamtick.AnalyzeStreamTick)
+	go tradebot.TradeAgent(analyzeTickChan, cond)
 
+	if global.TradeSwitch.Buy {
+		buyLaterChan = make(chan *streamtick.StreamTick)
+		go tradebot.BuyLaterBot(buyLaterChan, cond)
+	}
+	if global.TradeSwitch.Sell {
+		sellChan = make(chan *streamtick.StreamTick)
+		go tradebot.SellBot(sellChan, cond)
+	}
 	var input quote.Quote
 	var unSavedTicks streamtick.PtrArrArr
 	var tmpArr streamtick.PtrArr
-	var lastSaveLastClose float64
+	var lastSaveLastClose, openChangeRatio float64
 	for {
 		tick := <-ch
-		if tradebot.FilledBuyOrderMap.CheckStockExist(tick.StockNum) {
-			sellChan <- tick
-		}
-		if tradebot.FilledSellFirstOrderMap.CheckStockExist(tick.StockNum) {
-			buyLaterChan <- tick
+		if openChangeRatio == 0 {
+			openChangeRatio = common.Round((tick.Open - lastClose), 2)
 		}
 		tmpArr = append(tmpArr, tick)
+		switch {
+		case tradebot.FilledBuyOrderMap.CheckStockExist(tick.StockNum):
+			sellChan <- tick
+		case tradebot.FilledSellFirstOrderMap.CheckStockExist(tick.StockNum):
+			buyLaterChan <- tick
+		}
+
 		if tmpArr.GetTotalTime() < cond.TicksPeriodThreshold {
 			continue
 		}
@@ -64,27 +73,28 @@ func TickProcess(lastClose float64, cond simulationcond.AnalyzeCondition, ch cha
 			} else {
 				input.Close = input.Close[len(input.Close)-int(cond.HistoryCloseCount):]
 			}
+			rsi, err := tickanalyze.GenerateRSI(input)
+			if err != nil {
+				logger.Logger.Errorf("TickProcess Stock: %s, Err: %s", tick.StockNum, err)
+				continue
+			}
+
 			closeDiff := common.Round((unSavedTicks.GetLastClose() - lastSaveLastClose), 2)
 			if lastSaveLastClose == 0 {
 				closeDiff = 0
 			}
 			lastSaveLastClose = unSavedTicks.GetLastClose()
 			unSavedTicksInOutRatio := common.Round((100 * (float64(outSum) / float64(outSum+inSum))), 2)
-			rsi, err := tickanalyze.GenerateRSI(input)
-			if err != nil {
-				logger.Logger.Errorf("TickProcess Stock: %s, Err: %s", tick.StockNum, err)
-				continue
-			}
 			analyze := analyzestreamtick.AnalyzeStreamTick{
 				TimeStamp:        tick.TimeStamp,
 				StockNum:         tick.StockNum,
 				Close:            tick.Close,
-				OpenChangeRatio:  common.Round((tick.Open - lastClose), 2),
+				OpenChangeRatio:  openChangeRatio,
 				CloseChangeRatio: tick.PctChg,
 				OutSum:           outSum,
 				InSum:            inSum,
 				OutInRatio:       unSavedTicksInOutRatio,
-				TotalTime:        common.Round(totalTime, 2),
+				TotalTime:        totalTime,
 				CloseDiff:        closeDiff,
 				Open:             tick.Open,
 				AvgPrice:         tick.AvgPrice,
@@ -93,7 +103,7 @@ func TickProcess(lastClose float64, cond simulationcond.AnalyzeCondition, ch cha
 				Rsi:              rsi,
 				Volume:           outSum + inSum,
 			}
-			buyChan <- &analyze
+			analyzeTickChan <- &analyze
 			unSavedTicks.ClearAll()
 		}
 	}

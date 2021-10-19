@@ -15,7 +15,7 @@ var GlobalSettings sysparm.GlobalSettingMap
 
 func init() {
 	GlobalSettings = make(map[string]string)
-	db, err := gorm.Open(sqlite.Open("./config/global.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("./configs/global.db"), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}

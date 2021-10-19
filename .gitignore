@@ -136,5 +136,5 @@ cmd/toc_trader/toc_trader
 coverage.out
 report.xml
 go_test_result
-config/global.db
+configs/global.db
 !.gitkeep

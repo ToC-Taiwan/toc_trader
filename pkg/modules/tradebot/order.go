@@ -9,9 +9,6 @@ import (
 
 // PlaceOrder PlaceOrder
 func PlaceOrder(action OrderAction, stockNum string, stockQuantity int64, stockPrice float64) (returnOrder global.PyServerResponse, err error) {
-	if stockNum == "" || stockQuantity == 0 {
-		return returnOrder, errors.New("PlaceOrder input error")
-	}
 	var url string
 	switch action {
 	case BuyAction:

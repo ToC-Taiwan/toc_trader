@@ -24,7 +24,7 @@ func (c *tradeRecordMutexMap) Set(record traderecord.TradeRecord) {
 }
 
 // Delete Delete
-func (c *tradeRecordMutexMap) Delete(stockNum string) {
+func (c *tradeRecordMutexMap) DeleteByStockNum(stockNum string) {
 	if c.tMap == nil {
 		c.tMap = make(map[string]traderecord.TradeRecord)
 	}
@@ -40,8 +40,8 @@ func (c *tradeRecordMutexMap) ClearAll() {
 	c.mutex.Unlock()
 }
 
-// GetAll GetAll
-func (c *tradeRecordMutexMap) GetAll() map[string]traderecord.TradeRecord {
+// GetAllRecordMap GetAllRecordMap
+func (c *tradeRecordMutexMap) GetAllRecordMap() map[string]traderecord.TradeRecord {
 	var tmp map[string]traderecord.TradeRecord
 	if c.tMap == nil {
 		c.tMap = make(map[string]traderecord.TradeRecord)
@@ -64,8 +64,8 @@ func (c *tradeRecordMutexMap) GetCount() int {
 	return tmp
 }
 
-// GetOrderID GetOrderID
-func (c *tradeRecordMutexMap) GetOrderID(stockNum string) string {
+// GetOrderIDByStockNum GetOrderIDByStockNum
+func (c *tradeRecordMutexMap) GetOrderIDByStockNum(stockNum string) string {
 	var tmp string
 	if c.tMap == nil {
 		c.tMap = make(map[string]traderecord.TradeRecord)

@@ -30,28 +30,28 @@ var FilledBuyLaterOrderMap tradeRecordMutexMap
 // ManualBuyLaterMap ManualBuyLaterMap
 var ManualBuyLaterMap tradeRecordMutexMap
 
+// IsSellFirstPoint IsSellFirstPoint
+func IsSellFirstPoint(analyzeTick *analyzestreamtick.AnalyzeStreamTick, cond simulationcond.AnalyzeCondition) bool {
+	// closeChangeRatio := analyzeTick.CloseChangeRatio
+	// if analyzeTick.OpenChangeRatio > cond.OpenChangeRatio || closeChangeRatio < cond.CloseChangeRatioLow || closeChangeRatio > cond.CloseChangeRatioHigh {
+	// 	return false
+	// }
+	if analyzeTick.Volume < cond.VolumePerSecond*int64(analyzeTick.TotalTime) {
+		return false
+	}
+	if analyzeTick.OutInRatio > cond.ReverseOutInRatio || analyzeTick.CloseDiff > cond.CloseDiff {
+		return false
+	}
+	if analyzeTick.Rsi < cond.ReverseRsiHigh {
+		return false
+	}
+	return true
+}
+
 // SellFirstBot SellFirstBot
 func SellFirstBot(analyzeTick *analyzestreamtick.AnalyzeStreamTick) {
-	name := global.AllStockNameMap.GetName(analyzeTick.StockNum)
-	outSum := analyzeTick.OutSum
-	inSum := analyzeTick.InSum
-	closeChangeRatio := analyzeTick.CloseChangeRatio
-	outInRatio := analyzeTick.OutInRatio
-
-	tickTime := time.Unix(0, analyzeTick.TimeStamp).Local().Format(global.LongTimeLayout)
-	replaceDate := tickTime[:10]
-	clockTime := tickTime[11:19]
-	logger.Logger.WithFields(map[string]interface{}{
-		"Close":       analyzeTick.Close,
-		"ChangeRatio": closeChangeRatio,
-		"OutSum":      outSum,
-		"InSum":       inSum,
-		"OutInRatio":  outInRatio,
-		"Name":        name,
-	}).Infof("StreamTick Analyze Sell First: %s %s %s", replaceDate, clockTime, analyzeTick.StockNum)
-
 	buyCost := GetStockBuyCost(analyzeTick.Close, global.OneTimeQuantity)
-	if global.TradeSwitch.SellFirst && SellFirstOrderMap.GetCount() < global.TradeSwitch.MeanTimeReverseTradeStockNum && TradeQuota-buyCost > 0 {
+	if SellFirstOrderMap.GetCount() < global.TradeSwitch.MeanTimeReverseTradeStockNum && TradeQuota-buyCost > 0 {
 		if order, err := PlaceOrder(SellFirstAction, analyzeTick.StockNum, global.OneTimeQuantity, analyzeTick.Close); err != nil {
 			logger.Logger.WithFields(map[string]interface{}{
 				"Msg":      err,
@@ -72,28 +72,10 @@ func SellFirstBot(analyzeTick *analyzestreamtick.AnalyzeStreamTick) {
 			}
 			SellFirstOrderMap.Set(record)
 			go CheckSellFirstOrderStatus(record)
-			return
 		}
-		logger.Logger.Warn("Sell First Order is failed")
+	} else {
+		logger.Logger.Warn("Over MeanTimeReverseTradeStockNum or Quota")
 	}
-}
-
-// IsSellFirstPoint IsSellFirstPoint
-func IsSellFirstPoint(analyzeTick *analyzestreamtick.AnalyzeStreamTick, cond simulationcond.AnalyzeCondition) bool {
-	// closeChangeRatio := analyzeTick.CloseChangeRatio
-	// if analyzeTick.OpenChangeRatio > cond.OpenChangeRatio || closeChangeRatio < cond.CloseChangeRatioLow || closeChangeRatio > cond.CloseChangeRatioHigh {
-	// 	return false
-	// }
-	if analyzeTick.Volume < cond.VolumePerSecond*int64(analyzeTick.TotalTime) {
-		return false
-	}
-	if analyzeTick.OutInRatio > cond.ReverseOutInRatio || analyzeTick.CloseDiff > cond.CloseDiff {
-		return false
-	}
-	if analyzeTick.Rsi < cond.ReverseRsiHigh {
-		return false
-	}
-	return true
 }
 
 // BuyLaterBot BuyLaterBot
@@ -105,12 +87,12 @@ func BuyLaterBot(ch chan *streamtick.StreamTick, cond simulationcond.AnalyzeCond
 		if len(historyClose) > int(cond.HistoryCloseCount) {
 			historyClose = historyClose[1:]
 		}
-		filled, err := traderecord.CheckIsFilledByOrderID(SellFirstOrderMap.GetOrderID(tick.StockNum), global.GlobalDB)
+		filled, err := traderecord.CheckIsFilledByOrderID(SellFirstOrderMap.GetOrderIDByStockNum(tick.StockNum), global.GlobalDB)
 		if err != nil {
 			logger.Logger.Error(err)
 			continue
 		}
-		if filled && !BuyLaterOrderMap.CheckStockExist(tick.StockNum) && global.TradeSwitch.Buy {
+		if filled && !BuyLaterOrderMap.CheckStockExist(tick.StockNum) {
 			originalOrderClose := SellFirstOrderMap.GetClose(tick.StockNum)
 			buyPrice := GetBuyLaterPrice(tick, SellFirstOrderMap.GetTradeTime(tick.StockNum), historyClose, originalOrderClose, cond)
 			if buyPrice == 0 {
@@ -133,7 +115,6 @@ func BuyLaterBot(ch chan *streamtick.StreamTick, cond simulationcond.AnalyzeCond
 				}
 				BuyLaterOrderMap.Set(record)
 				go CheckBuyLaterOrderStatus(record)
-				continue
 			}
 		}
 	}
@@ -151,7 +132,7 @@ func GetBuyLaterPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyC
 	input.Close = historyClose
 	rsi, err := tickanalyze.GenerateRSI(input)
 	if err != nil {
-		logger.Logger.Errorf("GetBuyLaterPrice Stock: %s, Err: %s", tick.StockNum, err)
+		logger.Logger.Errorf("GenerateRSI at GetBuyLaterPrice Stock: %s, Err: %s", tick.StockNum, err)
 		return 0
 	}
 	switch {
@@ -166,8 +147,6 @@ func GetBuyLaterPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyC
 		}
 	case tickTimeUnix.After(lastTime):
 		buyPrice = tick.Close
-	default:
-		buyPrice = 0
 	}
 	return buyPrice
 }
@@ -175,7 +154,6 @@ func GetBuyLaterPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyC
 // CheckSellFirstOrderStatus CheckSellFirstOrderStatus
 func CheckSellFirstOrderStatus(record traderecord.TradeRecord) {
 	for {
-		time.Sleep(1 * time.Second)
 		order, err := traderecord.GetOrderByOrderID(record.OrderID, global.GlobalDB)
 		if err != nil {
 			logger.Logger.Error(err)
@@ -183,7 +161,7 @@ func CheckSellFirstOrderStatus(record traderecord.TradeRecord) {
 		}
 		if order.Status == 4 {
 			TradeQuota += record.BuyCost
-			SellFirstOrderMap.Delete(record.StockNum)
+			SellFirstOrderMap.DeleteByStockNum(record.StockNum)
 			logger.Logger.WithFields(map[string]interface{}{
 				"StockNum": order.StockNum,
 				"Name":     order.StockName,
@@ -198,7 +176,7 @@ func CheckSellFirstOrderStatus(record traderecord.TradeRecord) {
 				return
 			}
 			TradeQuota += record.BuyCost
-			SellFirstOrderMap.Delete(record.StockNum)
+			SellFirstOrderMap.DeleteByStockNum(record.StockNum)
 			logger.Logger.WithFields(map[string]interface{}{
 				"StockNum": order.StockNum,
 				"Name":     order.StockName,
@@ -217,13 +195,13 @@ func CheckSellFirstOrderStatus(record traderecord.TradeRecord) {
 			}).Info("Sell First Stock Success")
 			return
 		}
+		time.Sleep(1 * time.Second)
 	}
 }
 
 // CheckBuyLaterOrderStatus CheckBuyLaterOrderStatus
 func CheckBuyLaterOrderStatus(record traderecord.TradeRecord) {
 	for {
-		time.Sleep(1 * time.Second)
 		order, err := traderecord.GetOrderByOrderID(record.OrderID, global.GlobalDB)
 		if err != nil {
 			logger.Logger.Error(err)
@@ -231,7 +209,7 @@ func CheckBuyLaterOrderStatus(record traderecord.TradeRecord) {
 		}
 		if order.Status == 4 {
 			TradeQuota += record.BuyCost
-			SellFirstOrderMap.Delete(record.StockNum)
+			SellFirstOrderMap.DeleteByStockNum(record.StockNum)
 			logger.Logger.WithFields(map[string]interface{}{
 				"StockNum": order.StockNum,
 				"Name":     order.StockName,
@@ -245,7 +223,7 @@ func CheckBuyLaterOrderStatus(record traderecord.TradeRecord) {
 				logger.Logger.Error(err)
 				return
 			}
-			BuyLaterOrderMap.Delete(record.StockNum)
+			BuyLaterOrderMap.DeleteByStockNum(record.StockNum)
 			logger.Logger.WithFields(map[string]interface{}{
 				"StockNum": order.StockNum,
 				"Name":     order.StockName,
@@ -256,10 +234,10 @@ func CheckBuyLaterOrderStatus(record traderecord.TradeRecord) {
 		}
 		if order.Status == 6 {
 			FilledBuyLaterOrderMap.Set(order)
-			SellFirstOrderMap.Delete(record.StockNum)
-			BuyLaterOrderMap.Delete(record.StockNum)
+			SellFirstOrderMap.DeleteByStockNum(record.StockNum)
+			BuyLaterOrderMap.DeleteByStockNum(record.StockNum)
 			if ManualBuyLaterMap.CheckStockExist(record.StockNum) {
-				ManualBuyLaterMap.Delete(record.StockNum)
+				ManualBuyLaterMap.DeleteByStockNum(record.StockNum)
 			}
 			logger.Logger.WithFields(map[string]interface{}{
 				"StockNum": order.StockNum,
@@ -269,9 +247,6 @@ func CheckBuyLaterOrderStatus(record traderecord.TradeRecord) {
 			}).Info("Buy Later Stock Success")
 			return
 		}
+		time.Sleep(1 * time.Second)
 	}
-}
-
-func checkInSellFirstMap(stockNum string) bool {
-	return FilledSellFirstOrderMap.CheckStockExist(stockNum) || SellFirstOrderMap.CheckStockExist(stockNum)
 }

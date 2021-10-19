@@ -67,7 +67,7 @@ func showStatus() {
 func tradeSwitch() {
 	tick := time.Tick(20 * time.Second)
 	for range tick {
-		if time.Now().After(global.TradeDayEndTime) && global.TradeSwitch.Buy {
+		if time.Now().After(global.TradeDayEndTime) && (global.TradeSwitch.Buy || global.TradeSwitch.SellFirst) {
 			global.TradeSwitch.Buy = false
 			global.TradeSwitch.SellFirst = false
 			logger.Logger.Warn("Enable buy and Sell first are all OFF")
