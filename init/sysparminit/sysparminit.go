@@ -19,7 +19,7 @@ var ConfigPath string = "./configs/global.db"
 func init() {
 	deployment := os.Getenv("DEPLOYMENT")
 	if deployment == "docker" {
-		ConfigPath = "/toc_trader/configs"
+		ConfigPath = "/toc_trader/configs/global.db"
 		sysparm.DefaultSetting["runmode"] = "release"
 		sysparm.DefaultSetting["database"] = "tradebot"
 		sysparm.DefaultSetting["dbhost"] = "172.20.10.10"
