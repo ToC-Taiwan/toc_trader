@@ -89,7 +89,7 @@ func TickProcess(stockNum string, lastClose float64, cond simulationcond.Analyze
 			unSavedTicksInOutRatio := common.Round(100*(float64(outSum)/float64(outSum+inSum)), 2)
 			rsi, err := tickanalyze.GenerateRSI(input)
 			if err != nil {
-				logger.Logger.Errorf("GenerateRSI at EntireTickProcess Stock: %s, Err: %s", stockNum, err)
+				logger.GetLogger().Errorf("GenerateRSI at EntireTickProcess Stock: %s, Err: %s", stockNum, err)
 				continue
 			}
 			analyze := analyzeentiretick.AnalyzeEntireTick{
@@ -124,7 +124,7 @@ func SaveEntireTicks(saveCh chan []*entiretick.EntireTick) {
 		}
 		if len(saveData) != 0 {
 			if err := entiretick.InsertMultiRecord(saveData, global.GlobalDB); err != nil {
-				logger.Logger.Error(err)
+				logger.GetLogger().Error(err)
 			}
 		}
 	}
@@ -144,7 +144,7 @@ func AnalyzeEntireTickSaver(ch chan *analyzeentiretick.AnalyzeEntireTick, wg *sy
 			default:
 				err = errors.New("unknown panic")
 			}
-			logger.Logger.Error(err.Error() + "\n" + string(debug.Stack()))
+			logger.GetLogger().Error(err.Error() + "\n" + string(debug.Stack()))
 		}
 	}()
 	var tmpArr []*analyzeentiretick.AnalyzeEntireTick

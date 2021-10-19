@@ -32,31 +32,31 @@ func ReciveTradeEvent(c *gin.Context) {
 	req := tradeevent.EventProto{}
 	var res handlers.ErrorResponse
 	if byteArr, err := ioutil.ReadAll(c.Request.Body); err != nil {
-		logger.Logger.Error(err)
+		logger.GetLogger().Error(err)
 		res.Response = err.Error()
 		c.JSON(http.StatusInternalServerError, res)
 		return
 	} else if err := proto.Unmarshal(byteArr, &req); err != nil {
-		logger.Logger.Error(err)
+		logger.GetLogger().Error(err)
 		res.Response = err.Error()
 		c.JSON(http.StatusInternalServerError, res)
 		return
 	}
 	event := req.ToEventResponse()
 	if err := tradeeventprocess.TradeEventSaver(event); err != nil {
-		logger.Logger.Error(err)
+		logger.GetLogger().Error(err)
 		res.Response = err.Error()
 		c.JSON(http.StatusInternalServerError, res)
 		return
 	}
-	logger.Logger.WithFields(map[string]interface{}{
+	logger.GetLogger().WithFields(map[string]interface{}{
 		"Resopnse":  req.RespCode,
 		"Info":      req.Info,
 		"EventCode": req.EventCode,
 		"Event":     req.Event,
 	}).Info("SinoPac Event")
 	if req.EventCode == 401 {
-		logger.Logger.Error("Terminate, sinpac srv send 401")
+		logger.GetLogger().Error("Terminate, sinpac srv send 401")
 		healthcheck.RestartService()
 	}
 	c.JSON(http.StatusOK, nil)

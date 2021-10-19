@@ -21,17 +21,17 @@ func CheckOrderStatusLoop() {
 	var initQuota bool
 	for range tick {
 		if err := FetchOrderStatus(); err != nil {
-			logger.Logger.Error(err)
+			logger.GetLogger().Error(err)
 			continue
 		}
 		if !initQuota && StatusFirstBack {
 			if err := InitStartUpQuota(); err != nil {
 				panic(err)
 			}
-			logger.Logger.Warnf("Initial Quota: %d", TradeQuota)
+			logger.GetLogger().Warnf("Initial Quota: %d", TradeQuota)
 			dbOrder, err := traderecord.GetAllorderByDayTime(global.TradeDay, global.GlobalDB)
 			if err != nil {
-				logger.Logger.Error(err)
+				logger.GetLogger().Error(err)
 				continue
 			}
 			initBalance(dbOrder)
@@ -47,7 +47,7 @@ func showStatus() {
 		if isCurrentOrderAllFinished() && time.Now().Before(global.TradeDayEndTime.Add(2*time.Hour)) {
 			balance := FilledSellOrderMap.GetTotalSellCost() + FilledSellFirstOrderMap.GetTotalSellCost() - FilledBuyLaterOrderMap.GetTotalBuyCost() - FilledBuyOrderMap.GetTotalBuyCost()
 			back := FilledBuyOrderMap.GetTotalCostBack() + FilledSellOrderMap.GetTotalCostBack() + FilledSellFirstOrderMap.GetTotalCostBack() + FilledBuyLaterOrderMap.GetTotalCostBack()
-			logger.Logger.WithFields(map[string]interface{}{
+			logger.GetLogger().WithFields(map[string]interface{}{
 				"Current":         BuyOrderMap.GetCount(),
 				"Maximum":         global.TradeSwitch.MeanTimeTradeStockNum,
 				"TradeQuota":      TradeQuota,
@@ -58,7 +58,7 @@ func showStatus() {
 			if balance < -1500 {
 				global.TradeSwitch.Buy = false
 				global.TradeSwitch.SellFirst = false
-				logger.Logger.Warn("Enable buy and Sell first are all OFF because too...")
+				logger.GetLogger().Warn("Enable buy and Sell first are all OFF because too...")
 			}
 		}
 	}
@@ -70,7 +70,7 @@ func tradeSwitch() {
 		if time.Now().After(global.TradeDayEndTime) && (global.TradeSwitch.Buy || global.TradeSwitch.SellFirst) {
 			global.TradeSwitch.Buy = false
 			global.TradeSwitch.SellFirst = false
-			logger.Logger.Warn("Enable buy and Sell first are all OFF")
+			logger.GetLogger().Warn("Enable buy and Sell first are all OFF")
 		}
 	}
 }
@@ -107,7 +107,7 @@ func initBalance(orders []traderecord.TradeRecord) {
 		}
 	}
 	for _, v := range tmpBuyOrder {
-		logger.Logger.WithFields(map[string]interface{}{
+		logger.GetLogger().WithFields(map[string]interface{}{
 			"StockNum": v.StockNum,
 			"Name":     v.StockName,
 			"Quantity": v.Quantity,
@@ -115,7 +115,7 @@ func initBalance(orders []traderecord.TradeRecord) {
 		}).Warn("Filled Buy Order")
 	}
 	for _, v := range tmpSellOrder {
-		logger.Logger.WithFields(map[string]interface{}{
+		logger.GetLogger().WithFields(map[string]interface{}{
 			"StockNum": v.StockNum,
 			"Name":     v.StockName,
 			"Quantity": v.Quantity,

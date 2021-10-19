@@ -27,14 +27,15 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+
 	gormlogger "gorm.io/gorm/logger"
 )
 
 func init() {
 	var err error
 	initDataBase()
-	dbLogger := gormlogger.New(logger.Logger, gormlogger.Config{
-		SlowThreshold:             500 * time.Millisecond,
+	dbLogger := gormlogger.New(logger.GetLogger(), gormlogger.Config{
+		SlowThreshold:             1000 * time.Millisecond,
 		Colorful:                  true,
 		IgnoreRecordNotFoundError: false,
 		LogLevel:                  gormlogger.Warn,

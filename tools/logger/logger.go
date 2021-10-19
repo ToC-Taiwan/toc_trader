@@ -4,22 +4,31 @@ package logger
 import (
 	"os"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/rifflock/lfshook"
+	"github.com/sirupsen/logrus"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 )
 
-// Logger Global logger
-var Logger = log.New()
+// Log Log
+var Log *logrus.Logger
 
-func init() {
+// GetLogger GetLogger
+func GetLogger() *logrus.Logger {
+	if Log != nil {
+		return Log
+	}
+	var basePath string
+	Log = logrus.New()
 	deployment := os.Getenv("DEPLOYMENT")
 	if deployment == "docker" {
-		Logger.SetFormatter(&log.JSONFormatter{
+		basePath = "/toc_trader"
+		Log.SetFormatter(&logrus.JSONFormatter{
 			TimestampFormat: global.LongTimeLayout,
 			PrettyPrint:     false,
 		})
 	} else {
-		Logger.SetFormatter(&log.TextFormatter{
+		basePath = "./"
+		Log.SetFormatter(&logrus.TextFormatter{
 			TimestampFormat:  "2006/01/02 15:04:05",
 			FullTimestamp:    true,
 			QuoteEmptyFields: true,
@@ -27,6 +36,20 @@ func init() {
 			ForceColors:      true,
 		})
 	}
-	Logger.SetLevel(log.TraceLevel)
-	Logger.SetOutput(os.Stdout)
+	Log.SetLevel(logrus.TraceLevel)
+	Log.SetOutput(os.Stdout)
+	pathMap := lfshook.PathMap{
+		logrus.PanicLevel: basePath + "/logs/panic.log",
+		logrus.FatalLevel: basePath + "/logs/fetal.log",
+		logrus.ErrorLevel: basePath + "/logs/error.log",
+		logrus.WarnLevel:  basePath + "/logs/warn.log",
+		logrus.InfoLevel:  basePath + "/logs/info.log",
+		logrus.DebugLevel: basePath + "/logs/debug.log",
+		logrus.TraceLevel: basePath + "/logs/error.log",
+	}
+	Log.Hooks.Add(lfshook.NewHook(
+		pathMap,
+		&logrus.JSONFormatter{},
+	))
+	return Log
 }

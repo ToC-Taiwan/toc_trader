@@ -28,7 +28,7 @@ func ImportAllStock() {
 			default:
 				err = errors.New("unknown panic")
 			}
-			logger.Logger.Error(err.Error() + "\n" + string(debug.Stack()))
+			logger.GetLogger().Error(err.Error() + "\n" + string(debug.Stack()))
 		}
 	}()
 	// Update basic first
@@ -70,7 +70,7 @@ func ImportAllStock() {
 	if err := stock.InsertMultiRecord(insertArr, global.GlobalDB); err != nil {
 		panic(err)
 	}
-	logger.Logger.WithFields(map[string]interface{}{
+	logger.GetLogger().WithFields(map[string]interface{}{
 		"Imported":     importStock,
 		"AlreadyExist": already,
 	}).Info("Import Stock Status")

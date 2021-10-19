@@ -53,7 +53,7 @@ func BuyBot(analyzeTick *analyzestreamtick.AnalyzeStreamTick) {
 	buyCost := GetStockBuyCost(analyzeTick.Close, global.OneTimeQuantity)
 	if BuyOrderMap.GetCount() < global.TradeSwitch.MeanTimeTradeStockNum && TradeQuota-buyCost > 0 {
 		if order, err := PlaceOrder(BuyAction, analyzeTick.StockNum, global.OneTimeQuantity, analyzeTick.Close); err != nil {
-			logger.Logger.WithFields(map[string]interface{}{
+			logger.GetLogger().WithFields(map[string]interface{}{
 				"Msg":      err,
 				"StockNum": analyzeTick.StockNum,
 				"Quantity": global.OneTimeQuantity,
@@ -74,7 +74,7 @@ func BuyBot(analyzeTick *analyzestreamtick.AnalyzeStreamTick) {
 			go CheckBuyOrderStatus(record)
 		}
 	} else {
-		logger.Logger.Warn("Over MeanTimeTradeStockNum or Quota")
+		logger.GetLogger().Warn("Over MeanTimeTradeStockNum or Quota")
 	}
 }
 
@@ -89,7 +89,7 @@ func SellBot(ch chan *streamtick.StreamTick, cond simulationcond.AnalyzeConditio
 		}
 		filled, err := traderecord.CheckIsFilledByOrderID(BuyOrderMap.GetOrderIDByStockNum(tick.StockNum), global.GlobalDB)
 		if err != nil {
-			logger.Logger.Error(err)
+			logger.GetLogger().Error(err)
 			continue
 		}
 		if filled && !SellOrderMap.CheckStockExist(tick.StockNum) {
@@ -98,7 +98,7 @@ func SellBot(ch chan *streamtick.StreamTick, cond simulationcond.AnalyzeConditio
 			if sellPrice == 0 {
 				continue
 			} else if order, err := PlaceOrder(SellAction, tick.StockNum, global.OneTimeQuantity, sellPrice); err != nil {
-				logger.Logger.WithFields(map[string]interface{}{
+				logger.GetLogger().WithFields(map[string]interface{}{
 					"Msg":      err,
 					"Stock":    tick.StockNum,
 					"Quantity": global.OneTimeQuantity,
@@ -132,7 +132,7 @@ func GetSellPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyClose
 	input.Close = historyClose
 	rsi, err := tickanalyze.GenerateRSI(input)
 	if err != nil {
-		logger.Logger.Errorf("GenerateRSI at GetSellPrice Stock: %s, Err: %s", tick.StockNum, err)
+		logger.GetLogger().Errorf("GenerateRSI at GetSellPrice Stock: %s, Err: %s", tick.StockNum, err)
 		return 0
 	}
 	switch {
@@ -156,13 +156,13 @@ func CheckBuyOrderStatus(record traderecord.TradeRecord) {
 	for {
 		order, err := traderecord.GetOrderByOrderID(record.OrderID, global.GlobalDB)
 		if err != nil {
-			logger.Logger.Error(err)
+			logger.GetLogger().Error(err)
 			continue
 		}
 		if order.Status == 4 {
 			TradeQuota += record.BuyCost
 			BuyOrderMap.DeleteByStockNum(record.StockNum)
-			logger.Logger.WithFields(map[string]interface{}{
+			logger.GetLogger().WithFields(map[string]interface{}{
 				"StockNum": order.StockNum,
 				"Name":     order.StockName,
 				"Quantity": order.Quantity,
@@ -172,12 +172,12 @@ func CheckBuyOrderStatus(record traderecord.TradeRecord) {
 		}
 		if record.TradeTime.Add(30*time.Second).Before(time.Now()) && order.Status != 6 && order.Status != 5 {
 			if err := Cancel(record.OrderID); err != nil {
-				logger.Logger.Error(err)
+				logger.GetLogger().Error(err)
 				return
 			}
 			TradeQuota += record.BuyCost
 			BuyOrderMap.DeleteByStockNum(record.StockNum)
-			logger.Logger.WithFields(map[string]interface{}{
+			logger.GetLogger().WithFields(map[string]interface{}{
 				"StockNum": order.StockNum,
 				"Name":     order.StockName,
 				"Quantity": order.Quantity,
@@ -187,7 +187,7 @@ func CheckBuyOrderStatus(record traderecord.TradeRecord) {
 		}
 		if order.Status == 6 {
 			FilledBuyOrderMap.Set(order)
-			logger.Logger.WithFields(map[string]interface{}{
+			logger.GetLogger().WithFields(map[string]interface{}{
 				"StockNum": order.StockNum,
 				"Name":     order.StockName,
 				"Quantity": order.Quantity,
@@ -204,13 +204,13 @@ func CheckSellOrderStatus(record traderecord.TradeRecord) {
 	for {
 		order, err := traderecord.GetOrderByOrderID(record.OrderID, global.GlobalDB)
 		if err != nil {
-			logger.Logger.Error(err)
+			logger.GetLogger().Error(err)
 			continue
 		}
 		if order.Status == 4 {
 			TradeQuota += record.BuyCost
 			BuyOrderMap.DeleteByStockNum(record.StockNum)
-			logger.Logger.WithFields(map[string]interface{}{
+			logger.GetLogger().WithFields(map[string]interface{}{
 				"StockNum": order.StockNum,
 				"Name":     order.StockName,
 				"Quantity": order.Quantity,
@@ -220,11 +220,11 @@ func CheckSellOrderStatus(record traderecord.TradeRecord) {
 		}
 		if record.TradeTime.Add(45*time.Second).Before(time.Now()) && order.Status != 6 && order.Status != 5 {
 			if err := Cancel(record.OrderID); err != nil {
-				logger.Logger.Error(err)
+				logger.GetLogger().Error(err)
 				return
 			}
 			SellOrderMap.DeleteByStockNum(record.StockNum)
-			logger.Logger.WithFields(map[string]interface{}{
+			logger.GetLogger().WithFields(map[string]interface{}{
 				"StockNum": order.StockNum,
 				"Name":     order.StockName,
 				"Quantity": order.Quantity,
@@ -239,7 +239,7 @@ func CheckSellOrderStatus(record traderecord.TradeRecord) {
 			if ManualSellMap.CheckStockExist(record.StockNum) {
 				ManualSellMap.DeleteByStockNum(record.StockNum)
 			}
-			logger.Logger.WithFields(map[string]interface{}{
+			logger.GetLogger().WithFields(map[string]interface{}{
 				"StockNum": order.StockNum,
 				"Name":     order.StockName,
 				"Quantity": order.Quantity,

@@ -10,14 +10,14 @@ import (
 )
 
 func addRankTarget() {
-	tick := time.NewTicker(15 * time.Second)
-	for range tick.C {
+	tick := time.Tick(15 * time.Second)
+	for range tick {
 		if !checkIsOpenTime() {
 			continue
 		}
 		var count int
 		if newTargetArr, err := choosetarget.GetTopTarget(10); err != nil {
-			logger.Logger.Error(err)
+			logger.GetLogger().Error(err)
 			continue
 		} else if time.Now().After(global.TradeDay.Add(1*time.Hour + 5*time.Minute)) {
 			count = len(newTargetArr)
@@ -27,7 +27,7 @@ func addRankTarget() {
 			}
 		}
 		if count != 0 {
-			logger.Logger.Infof("GetTopTarget %d", count)
+			logger.GetLogger().Infof("GetTopTarget %d", count)
 		}
 	}
 }

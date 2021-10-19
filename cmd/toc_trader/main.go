@@ -28,7 +28,7 @@ func main() {
 		}
 	}()
 	// Check Sinopac SRV is alive
-	for range time.NewTicker(time.Second).C {
+	for range time.Tick(time.Second) {
 		if network.CheckPortIsOpen(global.PyServerHost, global.PyServerPort) {
 			break
 		}
@@ -39,7 +39,7 @@ func main() {
 	for {
 		exit := <-global.ExitChannel
 		if exit == global.ExitSignal {
-			logger.Logger.Panic("manual exit")
+			logger.GetLogger().Panic("manual exit")
 		}
 	}
 }

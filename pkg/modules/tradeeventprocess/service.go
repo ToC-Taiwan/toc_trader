@@ -10,7 +10,7 @@ import (
 // TradeEventSaver TradeEventSaver
 func TradeEventSaver(record tradeevent.EventResponse) (err error) {
 	if err = tradeevent.Insert(record, global.GlobalDB); err != nil {
-		logger.Logger.Error(err)
+		logger.GetLogger().Error(err)
 		return err
 	}
 	return err

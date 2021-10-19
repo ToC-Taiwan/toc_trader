@@ -19,13 +19,13 @@ func init() {
 	global.PyServerPort = sysparminit.GlobalSettings.GetPyServerPort()
 
 	global.TradeSwitch = global.SystemSwitch{
-		Buy:                          false,
+		Buy:                          true,
 		Sell:                         true,
 		SellFirst:                    true,
 		BuyLater:                     true,
 		UseBidAsk:                    false,
-		MeanTimeTradeStockNum:        3,
-		MeanTimeReverseTradeStockNum: 3,
+		MeanTimeTradeStockNum:        5,
+		MeanTimeReverseTradeStockNum: 5,
 	}
 
 	global.TickAnalyzeCondition = simulationcond.AnalyzeCondition{
@@ -69,13 +69,13 @@ func init() {
 	global.LastTradeDay = lastTradeDayArr[0]
 	global.LastLastTradeDay = lastTradeDayArr[1]
 	global.LastTradeDayArr = append(global.LastTradeDayArr, global.LastTradeDay, global.LastLastTradeDay)
-	logger.Logger.WithFields(map[string]interface{}{
+	logger.GetLogger().WithFields(map[string]interface{}{
 		"TradeDay":         global.TradeDay.Format(global.ShortTimeLayout),
 		"LastTradeDay":     global.LastTradeDay.Format(global.ShortTimeLayout),
 		"LastLastTradeDay": global.LastLastTradeDay.Format(global.ShortTimeLayout),
 	}).Info("Last Trade Days")
 
-	logger.Logger.WithFields(map[string]interface{}{
+	logger.GetLogger().WithFields(map[string]interface{}{
 		"TradeDayEndTime": global.TradeDayEndTime.Format(global.LongTimeLayout),
 	}).Info("Trade End Time")
 }

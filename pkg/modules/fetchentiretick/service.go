@@ -31,7 +31,7 @@ func FetchEntireTick(stockNumArr []string, dateArr []time.Time, cond simulationc
 			default:
 				err = errors.New("unknown panic")
 			}
-			logger.Logger.Error(err.Error() + "\n" + string(debug.Stack()))
+			logger.GetLogger().Error(err.Error() + "\n" + string(debug.Stack()))
 		}
 	}()
 	saveCh := make(chan []*entiretick.EntireTick, len(stockNumArr))
@@ -43,7 +43,7 @@ func FetchEntireTick(stockNumArr []string, dateArr []time.Time, cond simulationc
 				panic(err)
 			} else {
 				if rows > 0 {
-					logger.Logger.WithFields(map[string]interface{}{
+					logger.GetLogger().WithFields(map[string]interface{}{
 						"Stock": s,
 						"Date":  d.Format(global.ShortTimeLayout),
 					}).Info("Already exist")
@@ -72,10 +72,10 @@ func GetAndSaveEntireTick(stockNum, date string, cond simulationcond.AnalyzeCond
 			default:
 				err = errors.New("unknown panic")
 			}
-			logger.Logger.Error(err.Error() + "\n" + string(debug.Stack()))
+			logger.GetLogger().Error(err.Error() + "\n" + string(debug.Stack()))
 		}
 	}()
-	logger.Logger.Infof("Fetching %s on %s", stockNum, date)
+	logger.GetLogger().Infof("Fetching %s on %s", stockNum, date)
 	stockAndDate := FetchBody{
 		StockNum: stockNum,
 		Date:     date,
@@ -102,7 +102,7 @@ func GetAndSaveEntireTick(stockNum, date string, cond simulationcond.AnalyzeCond
 	if lastClose != 0 {
 		go entiretickprocess.TickProcess(stockNum, lastClose, cond, ch, &wg, saveCh, false, &simulateMap)
 	} else {
-		logger.Logger.Warnf("%s has no %s's close", stockNum, date)
+		logger.GetLogger().Warnf("%s has no %s's close", stockNum, date)
 	}
 
 	for _, tmpTick := range res.Data {

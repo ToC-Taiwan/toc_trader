@@ -57,12 +57,12 @@ func UpdateTradeBotCondition(c *gin.Context) {
 	req := UpdateTradeBotConditionBody{}
 	var res handlers.ErrorResponse
 	if byteArr, err := ioutil.ReadAll(c.Request.Body); err != nil {
-		logger.Logger.Error(err)
+		logger.GetLogger().Error(err)
 		res.Response = err.Error()
 		c.JSON(http.StatusInternalServerError, res)
 		return
 	} else if err := json.Unmarshal(byteArr, &req); err != nil {
-		logger.Logger.Error(err)
+		logger.GetLogger().Error(err)
 		res.Response = err.Error()
 		c.JSON(http.StatusInternalServerError, res)
 		return
@@ -73,7 +73,7 @@ func UpdateTradeBotCondition(c *gin.Context) {
 	global.TradeSwitch.BuyLater = req.EnableBuyLater
 	global.TradeSwitch.UseBidAsk = req.UseBidAsk
 	global.TradeSwitch.MeanTimeTradeStockNum = req.MeanTimeTradeStockNum
-	logger.Logger.WithFields(map[string]interface{}{
+	logger.GetLogger().WithFields(map[string]interface{}{
 		"EnableBuy":             global.TradeSwitch.Buy,
 		"EnableSell":            global.TradeSwitch.Sell,
 		"EnableSellFirst":       global.TradeSwitch.SellFirst,
@@ -112,7 +112,7 @@ func GetTradeBotCondition(c *gin.Context) {
 func UpdatePyServerHost(c *gin.Context) {
 	var res handlers.ErrorResponse
 	host := c.Request.Header.Get("py_host")
-	logger.Logger.Warnf("Change PyServer to %s", host)
+	logger.GetLogger().Warnf("Change PyServer to %s", host)
 	if len(host) == 0 {
 		res.Response = errors.New("host format is wrong").Error()
 		c.JSON(http.StatusInternalServerError, res)

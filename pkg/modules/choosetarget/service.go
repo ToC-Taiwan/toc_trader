@@ -41,12 +41,12 @@ func SubscribeTarget(targetArr []string) {
 		err := UpdateStockCloseMapByDate(targetArr, global.LastTradeDayArr)
 		if errorTimes >= 5 {
 			if err = healthcheck.FullRestart(); err != nil && tradebot.BuyOrderMap.GetCount() != 0 && tradebot.SellFirstOrderMap.GetCount() != 0 {
-				logger.Logger.Fatal(err)
+				logger.GetLogger().Fatal(err)
 			}
 			return
 		}
 		if err != nil {
-			logger.Logger.Error(err)
+			logger.GetLogger().Error(err)
 			errorTimes++
 		} else {
 			break
@@ -74,7 +74,7 @@ func GetTopTarget(count int) (targetArr []string, err error) {
 	}
 	body := snapshot.SnapShotArrProto{}
 	if err = proto.Unmarshal(resp.Body(), &body); err != nil {
-		logger.Logger.Error(err)
+		logger.GetLogger().Error(err)
 		return targetArr, err
 	}
 	var rank []*snapshot.SnapShot
@@ -140,7 +140,7 @@ func GetTargetFromStockList(conditionArr []sysparm.TargetCondArr) {
 			default:
 				err = errors.New("unknown panic")
 			}
-			logger.Logger.Error(err.Error() + "\n" + string(debug.Stack()))
+			logger.GetLogger().Error(err.Error() + "\n" + string(debug.Stack()))
 		}
 	}()
 	var savedTarget []targetstock.Target
@@ -149,7 +149,7 @@ func GetTargetFromStockList(conditionArr []sysparm.TargetCondArr) {
 	} else if len(dbTarget) != 0 {
 		for i, v := range dbTarget {
 			global.TargetArr = append(global.TargetArr, v.Stock.StockNum)
-			logger.Logger.WithFields(map[string]interface{}{
+			logger.GetLogger().WithFields(map[string]interface{}{
 				"StockNum": v.Stock.StockNum,
 				"Name":     v.Stock.StockName,
 			}).Infof("Target %d", i+1)
@@ -169,7 +169,7 @@ func GetTargetFromStockList(conditionArr []sysparm.TargetCondArr) {
 				continue
 			}
 			global.TargetArr = append(global.TargetArr, v.StockNum)
-			logger.Logger.WithFields(map[string]interface{}{
+			logger.GetLogger().WithFields(map[string]interface{}{
 				"StockNum": v.StockNum,
 				"Name":     v.StockName,
 			}).Infof("Target %d", i+1)
@@ -197,14 +197,14 @@ func UpdateLastStockVolume() {
 			default:
 				err = errors.New("unknown panic")
 			}
-			logger.Logger.Error(err.Error() + "\n" + string(debug.Stack()))
+			logger.GetLogger().Error(err.Error() + "\n" + string(debug.Stack()))
 		}
 	}()
 	var lastUpdateTime time.Time
 	if lastUpdateTime, err = stock.GetLastUpdatedTime(global.GlobalDB); err != nil {
 		panic(err)
 	} else if lastUpdateTime.After(global.LastTradeDay.Local().Add(7 * time.Hour)) {
-		logger.Logger.Info("Volume and close is no need to update")
+		logger.GetLogger().Info("Volume and close is no need to update")
 		return
 	}
 	resp, err := global.RestyClient.R().
@@ -234,7 +234,7 @@ func UpdateLastStockVolume() {
 	if err := stock.UpdateVolumeByStockNum(tmpMap, global.GlobalDB); err != nil {
 		panic(err)
 	}
-	logger.Logger.Info("Volume and close update done")
+	logger.GetLogger().Info("Volume and close update done")
 }
 
 var fetchSaveLock sync.RWMutex
@@ -245,7 +245,7 @@ func UpdateStockCloseMapByDate(stockNumArr []string, dateArr []time.Time) error 
 		StockNumArr: stockNumArr,
 	}
 	for _, date := range dateArr {
-		logger.Logger.Infof("Update Stock Close on %s", date.Format(global.ShortTimeLayout))
+		logger.GetLogger().Infof("Update Stock Close on %s", date.Format(global.ShortTimeLayout))
 		resp, err := global.RestyClient.R().
 			SetHeader("X-Date", date.Format(global.ShortTimeLayout)).
 			SetBody(stockArr).
@@ -271,7 +271,7 @@ func UpdateStockCloseMapByDate(stockNumArr []string, dateArr []time.Time) error 
 						return err
 					}
 					if len(res) == 0 {
-						logger.Logger.Errorf("%s cannot fetch %s close", val.Code, val.Date)
+						logger.GetLogger().Errorf("%s cannot fetch %s close", val.Code, val.Date)
 						continue
 					} else {
 						fetchSaveLock.Lock()
@@ -315,7 +315,7 @@ func GetTargetByVolumeRankByDate(date string, count int64) (rankArr []string, er
 	}
 	body := volumerank.VolumeRankArrProto{}
 	if err = proto.Unmarshal(resp.Body(), &body); err != nil {
-		logger.Logger.Error(err)
+		logger.GetLogger().Error(err)
 		return rankArr, err
 	}
 	blackStockMap := sysparminit.GlobalSettings.GetBlackStockMap()

@@ -21,7 +21,7 @@ func SaveBidAsk(stockNum string) {
 		}
 		tmpArr := TmpBidAskMap.GetArrByStockNum(stockNum)
 		if err := bidask.InsertMultiRecord(tmpArr[:len(tmpArr)-1], global.GlobalDB); err != nil {
-			logger.Logger.Error(err)
+			logger.GetLogger().Error(err)
 			continue
 		}
 		TmpBidAskMap.KeepLastOne(stockNum)

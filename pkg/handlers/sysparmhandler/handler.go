@@ -31,19 +31,19 @@ func UpdateSysparm(c *gin.Context) {
 	var req []sysparm.Parameters
 	var res handlers.ErrorResponse
 	if byteArr, err := ioutil.ReadAll(c.Request.Body); err != nil {
-		logger.Logger.Error(err)
+		logger.GetLogger().Error(err)
 		res.Response = err.Error()
 		c.JSON(http.StatusInternalServerError, res)
 		return
 	} else if err := json.Unmarshal(byteArr, &req); err != nil {
-		logger.Logger.Error(err)
+		logger.GetLogger().Error(err)
 		res.Response = err.Error()
 		c.JSON(http.StatusInternalServerError, res)
 		return
 	}
 	for _, v := range req {
 		if err := parameters.UpdateSysparm(v.Key, v.Value); err != nil {
-			logger.Logger.Error(err)
+			logger.GetLogger().Error(err)
 			res.Response = err.Error()
 			c.JSON(http.StatusInternalServerError, res)
 			return

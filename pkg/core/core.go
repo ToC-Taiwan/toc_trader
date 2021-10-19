@@ -58,7 +58,7 @@ func TradeProcess() {
 		if dbTarget, err := targetstock.GetTargetByTime(global.LastTradeDay, global.GlobalDB); err != nil {
 			panic(err)
 		} else if len(dbTarget) == 0 {
-			logger.Logger.Info("Saving targets")
+			logger.GetLogger().Info("Saving targets")
 			targetStockArr, err := stock.GetStocksFromNumArr(targets, global.GlobalDB)
 			if err != nil {
 				panic(err)
@@ -80,14 +80,14 @@ func TradeProcess() {
 		panic(err)
 	}
 	fetchentiretick.FetchKbar(global.TargetArr, kbarTradeDayArr[len(kbarTradeDayArr)-1], kbarTradeDayArr[0])
-	logger.Logger.Info("FetchEntireTick and Kbar Done")
+	logger.GetLogger().Info("FetchEntireTick and Kbar Done")
 
 	// Check tradeday or target exist
 	if len(global.LastTradeDayArr) == 0 || len(global.TargetArr) == 0 {
-		logger.Logger.Warn("no trade day or no target")
+		logger.GetLogger().Warn("no trade day or no target")
 	} else {
 		// Background get trade record
-		logger.Logger.Info("Background tasks starts")
+		logger.GetLogger().Info("Background tasks starts")
 		go tradebot.CheckOrderStatusLoop()
 		// Monitor TSE001 Status
 		go choosetarget.TSEProcess()

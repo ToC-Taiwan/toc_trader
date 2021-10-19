@@ -30,12 +30,12 @@ func FetchKbar(stockNumArr []string, start, end time.Time) {
 				if err := kbar.DeleteByStockNum(stockNum, global.GlobalDB); err != nil {
 					panic(err)
 				}
-				logger.Logger.Infof("Fetching %s's kbar from %s to %s", stockNum, start.Format(global.ShortTimeLayout), end.Format(global.ShortTimeLayout))
+				logger.GetLogger().Infof("Fetching %s's kbar from %s to %s", stockNum, start.Format(global.ShortTimeLayout), end.Format(global.ShortTimeLayout))
 				if err := FetchKbarByDateRange(stockNum, start, end, saveCh); err != nil {
 					panic(err)
 				}
 			} else {
-				logger.Logger.Infof("%s Kbar from %s to %s already exist", stockNum, start.Format(global.ShortTimeLayout), end.Format(global.ShortTimeLayout))
+				logger.GetLogger().Infof("%s Kbar from %s to %s already exist", stockNum, start.Format(global.ShortTimeLayout), end.Format(global.ShortTimeLayout))
 			}
 		}(stock)
 	}
@@ -49,14 +49,14 @@ func kbarSaver(saveCh chan *kbar.Kbar) {
 		kbarData, ok := <-saveCh
 		if !ok {
 			if err := kbar.InsertMultiRecord(tmp, global.GlobalDB); err != nil {
-				logger.Logger.Error(err)
+				logger.GetLogger().Error(err)
 			}
 			return
 		}
 		tmp = append(tmp, kbarData)
 		if len(tmp) >= 2000 {
 			if err := kbar.InsertMultiRecord(tmp, global.GlobalDB); err != nil {
-				logger.Logger.Error(err)
+				logger.GetLogger().Error(err)
 				continue
 			}
 			tmp = []*kbar.Kbar{}

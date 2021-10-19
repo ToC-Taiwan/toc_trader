@@ -9,6 +9,7 @@ require (
 	github.com/manifoldco/promptui v0.8.0
 	github.com/markcheno/go-quote v0.0.0-20210728005305-f6d452d96e34
 	github.com/markcheno/go-talib v0.0.0-20190307022042-cd53a9264d70
+	github.com/rifflock/lfshook v0.0.0-20180920164130-b9218ef580f5
 	github.com/robfig/cron v1.2.0
 	github.com/sirupsen/logrus v1.8.1
 	github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2

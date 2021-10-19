@@ -43,18 +43,18 @@ func ReceiveStreamTick(c *gin.Context) {
 	req := streamtick.StreamTickProto{}
 	var res handlers.ErrorResponse
 	if byteArr, err := ioutil.ReadAll(c.Request.Body); err != nil {
-		logger.Logger.Error(err)
+		logger.GetLogger().Error(err)
 		res.Response = err.Error()
 		c.JSON(http.StatusInternalServerError, res)
 		return
 	} else if err := proto.Unmarshal(byteArr, &req); err != nil {
-		logger.Logger.Error(err)
+		logger.GetLogger().Error(err)
 		res.Response = err.Error()
 		c.JSON(http.StatusInternalServerError, res)
 		return
 	}
 	if req.Tick.Simtrade == 1 {
-		logger.Logger.WithFields(map[string]interface{}{
+		logger.GetLogger().WithFields(map[string]interface{}{
 			"TickType": req.Tick.TickType,
 			"Volume":   req.Tick.Volume,
 			"Close":    req.Tick.Close,
@@ -63,7 +63,7 @@ func ReceiveStreamTick(c *gin.Context) {
 	}
 	tmp, err := req.ProtoToStreamTick()
 	if err != nil {
-		logger.Logger.Error(err)
+		logger.GetLogger().Error(err)
 		res.Response = err.Error()
 		c.JSON(http.StatusInternalServerError, res)
 		return
@@ -87,12 +87,12 @@ func ManualSellStock(c *gin.Context) {
 	req := ManualSellBody{}
 	var res handlers.ErrorResponse
 	if byteArr, err := ioutil.ReadAll(c.Request.Body); err != nil {
-		logger.Logger.Error(err)
+		logger.GetLogger().Error(err)
 		res.Response = err.Error()
 		c.JSON(http.StatusInternalServerError, res)
 		return
 	} else if err := json.Unmarshal(byteArr, &req); err != nil {
-		logger.Logger.Error(err)
+		logger.GetLogger().Error(err)
 		res.Response = err.Error()
 		c.JSON(http.StatusInternalServerError, res)
 		return
@@ -103,7 +103,7 @@ func ManualSellStock(c *gin.Context) {
 		Price:    req.Price,
 	}
 	tradebot.ManualSellMap.Set(record)
-	logger.Logger.WithFields(map[string]interface{}{
+	logger.GetLogger().WithFields(map[string]interface{}{
 		"StockNum": req.StockNum,
 		"Price":    req.Price,
 		"Name":     global.AllStockNameMap.GetName(req.StockNum),
@@ -124,12 +124,12 @@ func ManualBuyLaterStock(c *gin.Context) {
 	req := ManualBuyLaterBody{}
 	var res handlers.ErrorResponse
 	if byteArr, err := ioutil.ReadAll(c.Request.Body); err != nil {
-		logger.Logger.Error(err)
+		logger.GetLogger().Error(err)
 		res.Response = err.Error()
 		c.JSON(http.StatusInternalServerError, res)
 		return
 	} else if err := json.Unmarshal(byteArr, &req); err != nil {
-		logger.Logger.Error(err)
+		logger.GetLogger().Error(err)
 		res.Response = err.Error()
 		c.JSON(http.StatusInternalServerError, res)
 		return
@@ -140,7 +140,7 @@ func ManualBuyLaterStock(c *gin.Context) {
 		Price:    req.Price,
 	}
 	tradebot.ManualBuyLaterMap.Set(record)
-	logger.Logger.WithFields(map[string]interface{}{
+	logger.GetLogger().WithFields(map[string]interface{}{
 		"StockNum": req.StockNum,
 		"Price":    req.Price,
 		"Name":     global.AllStockNameMap.GetName(req.StockNum),
@@ -162,7 +162,7 @@ func GetTarget(c *gin.Context) {
 	count := c.Request.Header.Get("count")
 	countInt64, err := common.StrToInt64(count)
 	if err != nil {
-		logger.Logger.Error(err)
+		logger.GetLogger().Error(err)
 		res.Response = err.Error()
 		c.JSON(http.StatusInternalServerError, res)
 		return
@@ -176,7 +176,7 @@ func GetTarget(c *gin.Context) {
 	for i := 0; i < int(countInt64); i++ {
 		randomBigInt, err := rand.Int(rand.Reader, big.NewInt((int64(total))))
 		if err != nil {
-			logger.Logger.Error(err)
+			logger.GetLogger().Error(err)
 			res.Response = err.Error()
 			c.JSON(http.StatusInternalServerError, res)
 			return
@@ -209,12 +209,12 @@ func ReceiveBidAsk(c *gin.Context) {
 	req := bidask.BidAskProto{}
 	var res handlers.ErrorResponse
 	if byteArr, err := ioutil.ReadAll(c.Request.Body); err != nil {
-		logger.Logger.Error(err)
+		logger.GetLogger().Error(err)
 		res.Response = err.Error()
 		c.JSON(http.StatusInternalServerError, res)
 		return
 	} else if err := proto.Unmarshal(byteArr, &req); err != nil {
-		logger.Logger.Error(err)
+		logger.GetLogger().Error(err)
 		res.Response = err.Error()
 		c.JSON(http.StatusInternalServerError, res)
 		return
@@ -224,12 +224,12 @@ func ReceiveBidAsk(c *gin.Context) {
 	}
 	if len(req.BidAsk.BidPrice) != 5 || len(req.BidAsk.BidVolume) != 5 || len(req.BidAsk.DiffBidVol) != 5 ||
 		len(req.BidAsk.AskPrice) != 5 || len(req.BidAsk.AskVolume) != 5 || len(req.BidAsk.DiffAskVol) != 5 {
-		logger.Logger.Error("Data is broken")
+		logger.GetLogger().Error("Data is broken")
 		return
 	}
 	data, err := req.BidAsk.ToBidAsk()
 	if err != nil {
-		logger.Logger.Error(err)
+		logger.GetLogger().Error(err)
 		res.Response = err.Error()
 		c.JSON(http.StatusInternalServerError, res)
 		return

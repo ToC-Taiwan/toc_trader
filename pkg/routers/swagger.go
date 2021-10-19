@@ -27,5 +27,5 @@ func AddSwagger(router *gin.Engine) {
 	}
 	url := ginSwagger.URL("/swagger/doc.json")
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
-	// logger.Logger.Info("http://" + docs.SwaggerInfo.Host + "/swagger/index.html")
+	// logger.GetLogger().Info("http://" + docs.SwaggerInfo.Host + "/swagger/index.html")
 }

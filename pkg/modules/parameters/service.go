@@ -23,7 +23,7 @@ func UpdateSysparm(key string, value interface{}) (err error) {
 			default:
 				err = errors.New("unknown panic")
 			}
-			logger.Logger.Error(err.Error() + "\n" + string(debug.Stack()))
+			logger.GetLogger().Error(err.Error() + "\n" + string(debug.Stack()))
 		}
 	}()
 	db, err := gorm.Open(sqlite.Open("./configs/global.db"), &gorm.Config{})

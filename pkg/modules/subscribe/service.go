@@ -31,16 +31,16 @@ func SubStreamTick(stockArr []string) {
 			default:
 				err = errors.New("unknown panic")
 			}
-			logger.Logger.Error(err.Error() + "\n" + string(debug.Stack()))
+			logger.GetLogger().Error(err.Error() + "\n" + string(debug.Stack()))
 		}
 	}()
-	saveCh := make(chan []*streamtick.StreamTick, len(stockArr))
+	saveCh := make(chan []*streamtick.StreamTick, len(stockArr)*3)
 	go streamtickprocess.SaveStreamTicks(saveCh)
 
 	for _, stockNum := range stockArr {
 		lastClose := global.StockCloseByDateMap.GetClose(stockNum, global.LastTradeDay.Format(global.ShortTimeLayout))
 		if lastClose == 0 {
-			logger.Logger.Warnf("Stock %s has no lastClose", stockNum)
+			logger.GetLogger().Warnf("Stock %s has no lastClose", stockNum)
 			continue
 		}
 		ch := make(chan *streamtick.StreamTick)
@@ -79,7 +79,7 @@ func SubBidAsk(stockArr []string) {
 			default:
 				err = errors.New("unknown panic")
 			}
-			logger.Logger.Error(err.Error() + "\n" + string(debug.Stack()))
+			logger.GetLogger().Error(err.Error() + "\n" + string(debug.Stack()))
 		}
 	}()
 
@@ -117,7 +117,7 @@ func UnSubscribeAll(dataType TickType) {
 			default:
 				err = errors.New("unknown panic")
 			}
-			logger.Logger.Error(err.Error() + "\n" + string(debug.Stack()))
+			logger.GetLogger().Error(err.Error() + "\n" + string(debug.Stack()))
 		}
 	}()
 	var url string

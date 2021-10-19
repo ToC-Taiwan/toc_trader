@@ -17,15 +17,15 @@ func sendCurrentIP() {
 		SetResult(&global.PyServerResponse{}).
 		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/system/tradebothost")
 	if err != nil {
-		logger.Logger.Error(err)
+		logger.GetLogger().Error(err)
 		return
 	} else if resp.StatusCode() != 200 {
-		logger.Logger.Error("SendCurrentIP api fail")
+		logger.GetLogger().Error("SendCurrentIP api fail")
 		return
 	}
 	res := *resp.Result().(*global.PyServerResponse)
 	if res.Status != "success" {
-		logger.Logger.Error(errors.New("sendCurrentIP fail"))
+		logger.GetLogger().Error(errors.New("sendCurrentIP fail"))
 	}
 }
 
@@ -33,7 +33,7 @@ func findMachineIP() []string {
 	var results []string
 	ifaces, err := net.Interfaces()
 	if err != nil {
-		logger.Logger.Error(err)
+		logger.GetLogger().Error(err)
 	}
 	var addrs []net.Addr
 	for _, i := range ifaces {
@@ -42,7 +42,7 @@ func findMachineIP() []string {
 		}
 		addrs, err = i.Addrs()
 		if err != nil {
-			logger.Logger.Error(err)
+			logger.GetLogger().Error(err)
 		}
 		for _, addr := range addrs {
 			if ip := addr.(*net.IPNet).IP.To4(); ip != nil {

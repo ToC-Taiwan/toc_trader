@@ -37,25 +37,25 @@ func UpdateTradeRecord(c *gin.Context) {
 	var res handlers.ErrorResponse
 	body := traderecord.TradeRecordArrProto{}
 	if byteArr, err := ioutil.ReadAll(c.Request.Body); err != nil {
-		logger.Logger.Error(err)
+		logger.GetLogger().Error(err)
 		res.Response = err.Error()
 		c.JSON(http.StatusInternalServerError, res)
 		return
 	} else if err := proto.Unmarshal(byteArr, &body); err != nil {
-		logger.Logger.Error(err)
+		logger.GetLogger().Error(err)
 		res.Response = err.Error()
 		c.JSON(http.StatusInternalServerError, res)
 		return
 	}
 	records, err := body.ToTradeRecordFromProto()
 	if err != nil {
-		logger.Logger.Error(err)
+		logger.GetLogger().Error(err)
 		res.Response = err.Error()
 		c.JSON(http.StatusInternalServerError, res)
 		return
 	}
 	if err := traderecord.UpdateByStockNumAndClose(records, global.GlobalDB); err != nil {
-		logger.Logger.Error(err)
+		logger.GetLogger().Error(err)
 		res.Response = err.Error()
 		c.JSON(http.StatusInternalServerError, res)
 		return

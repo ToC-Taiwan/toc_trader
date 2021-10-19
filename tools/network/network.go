@@ -15,16 +15,16 @@ var lock sync.Mutex
 func CheckPortIsOpen(host string, port string) bool {
 	defer lock.Unlock()
 	lock.Lock()
-	logger.Logger.Infof("Checking host on %s:%s...", host, port)
+	logger.GetLogger().Infof("Checking host on %s:%s...", host, port)
 	timeout := time.Second
 	conn, err := net.DialTimeout("tcp", net.JoinHostPort(host, port), timeout)
 	if err != nil {
-		logger.Logger.Warn(err)
+		logger.GetLogger().Warn(err)
 	}
 	if conn != nil {
 		defer func() {
 			if err := conn.Close(); err != nil {
-				logger.Logger.Error(err)
+				logger.GetLogger().Error(err)
 			}
 		}()
 		return true

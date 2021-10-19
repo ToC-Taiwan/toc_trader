@@ -75,7 +75,7 @@ func TickProcess(lastClose float64, cond simulationcond.AnalyzeCondition, ch cha
 			}
 			rsi, err := tickanalyze.GenerateRSI(input)
 			if err != nil {
-				logger.Logger.Errorf("GenerateRSI at StreamTickProcess Stock: %s, Err: %s", tick.StockNum, err)
+				logger.GetLogger().Errorf("GenerateRSI at StreamTickProcess Stock: %s, Err: %s", tick.StockNum, err)
 				continue
 			}
 
@@ -115,7 +115,7 @@ func SaveStreamTicks(saveCh chan []*streamtick.StreamTick) {
 		unSavedTicks := <-saveCh
 		if len(unSavedTicks) != 0 {
 			if err := streamtick.InsertMultiRecord(unSavedTicks, global.GlobalDB); err != nil {
-				logger.Logger.Error(err)
+				logger.GetLogger().Error(err)
 				continue
 			}
 		}

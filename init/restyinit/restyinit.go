@@ -9,6 +9,6 @@ import (
 
 func init() {
 	client := resty.New()
-	client.SetLogger(logger.Logger)
+	client.SetLogger(logger.GetLogger())
 	global.RestyClient = client
 }
