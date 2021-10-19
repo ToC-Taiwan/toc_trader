@@ -21,7 +21,7 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/importbasic"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/subscribe"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot"
-	"gitlab.tocraw.com/root/toc_trader/tools/heartbeat"
+	"gitlab.tocraw.com/root/toc_trader/tools/healthcheck"
 	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 	"google.golang.org/protobuf/proto"
 )
@@ -40,7 +40,7 @@ func SubscribeTarget(targetArr []string) {
 	for {
 		err := UpdateStockCloseMapByDate(targetArr, global.LastTradeDayArr)
 		if errorTimes >= 5 {
-			if err = heartbeat.FullRestart(); err != nil && tradebot.BuyOrderMap.GetCount() != 0 && tradebot.SellFirstOrderMap.GetCount() != 0 {
+			if err = healthcheck.FullRestart(); err != nil && tradebot.BuyOrderMap.GetCount() != 0 && tradebot.SellFirstOrderMap.GetCount() != 0 {
 				logger.Logger.Fatal(err)
 			}
 			return

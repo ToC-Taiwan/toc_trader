@@ -14,79 +14,79 @@ digraph gocallvis {
     edge [minlen="2"]
 
     subgraph "cluster_focus" {
-        bgcolor="#e6ecfa";
-label="tradebot";
+        label="tradebot";
 labelloc="t";
 labeljust="c";
 fontsize="18";
+bgcolor="#e6ecfa";
         
-        "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).Set" [ fillcolor="lightblue" label="(*tradeRecordMutexMap).Set" penwidth="1.5" ]
-        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.IsBuyPoint" [ fillcolor="lightblue" label="IsBuyPoint" penwidth="1.5" ]
+        "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).ClearAll" [ fillcolor="lightblue" label="(*tradeRecordMutexMap).ClearAll" penwidth="1.5" ]
+        "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).Set" [ label="(*tradeRecordMutexMap).Set" penwidth="1.5" fillcolor="lightblue" ]
+        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.IsBuyPoint" [ penwidth="1.5" fillcolor="lightblue" label="IsBuyPoint" ]
         "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.IsSellFirstPoint" [ fillcolor="lightblue" label="IsSellFirstPoint" penwidth="1.5" ]
-        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.GetSellPrice" [ penwidth="1.5" fillcolor="lightblue" label="GetSellPrice" ]
+        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.GetSellPrice" [ fillcolor="lightblue" label="GetSellPrice" penwidth="1.5" ]
         "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetClose" [ fillcolor="lightblue" label="(*tradeRecordMutexMap).GetClose" penwidth="1.5" ]
         "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).CheckStockExist" [ fillcolor="lightblue" label="(*tradeRecordMutexMap).CheckStockExist" penwidth="1.5" ]
         "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.GetStockBuyCost" [ fillcolor="lightblue" label="GetStockBuyCost" penwidth="1.5" ]
-        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.GetStockSellCost" [ label="GetStockSellCost" penwidth="1.5" fillcolor="lightblue" ]
-        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.GetStockTradeFeeDiscount" [ fillcolor="lightblue" label="GetStockTradeFeeDiscount" penwidth="1.5" ]
+        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.GetStockSellCost" [ fillcolor="lightblue" label="GetStockSellCost" penwidth="1.5" ]
+        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.GetStockTradeFeeDiscount" [ penwidth="1.5" fillcolor="lightblue" label="GetStockTradeFeeDiscount" ]
         "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.GetBuyLaterPrice" [ fillcolor="lightblue" label="GetBuyLaterPrice" penwidth="1.5" ]
-        "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetCount" [ fillcolor="lightblue" label="(*tradeRecordMutexMap).GetCount" penwidth="1.5" ]
-        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.checkInBuyMap" [ penwidth="0.5" fillcolor="lightblue" label="checkInBuyMap" ]
-        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.TradeAgent" [ label="TradeAgent" penwidth="1.5" fillcolor="lightblue" ]
-        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.checkInSellFirstMap" [ label="checkInSellFirstMap" penwidth="0.5" fillcolor="lightblue" ]
-        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyBot" [ penwidth="1.5" fillcolor="lightblue" label="BuyBot" ]
+        "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetOrderIDByStockNum" [ penwidth="1.5" fillcolor="lightblue" label="(*tradeRecordMutexMap).GetOrderIDByStockNum" ]
+        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyLaterBot" [ label="BuyLaterBot" penwidth="1.5" fillcolor="lightblue" ]
+        "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetTradeTime" [ fillcolor="lightblue" label="(*tradeRecordMutexMap).GetTradeTime" penwidth="1.5" ]
         "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.PlaceOrder" [ fillcolor="lightblue" label="PlaceOrder" penwidth="1.5" ]
-        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyOrderStatus" [ fillcolor="lightblue" label="CheckBuyOrderStatus" penwidth="1.5" ]
+        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyLaterOrderStatus" [ fillcolor="lightblue" label="CheckBuyLaterOrderStatus" penwidth="1.5" ]
         "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).DeleteByStockNum" [ fillcolor="lightblue" label="(*tradeRecordMutexMap).DeleteByStockNum" penwidth="1.5" ]
-        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.Cancel" [ fillcolor="lightblue" label="Cancel" penwidth="1.5" ]
+        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.Cancel" [ penwidth="1.5" fillcolor="lightblue" label="Cancel" ]
+        "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetTotalSellCost" [ penwidth="1.5" fillcolor="lightblue" label="(*tradeRecordMutexMap).GetTotalSellCost" ]
+        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.FetchOrderStatus" [ fillcolor="lightblue" label="FetchOrderStatus" penwidth="1.5" ]
+        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeSwitch" [ fillcolor="lightblue" label="tradeSwitch" penwidth="0.5" ]
+        "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetCount" [ fillcolor="lightblue" label="(*tradeRecordMutexMap).GetCount" penwidth="1.5" ]
+        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.checkInBuyMap" [ fillcolor="lightblue" label="checkInBuyMap" penwidth="0.5" ]
+        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.TradeAgent" [ label="TradeAgent" penwidth="1.5" fillcolor="lightblue" ]
+        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.checkInSellFirstMap" [ fillcolor="lightblue" label="checkInSellFirstMap" penwidth="0.5" ]
+        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyBot" [ penwidth="1.5" fillcolor="lightblue" label="BuyBot" ]
+        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyOrderStatus" [ fillcolor="lightblue" label="CheckBuyOrderStatus" penwidth="1.5" ]
         "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.SellFirstBot" [ fillcolor="lightblue" label="SellFirstBot" penwidth="1.5" ]
         "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckSellFirstOrderStatus" [ fillcolor="lightblue" label="CheckSellFirstOrderStatus" penwidth="1.5" ]
-        "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetOrderIDByStockNum" [ fillcolor="lightblue" label="(*tradeRecordMutexMap).GetOrderIDByStockNum" penwidth="1.5" ]
-        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyLaterBot" [ fillcolor="lightblue" label="BuyLaterBot" penwidth="1.5" ]
-        "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetTradeTime" [ label="(*tradeRecordMutexMap).GetTradeTime" penwidth="1.5" fillcolor="lightblue" ]
-        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyLaterOrderStatus" [ fillcolor="lightblue" label="CheckBuyLaterOrderStatus" penwidth="1.5" ]
-        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.SellBot" [ fillcolor="lightblue" label="SellBot" penwidth="1.5" ]
-        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckSellOrderStatus" [ label="CheckSellOrderStatus" penwidth="1.5" fillcolor="lightblue" ]
+        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.SellBot" [ label="SellBot" penwidth="1.5" fillcolor="lightblue" ]
+        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckSellOrderStatus" [ penwidth="1.5" fillcolor="lightblue" label="CheckSellOrderStatus" ]
         "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.showStatus" [ fillcolor="lightblue" label="showStatus" penwidth="0.5" ]
-        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.isCurrentOrderAllFinished" [ penwidth="0.5" fillcolor="lightblue" label="isCurrentOrderAllFinished" ]
-        "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetTotalSellCost" [ fillcolor="lightblue" label="(*tradeRecordMutexMap).GetTotalSellCost" penwidth="1.5" ]
+        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.isCurrentOrderAllFinished" [ fillcolor="lightblue" label="isCurrentOrderAllFinished" penwidth="0.5" ]
         "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetTotalBuyCost" [ fillcolor="lightblue" label="(*tradeRecordMutexMap).GetTotalBuyCost" penwidth="1.5" ]
-        "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetTotalCostBack" [ penwidth="1.5" fillcolor="lightblue" label="(*tradeRecordMutexMap).GetTotalCostBack" ]
+        "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetTotalCostBack" [ fillcolor="lightblue" label="(*tradeRecordMutexMap).GetTotalCostBack" penwidth="1.5" ]
         "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckOrderStatusLoop" [ fillcolor="lightblue" label="CheckOrderStatusLoop" penwidth="1.5" ]
-        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeSwitch" [ penwidth="0.5" fillcolor="lightblue" label="tradeSwitch" ]
-        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.FetchOrderStatus" [ fillcolor="lightblue" label="FetchOrderStatus" penwidth="1.5" ]
         "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.InitStartUpQuota" [ fillcolor="lightblue" label="InitStartUpQuota" penwidth="1.5" ]
         "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.initBalance" [ penwidth="0.5" fillcolor="lightblue" label="initBalance" ]
-        "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).ClearAll" [ fillcolor="lightblue" label="(*tradeRecordMutexMap).ClearAll" penwidth="1.5" ]
         "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetAllRecordMap" [ fillcolor="lightblue" label="(*tradeRecordMutexMap).GetAllRecordMap" penwidth="1.5" ]
         
         subgraph "cluster_errors" {
-        fontsize="16";
-style="filled";
-fontname="Tahoma bold";
-label="errors";
-penwidth="0.8";
-fillcolor="lightyellow";
+        fontname="Tahoma bold";
 rank="sink";
-URL="/?f=errors";
 tooltip="package: errors";
+penwidth="0.8";
+fontsize="16";
+style="filled";
+fillcolor="lightyellow";
+label="errors";
+URL="/?f=errors";
         
-        "errors.New" [ penwidth="1.5" fillcolor="moccasin" label="New" ]
+        "errors.New" [ fillcolor="moccasin" label="New" penwidth="1.5" ]
         
     }
 
         subgraph "cluster_github.com/go-resty/resty/v2" {
-        fontname="Tahoma bold";
-URL="/?f=github.com/go-resty/resty/v2";
-tooltip="package: github.com/go-resty/resty/v2";
-style="filled";
+        style="filled";
 fillcolor="lightyellow";
 rank="sink";
-label="resty";
+tooltip="package: github.com/go-resty/resty/v2";
+URL="/?f=github.com/go-resty/resty/v2";
 penwidth="0.8";
 fontsize="16";
+fontname="Tahoma bold";
+label="resty";
         
-        "(*github.com/go-resty/resty/v2.Client).R" [ label="(*Client).R" penwidth="1.5" fillcolor="moccasin" ]
+        "(*github.com/go-resty/resty/v2.Client).R" [ fillcolor="moccasin" label="(*Client).R" penwidth="1.5" ]
         "(*github.com/go-resty/resty/v2.Request).SetBody" [ fillcolor="moccasin" label="(*Request).SetBody" penwidth="1.5" ]
         "(*github.com/go-resty/resty/v2.Request).SetResult" [ penwidth="1.5" fillcolor="moccasin" label="(*Request).SetResult" ]
         "(*github.com/go-resty/resty/v2.Request).Post" [ fillcolor="moccasin" label="(*Request).Post" penwidth="1.5" ]
@@ -97,51 +97,51 @@ fontsize="16";
     }
 
         subgraph "cluster_github.com/sirupsen/logrus" {
-        label="logrus";
-penwidth="0.8";
-fontsize="16";
-fontname="Tahoma bold";
-rank="sink";
+        penwidth="0.8";
+style="filled";
+label="logrus";
 URL="/?f=github.com/sirupsen/logrus";
 tooltip="package: github.com/sirupsen/logrus";
-style="filled";
+fontsize="16";
 fillcolor="lightyellow";
+fontname="Tahoma bold";
+rank="sink";
         
         "(*github.com/sirupsen/logrus.Logger).Errorf" [ fillcolor="moccasin" label="(*Logger).Errorf" penwidth="1.5" ]
-        "(*github.com/sirupsen/logrus.Logger).Warn" [ fillcolor="moccasin" label="(*Logger).Warn" penwidth="1.5" ]
-        "(*github.com/sirupsen/logrus.Logger).WithFields" [ label="(*Logger).WithFields" penwidth="1.5" fillcolor="moccasin" ]
-        "(*github.com/sirupsen/logrus.Entry).Error" [ penwidth="1.5" fillcolor="moccasin" label="(*Entry).Error" ]
-        "(*github.com/sirupsen/logrus.Logger).Error" [ penwidth="1.5" fillcolor="moccasin" label="(*Logger).Error" ]
+        "(*github.com/sirupsen/logrus.Logger).Error" [ fillcolor="moccasin" label="(*Logger).Error" penwidth="1.5" ]
+        "(*github.com/sirupsen/logrus.Logger).WithFields" [ fillcolor="moccasin" label="(*Logger).WithFields" penwidth="1.5" ]
+        "(*github.com/sirupsen/logrus.Entry).Error" [ fillcolor="moccasin" label="(*Entry).Error" penwidth="1.5" ]
         "(*github.com/sirupsen/logrus.Entry).Info" [ fillcolor="moccasin" label="(*Entry).Info" penwidth="1.5" ]
-        "(*github.com/sirupsen/logrus.Logger).Warnf" [ label="(*Logger).Warnf" penwidth="1.5" fillcolor="moccasin" ]
-        "(*github.com/sirupsen/logrus.Entry).Warn" [ fillcolor="moccasin" label="(*Entry).Warn" penwidth="1.5" ]
+        "(*github.com/sirupsen/logrus.Logger).Warn" [ fillcolor="moccasin" label="(*Logger).Warn" penwidth="1.5" ]
+        "(*github.com/sirupsen/logrus.Logger).Warnf" [ fillcolor="moccasin" label="(*Logger).Warnf" penwidth="1.5" ]
+        "(*github.com/sirupsen/logrus.Entry).Warn" [ label="(*Entry).Warn" penwidth="1.5" fillcolor="moccasin" ]
         
     }
 
         subgraph "cluster_gitlab.tocraw.com/root/toc_trader/pkg/core" {
-        fillcolor="lightyellow";
-fontname="Tahoma bold";
-label="core";
-URL="/?f=gitlab.tocraw.com/root/toc_trader/pkg/core";
+        rank="sink";
 penwidth="0.8";
 fontsize="16";
+fontname="Tahoma bold";
+URL="/?f=gitlab.tocraw.com/root/toc_trader/pkg/core";
 tooltip="package: gitlab.tocraw.com/root/toc_trader/pkg/core";
 style="filled";
-rank="sink";
+fillcolor="lightyellow";
+label="core";
         
-        "gitlab.tocraw.com/root/toc_trader/pkg/core.TradeProcess" [ fillcolor="moccasin" label="TradeProcess" penwidth="1.5" ]
+        "gitlab.tocraw.com/root/toc_trader/pkg/core.TradeProcess" [ label="TradeProcess" penwidth="1.5" fillcolor="moccasin" ]
         
     }
 
         subgraph "cluster_gitlab.tocraw.com/root/toc_trader/pkg/global" {
-        penwidth="0.8";
+        style="filled";
+rank="sink";
+URL="/?f=gitlab.tocraw.com/root/toc_trader/pkg/global";
+penwidth="0.8";
+fontsize="16";
 fillcolor="lightyellow";
 fontname="Tahoma bold";
 label="global";
-URL="/?f=gitlab.tocraw.com/root/toc_trader/pkg/global";
-fontsize="16";
-style="filled";
-rank="sink";
 tooltip="package: gitlab.tocraw.com/root/toc_trader/pkg/global";
         
         "(*gitlab.tocraw.com/root/toc_trader/pkg/global.stringStringMutex).GetName" [ fillcolor="moccasin" label="(*stringStringMutex).GetName" penwidth="1.5" ]
@@ -149,108 +149,108 @@ tooltip="package: gitlab.tocraw.com/root/toc_trader/pkg/global";
     }
 
         subgraph "cluster_gitlab.tocraw.com/root/toc_trader/pkg/handlers/tradebothandler" {
-        label="tradebothandler";
-URL="/?f=gitlab.tocraw.com/root/toc_trader/pkg/handlers/tradebothandler";
-fontsize="16";
-fontname="Tahoma bold";
+        tooltip="package: gitlab.tocraw.com/root/toc_trader/pkg/handlers/tradebothandler";
+style="filled";
 fillcolor="lightyellow";
 rank="sink";
-tooltip="package: gitlab.tocraw.com/root/toc_trader/pkg/handlers/tradebothandler";
+label="tradebothandler";
+URL="/?f=gitlab.tocraw.com/root/toc_trader/pkg/handlers/tradebothandler";
 penwidth="0.8";
-style="filled";
+fontsize="16";
+fontname="Tahoma bold";
         
-        "gitlab.tocraw.com/root/toc_trader/pkg/handlers/tradebothandler.ManualSellStock" [ fillcolor="moccasin" label="ManualSellStock" penwidth="1.5" ]
+        "gitlab.tocraw.com/root/toc_trader/pkg/handlers/tradebothandler.ManualSellStock" [ penwidth="1.5" fillcolor="moccasin" label="ManualSellStock" ]
         
     }
 
         subgraph "cluster_gitlab.tocraw.com/root/toc_trader/pkg/models/traderecord" {
-        penwidth="0.8";
+        label="traderecord";
+URL="/?f=gitlab.tocraw.com/root/toc_trader/pkg/models/traderecord";
+penwidth="0.8";
+style="filled";
+fillcolor="lightyellow";
 fontname="Tahoma bold";
 rank="sink";
 fontsize="16";
-style="filled";
-fillcolor="lightyellow";
-label="traderecord";
-URL="/?f=gitlab.tocraw.com/root/toc_trader/pkg/models/traderecord";
 tooltip="package: gitlab.tocraw.com/root/toc_trader/pkg/models/traderecord";
         
-        "gitlab.tocraw.com/root/toc_trader/pkg/models/traderecord.GetOrderByOrderID" [ fillcolor="moccasin" label="GetOrderByOrderID" penwidth="1.5" ]
         "gitlab.tocraw.com/root/toc_trader/pkg/models/traderecord.CheckIsFilledByOrderID" [ fillcolor="moccasin" label="CheckIsFilledByOrderID" penwidth="1.5" ]
+        "gitlab.tocraw.com/root/toc_trader/pkg/models/traderecord.GetOrderByOrderID" [ fillcolor="moccasin" label="GetOrderByOrderID" penwidth="1.5" ]
         "gitlab.tocraw.com/root/toc_trader/pkg/models/traderecord.GetAllorderByDayTime" [ fillcolor="moccasin" label="GetAllorderByDayTime" penwidth="1.5" ]
         
     }
 
         subgraph "cluster_gitlab.tocraw.com/root/toc_trader/pkg/modules/choosetarget" {
         rank="sink";
-URL="/?f=gitlab.tocraw.com/root/toc_trader/pkg/modules/choosetarget";
 tooltip="package: gitlab.tocraw.com/root/toc_trader/pkg/modules/choosetarget";
-fillcolor="lightyellow";
-fontname="Tahoma bold";
-label="choosetarget";
 penwidth="0.8";
 fontsize="16";
 style="filled";
+fillcolor="lightyellow";
+fontname="Tahoma bold";
+label="choosetarget";
+URL="/?f=gitlab.tocraw.com/root/toc_trader/pkg/modules/choosetarget";
         
-        "gitlab.tocraw.com/root/toc_trader/pkg/modules/choosetarget.SubscribeTarget" [ fillcolor="moccasin" label="SubscribeTarget" penwidth="1.5" ]
+        "gitlab.tocraw.com/root/toc_trader/pkg/modules/choosetarget.SubscribeTarget" [ label="SubscribeTarget" penwidth="1.5" fillcolor="moccasin" ]
         
     }
 
         subgraph "cluster_gitlab.tocraw.com/root/toc_trader/pkg/modules/simulateprocess" {
-        style="filled";
-fillcolor="lightyellow";
+        fontname="Tahoma bold";
+rank="sink";
 label="simulateprocess";
 URL="/?f=gitlab.tocraw.com/root/toc_trader/pkg/modules/simulateprocess";
-tooltip="package: gitlab.tocraw.com/root/toc_trader/pkg/modules/simulateprocess";
 penwidth="0.8";
 fontsize="16";
-fontname="Tahoma bold";
-rank="sink";
+style="filled";
+fillcolor="lightyellow";
+tooltip="package: gitlab.tocraw.com/root/toc_trader/pkg/modules/simulateprocess";
         
         "gitlab.tocraw.com/root/toc_trader/pkg/modules/simulateprocess.SearchTradePoint" [ fillcolor="moccasin" label="SearchTradePoint" penwidth="1.5" ]
-        "gitlab.tocraw.com/root/toc_trader/pkg/modules/simulateprocess.GetBalance" [ penwidth="1.5" fillcolor="moccasin" label="GetBalance" ]
+        "gitlab.tocraw.com/root/toc_trader/pkg/modules/simulateprocess.GetBalance" [ fillcolor="moccasin" label="GetBalance" penwidth="1.5" ]
         
     }
 
         subgraph "cluster_gitlab.tocraw.com/root/toc_trader/pkg/modules/streamtickprocess" {
-        penwidth="0.8";
+        fontname="Tahoma bold";
+label="streamtickprocess";
+URL="/?f=gitlab.tocraw.com/root/toc_trader/pkg/modules/streamtickprocess";
+rank="sink";
+tooltip="package: gitlab.tocraw.com/root/toc_trader/pkg/modules/streamtickprocess";
+penwidth="0.8";
+fontsize="16";
 style="filled";
 fillcolor="lightyellow";
-fontname="Tahoma bold";
-rank="sink";
-URL="/?f=gitlab.tocraw.com/root/toc_trader/pkg/modules/streamtickprocess";
-tooltip="package: gitlab.tocraw.com/root/toc_trader/pkg/modules/streamtickprocess";
-fontsize="16";
-label="streamtickprocess";
         
         "gitlab.tocraw.com/root/toc_trader/pkg/modules/streamtickprocess.TickProcess" [ fillcolor="moccasin" label="TickProcess" penwidth="1.5" ]
         
     }
 
         subgraph "cluster_gitlab.tocraw.com/root/toc_trader/pkg/modules/tickanalyze" {
-        fillcolor="lightyellow";
+        rank="sink";
 label="tickanalyze";
-URL="/?f=gitlab.tocraw.com/root/toc_trader/pkg/modules/tickanalyze";
 tooltip="package: gitlab.tocraw.com/root/toc_trader/pkg/modules/tickanalyze";
-penwidth="0.8";
 fontsize="16";
 style="filled";
+fillcolor="lightyellow";
 fontname="Tahoma bold";
-rank="sink";
+penwidth="0.8";
+URL="/?f=gitlab.tocraw.com/root/toc_trader/pkg/modules/tickanalyze";
         
-        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tickanalyze.GenerateRSI" [ label="GenerateRSI" penwidth="1.5" fillcolor="moccasin" ]
+        "gitlab.tocraw.com/root/toc_trader/pkg/modules/tickanalyze.GenerateRSI" [ fillcolor="moccasin" label="GenerateRSI" penwidth="1.5" ]
         
     }
 
         subgraph "cluster_gitlab.tocraw.com/root/toc_trader/tools/stockutil" {
-        style="filled";
+        rank="sink";
+style="filled";
 fontname="Tahoma bold";
-rank="sink";
-penwidth="0.8";
-fontsize="16";
 fillcolor="lightyellow";
 label="stockutil";
 URL="/?f=gitlab.tocraw.com/root/toc_trader/tools/stockutil";
 tooltip="package: gitlab.tocraw.com/root/toc_trader/tools/stockutil";
+penwidth="0.8";
+fontsize="16";
         
         "gitlab.tocraw.com/root/toc_trader/tools/stockutil.GetNewClose" [ fillcolor="moccasin" label="GetNewClose" penwidth="1.5" ]
         
@@ -259,57 +259,57 @@ tooltip="package: gitlab.tocraw.com/root/toc_trader/tools/stockutil";
         subgraph "cluster_math" {
         tooltip="package: math";
 style="filled";
+fillcolor="lightyellow";
 fontname="Tahoma bold";
-rank="sink";
 URL="/?f=math";
 penwidth="0.8";
 fontsize="16";
-fillcolor="lightyellow";
+rank="sink";
 label="math";
         
-        "math.Ceil" [ fillcolor="moccasin" label="Ceil" penwidth="1.5" ]
+        "math.Ceil" [ penwidth="1.5" fillcolor="moccasin" label="Ceil" ]
         "math.Floor" [ fillcolor="moccasin" label="Floor" penwidth="1.5" ]
         
     }
 
         subgraph "cluster_sync" {
-        penwidth="0.8";
+        fontname="Tahoma bold";
+rank="sink";
+penwidth="0.8";
 fontsize="16";
 style="filled";
-fontname="Tahoma bold";
-rank="sink";
-tooltip="package: sync";
 fillcolor="lightyellow";
 label="sync";
 URL="/?f=sync";
+tooltip="package: sync";
         
         "(*sync.RWMutex).Lock" [ fillcolor="moccasin" label="(*RWMutex).Lock" penwidth="1.5" ]
-        "(*sync.RWMutex).Unlock" [ label="(*RWMutex).Unlock" penwidth="1.5" fillcolor="moccasin" ]
+        "(*sync.RWMutex).Unlock" [ fillcolor="moccasin" label="(*RWMutex).Unlock" penwidth="1.5" ]
         "(*sync.RWMutex).RLock" [ fillcolor="moccasin" label="(*RWMutex).RLock" penwidth="1.5" ]
-        "(*sync.RWMutex).RUnlock" [ label="(*RWMutex).RUnlock" penwidth="1.5" fillcolor="moccasin" ]
+        "(*sync.RWMutex).RUnlock" [ fillcolor="moccasin" label="(*RWMutex).RUnlock" penwidth="1.5" ]
         
     }
 
         subgraph "cluster_time" {
-        fillcolor="lightyellow";
+        style="filled";
 fontname="Tahoma bold";
+tooltip="package: time";
+label="time";
 URL="/?f=time";
 penwidth="0.8";
 fontsize="16";
-style="filled";
+fillcolor="lightyellow";
 rank="sink";
-label="time";
-tooltip="package: time";
         
         "time.Unix" [ fillcolor="moccasin" label="Unix" penwidth="1.5" ]
-        "(time.Time).Year" [ penwidth="1.5" fillcolor="moccasin" label="(Time).Year" ]
+        "(time.Time).Year" [ fillcolor="moccasin" label="(Time).Year" penwidth="1.5" ]
         "(time.Time).Month" [ fillcolor="moccasin" label="(Time).Month" penwidth="1.5" ]
         "(time.Time).Day" [ fillcolor="moccasin" label="(Time).Day" penwidth="1.5" ]
         "time.Date" [ fillcolor="moccasin" label="Date" penwidth="1.5" ]
-        "(time.Time).Before" [ label="(Time).Before" penwidth="1.5" fillcolor="moccasin" ]
+        "(time.Time).Before" [ fillcolor="moccasin" label="(Time).Before" penwidth="1.5" ]
         "(time.Time).After" [ fillcolor="moccasin" label="(Time).After" penwidth="1.5" ]
         "(time.Time).Add" [ fillcolor="moccasin" label="(Time).Add" penwidth="1.5" ]
-        "time.Now" [ penwidth="1.5" fillcolor="moccasin" label="Now" ]
+        "time.Now" [ fillcolor="moccasin" label="Now" penwidth="1.5" ]
         "time.Sleep" [ fillcolor="moccasin" label="Sleep" penwidth="1.5" ]
         "time.Tick" [ fillcolor="moccasin" label="Tick" penwidth="1.5" ]
         
@@ -317,6 +317,8 @@ tooltip="package: time";
 
     }
 
+    "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).ClearAll" -> "(*sync.RWMutex).Lock" [ color="saddlebrown" ]
+    "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).ClearAll" -> "(*sync.RWMutex).Unlock" [ color="saddlebrown" ]
     "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).Set" -> "(*sync.RWMutex).Lock" [ color="saddlebrown" ]
     "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).Set" -> "(*sync.RWMutex).Unlock" [ color="saddlebrown" ]
     "gitlab.tocraw.com/root/toc_trader/pkg/handlers/tradebothandler.ManualSellStock" -> "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).Set" [ color="saddlebrown" ]
@@ -360,6 +362,64 @@ tooltip="package: time";
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.GetBuyLaterPrice" -> "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).CheckStockExist" [  ]
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.GetBuyLaterPrice" -> "(time.Time).After" [ color="saddlebrown" ]
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/simulateprocess.GetBalance" -> "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.GetBuyLaterPrice" [ color="saddlebrown" ]
+    "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetOrderIDByStockNum" -> "(*sync.RWMutex).RLock" [ color="saddlebrown" ]
+    "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetOrderIDByStockNum" -> "(*sync.RWMutex).RUnlock" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyLaterBot" -> "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetOrderIDByStockNum" [  ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyLaterBot" -> "gitlab.tocraw.com/root/toc_trader/pkg/models/traderecord.CheckIsFilledByOrderID" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyLaterBot" -> "(*github.com/sirupsen/logrus.Logger).Error" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyLaterBot" -> "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetClose" [  ]
+    "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetTradeTime" -> "(*sync.RWMutex).RLock" [ color="saddlebrown" ]
+    "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetTradeTime" -> "(*sync.RWMutex).RUnlock" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyLaterBot" -> "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetTradeTime" [  ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyLaterBot" -> "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.GetBuyLaterPrice" [  ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyLaterBot" -> "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).CheckStockExist" [  ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.PlaceOrder" -> "(*github.com/go-resty/resty/v2.Client).R" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.PlaceOrder" -> "(*github.com/go-resty/resty/v2.Request).SetBody" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.PlaceOrder" -> "(*github.com/go-resty/resty/v2.Request).SetResult" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.PlaceOrder" -> "(*github.com/go-resty/resty/v2.Request).Post" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.PlaceOrder" -> "(*github.com/go-resty/resty/v2.Response).StatusCode" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.PlaceOrder" -> "errors.New" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.PlaceOrder" -> "(*github.com/go-resty/resty/v2.Response).Result" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyLaterBot" -> "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.PlaceOrder" [  ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyLaterBot" -> "(*github.com/sirupsen/logrus.Logger).WithFields" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyLaterBot" -> "(*github.com/sirupsen/logrus.Entry).Error" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyLaterBot" -> "time.Unix" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyLaterBot" -> "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).Set" [  ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyLaterOrderStatus" -> "gitlab.tocraw.com/root/toc_trader/pkg/models/traderecord.GetOrderByOrderID" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyLaterOrderStatus" -> "(*github.com/sirupsen/logrus.Logger).Error" [ color="saddlebrown" ]
+    "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).DeleteByStockNum" -> "(*sync.RWMutex).Lock" [ color="saddlebrown" ]
+    "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).DeleteByStockNum" -> "(*sync.RWMutex).Unlock" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyLaterOrderStatus" -> "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).DeleteByStockNum" [  ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyLaterOrderStatus" -> "(*github.com/sirupsen/logrus.Logger).WithFields" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyLaterOrderStatus" -> "(*github.com/sirupsen/logrus.Entry).Info" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyLaterOrderStatus" -> "(time.Time).Add" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyLaterOrderStatus" -> "time.Now" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyLaterOrderStatus" -> "(time.Time).Before" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.Cancel" -> "errors.New" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.Cancel" -> "(*github.com/go-resty/resty/v2.Client).R" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.Cancel" -> "(*github.com/go-resty/resty/v2.Request).SetBody" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.Cancel" -> "(*github.com/go-resty/resty/v2.Request).SetResult" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.Cancel" -> "(*github.com/go-resty/resty/v2.Request).Post" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.Cancel" -> "(*github.com/go-resty/resty/v2.Response).StatusCode" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.Cancel" -> "(*github.com/go-resty/resty/v2.Response).Result" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyLaterOrderStatus" -> "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.Cancel" [  ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyLaterOrderStatus" -> "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).Set" [  ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyLaterOrderStatus" -> "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).CheckStockExist" [  ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyLaterOrderStatus" -> "time.Sleep" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyLaterBot" -> "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyLaterOrderStatus" [ arrowhead="normalnoneodot" ]
+    "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetTotalSellCost" -> "(*sync.RWMutex).RLock" [ color="saddlebrown" ]
+    "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetTotalSellCost" -> "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.GetStockSellCost" [  ]
+    "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetTotalSellCost" -> "(*sync.RWMutex).RUnlock" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.FetchOrderStatus" -> "(*github.com/go-resty/resty/v2.Client).R" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.FetchOrderStatus" -> "(*github.com/go-resty/resty/v2.Request).SetResult" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.FetchOrderStatus" -> "(*github.com/go-resty/resty/v2.Request).Get" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.FetchOrderStatus" -> "(*github.com/go-resty/resty/v2.Response).StatusCode" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.FetchOrderStatus" -> "errors.New" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.FetchOrderStatus" -> "(*github.com/go-resty/resty/v2.Response).Result" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeSwitch" -> "time.Tick" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeSwitch" -> "time.Now" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeSwitch" -> "(time.Time).After" [ color="saddlebrown" ]
+    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeSwitch" -> "(*github.com/sirupsen/logrus.Logger).Warn" [ color="saddlebrown" ]
     "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetCount" -> "(*sync.RWMutex).RLock" [ color="saddlebrown" ]
     "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetCount" -> "(*sync.RWMutex).RUnlock" [ color="saddlebrown" ]
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/choosetarget.SubscribeTarget" -> "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetCount" [ color="saddlebrown" ]
@@ -370,13 +430,6 @@ tooltip="package: time";
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.TradeAgent" -> "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.checkInSellFirstMap" [  ]
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyBot" -> "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.GetStockBuyCost" [  ]
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyBot" -> "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetCount" [  ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.PlaceOrder" -> "(*github.com/go-resty/resty/v2.Client).R" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.PlaceOrder" -> "(*github.com/go-resty/resty/v2.Request).SetBody" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.PlaceOrder" -> "(*github.com/go-resty/resty/v2.Request).SetResult" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.PlaceOrder" -> "(*github.com/go-resty/resty/v2.Request).Post" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.PlaceOrder" -> "(*github.com/go-resty/resty/v2.Response).StatusCode" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.PlaceOrder" -> "errors.New" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.PlaceOrder" -> "(*github.com/go-resty/resty/v2.Response).Result" [ color="saddlebrown" ]
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyBot" -> "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.PlaceOrder" [  ]
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyBot" -> "(*github.com/sirupsen/logrus.Logger).Warn" [ color="saddlebrown" ]
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyBot" -> "(*github.com/sirupsen/logrus.Logger).WithFields" [ color="saddlebrown" ]
@@ -385,21 +438,12 @@ tooltip="package: time";
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyBot" -> "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).Set" [  ]
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyOrderStatus" -> "gitlab.tocraw.com/root/toc_trader/pkg/models/traderecord.GetOrderByOrderID" [ color="saddlebrown" ]
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyOrderStatus" -> "(*github.com/sirupsen/logrus.Logger).Error" [ color="saddlebrown" ]
-    "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).DeleteByStockNum" -> "(*sync.RWMutex).Lock" [ color="saddlebrown" ]
-    "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).DeleteByStockNum" -> "(*sync.RWMutex).Unlock" [ color="saddlebrown" ]
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyOrderStatus" -> "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).DeleteByStockNum" [  ]
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyOrderStatus" -> "(*github.com/sirupsen/logrus.Logger).WithFields" [ color="saddlebrown" ]
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyOrderStatus" -> "(*github.com/sirupsen/logrus.Entry).Info" [ color="saddlebrown" ]
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyOrderStatus" -> "(time.Time).Add" [ color="saddlebrown" ]
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyOrderStatus" -> "time.Now" [ color="saddlebrown" ]
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyOrderStatus" -> "(time.Time).Before" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.Cancel" -> "errors.New" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.Cancel" -> "(*github.com/go-resty/resty/v2.Client).R" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.Cancel" -> "(*github.com/go-resty/resty/v2.Request).SetBody" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.Cancel" -> "(*github.com/go-resty/resty/v2.Request).SetResult" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.Cancel" -> "(*github.com/go-resty/resty/v2.Request).Post" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.Cancel" -> "(*github.com/go-resty/resty/v2.Response).StatusCode" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.Cancel" -> "(*github.com/go-resty/resty/v2.Response).Result" [ color="saddlebrown" ]
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyOrderStatus" -> "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.Cancel" [  ]
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyOrderStatus" -> "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).Set" [  ]
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyOrderStatus" -> "time.Sleep" [ color="saddlebrown" ]
@@ -428,35 +472,6 @@ tooltip="package: time";
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.SellFirstBot" -> "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckSellFirstOrderStatus" [ arrowhead="normalnoneodot" ]
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.TradeAgent" -> "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.SellFirstBot" [ arrowhead="normalnoneodot" ]
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/streamtickprocess.TickProcess" -> "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.TradeAgent" [ arrowhead="normalnoneodot" color="saddlebrown" ]
-    "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetOrderIDByStockNum" -> "(*sync.RWMutex).RLock" [ color="saddlebrown" ]
-    "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetOrderIDByStockNum" -> "(*sync.RWMutex).RUnlock" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyLaterBot" -> "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetOrderIDByStockNum" [  ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyLaterBot" -> "gitlab.tocraw.com/root/toc_trader/pkg/models/traderecord.CheckIsFilledByOrderID" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyLaterBot" -> "(*github.com/sirupsen/logrus.Logger).Error" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyLaterBot" -> "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetClose" [  ]
-    "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetTradeTime" -> "(*sync.RWMutex).RLock" [ color="saddlebrown" ]
-    "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetTradeTime" -> "(*sync.RWMutex).RUnlock" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyLaterBot" -> "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetTradeTime" [  ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyLaterBot" -> "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.GetBuyLaterPrice" [  ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyLaterBot" -> "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).CheckStockExist" [  ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyLaterBot" -> "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.PlaceOrder" [  ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyLaterBot" -> "(*github.com/sirupsen/logrus.Logger).WithFields" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyLaterBot" -> "(*github.com/sirupsen/logrus.Entry).Error" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyLaterBot" -> "time.Unix" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyLaterBot" -> "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).Set" [  ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyLaterOrderStatus" -> "gitlab.tocraw.com/root/toc_trader/pkg/models/traderecord.GetOrderByOrderID" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyLaterOrderStatus" -> "(*github.com/sirupsen/logrus.Logger).Error" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyLaterOrderStatus" -> "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).DeleteByStockNum" [  ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyLaterOrderStatus" -> "(*github.com/sirupsen/logrus.Logger).WithFields" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyLaterOrderStatus" -> "(*github.com/sirupsen/logrus.Entry).Info" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyLaterOrderStatus" -> "(time.Time).Add" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyLaterOrderStatus" -> "time.Now" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyLaterOrderStatus" -> "(time.Time).Before" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyLaterOrderStatus" -> "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.Cancel" [  ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyLaterOrderStatus" -> "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).Set" [  ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyLaterOrderStatus" -> "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).CheckStockExist" [  ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyLaterOrderStatus" -> "time.Sleep" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyLaterBot" -> "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckBuyLaterOrderStatus" [ arrowhead="normalnoneodot" ]
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/streamtickprocess.TickProcess" -> "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.BuyLaterBot" [ arrowhead="normalnoneodot" color="saddlebrown" ]
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.SellBot" -> "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetOrderIDByStockNum" [  ]
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.SellBot" -> "gitlab.tocraw.com/root/toc_trader/pkg/models/traderecord.CheckIsFilledByOrderID" [ color="saddlebrown" ]
@@ -488,9 +503,6 @@ tooltip="package: time";
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.showStatus" -> "time.Tick" [ color="saddlebrown" ]
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.isCurrentOrderAllFinished" -> "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetCount" [  ]
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.showStatus" -> "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.isCurrentOrderAllFinished" [  ]
-    "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetTotalSellCost" -> "(*sync.RWMutex).RLock" [ color="saddlebrown" ]
-    "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetTotalSellCost" -> "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.GetStockSellCost" [  ]
-    "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetTotalSellCost" -> "(*sync.RWMutex).RUnlock" [ color="saddlebrown" ]
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.showStatus" -> "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetTotalSellCost" [  ]
     "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetTotalBuyCost" -> "(*sync.RWMutex).RLock" [ color="saddlebrown" ]
     "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetTotalBuyCost" -> "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.GetStockBuyCost" [  ]
@@ -508,18 +520,8 @@ tooltip="package: time";
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.showStatus" -> "(time.Time).Before" [ color="saddlebrown" ]
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.showStatus" -> "(*github.com/sirupsen/logrus.Logger).Warn" [ color="saddlebrown" ]
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckOrderStatusLoop" -> "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.showStatus" [ arrowhead="normalnoneodot" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeSwitch" -> "time.Tick" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeSwitch" -> "time.Now" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeSwitch" -> "(time.Time).After" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeSwitch" -> "(*github.com/sirupsen/logrus.Logger).Warn" [ color="saddlebrown" ]
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckOrderStatusLoop" -> "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeSwitch" [ arrowhead="normalnoneodot" ]
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckOrderStatusLoop" -> "time.Tick" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.FetchOrderStatus" -> "(*github.com/go-resty/resty/v2.Client).R" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.FetchOrderStatus" -> "(*github.com/go-resty/resty/v2.Request).SetResult" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.FetchOrderStatus" -> "(*github.com/go-resty/resty/v2.Request).Get" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.FetchOrderStatus" -> "(*github.com/go-resty/resty/v2.Response).StatusCode" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.FetchOrderStatus" -> "errors.New" [ color="saddlebrown" ]
-    "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.FetchOrderStatus" -> "(*github.com/go-resty/resty/v2.Response).Result" [ color="saddlebrown" ]
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckOrderStatusLoop" -> "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.FetchOrderStatus" [  ]
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckOrderStatusLoop" -> "(*github.com/sirupsen/logrus.Logger).Error" [ color="saddlebrown" ]
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.InitStartUpQuota" -> "gitlab.tocraw.com/root/toc_trader/pkg/models/traderecord.GetAllorderByDayTime" [ color="saddlebrown" ]
@@ -535,8 +537,6 @@ tooltip="package: time";
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.initBalance" -> "(*github.com/sirupsen/logrus.Entry).Warn" [ color="saddlebrown" ]
     "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckOrderStatusLoop" -> "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.initBalance" [  ]
     "gitlab.tocraw.com/root/toc_trader/pkg/core.TradeProcess" -> "gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.CheckOrderStatusLoop" [ arrowhead="normalnoneodot" color="saddlebrown" ]
-    "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).ClearAll" -> "(*sync.RWMutex).Lock" [ color="saddlebrown" ]
-    "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).ClearAll" -> "(*sync.RWMutex).Unlock" [ color="saddlebrown" ]
     "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetAllRecordMap" -> "(*sync.RWMutex).RLock" [ color="saddlebrown" ]
     "(*gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot.tradeRecordMutexMap).GetAllRecordMap" -> "(*sync.RWMutex).RUnlock" [ color="saddlebrown" ]
 }

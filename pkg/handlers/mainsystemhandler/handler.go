@@ -12,7 +12,7 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/handlers"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/process"
-	"gitlab.tocraw.com/root/toc_trader/tools/heartbeat"
+	"gitlab.tocraw.com/root/toc_trader/tools/healthcheck"
 	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 )
 
@@ -139,7 +139,7 @@ func FullRestart(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, res)
 		return
 	}
-	if err := heartbeat.FullRestart(); err != nil {
+	if err := healthcheck.FullRestart(); err != nil {
 		res.Response = err.Error()
 		c.JSON(http.StatusInternalServerError, res)
 		return

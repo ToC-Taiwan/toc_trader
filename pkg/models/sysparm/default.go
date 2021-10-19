@@ -35,7 +35,7 @@ var DefaultSetting = map[string]interface{}{
 	"dbencode":                        "utf8",
 	"dbtimezone":                      "Asia/Taipei",
 	"kbar_period":                     120,
-	"target_condition":                `[{"limit_price_low":50,"limit_price_high":100,"limit_volume":10000}]`,
+	"target_condition":                `[{"limit_price_low":10,"limit_price_high":50,"limit_volume":10000}]`,
 	"black_stock_arr":                 `["1314","2317"]`,
 	"black_category_arr":              `["17"]`,
 	"cleanevent_cron":                 "0 0 4 * * ?",

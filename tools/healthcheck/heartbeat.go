@@ -1,5 +1,5 @@
-// Package heartbeat package heartbeat
-package heartbeat
+// Package healthcheck package healthcheck
+package healthcheck
 
 import (
 	"errors"
