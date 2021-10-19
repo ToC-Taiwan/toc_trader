@@ -8,7 +8,6 @@ import (
 
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/holiday"
-	"gitlab.tocraw.com/root/toc_trader/pkg/models/pyresponse"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/stock"
 	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 )
@@ -229,15 +228,15 @@ func GetLastTradeDayByDate(tradeDay string) (lastTradeDay time.Time, err error) 
 // AskSinoPyUpdateBasic AskSinoPyUpdateBasic
 func AskSinoPyUpdateBasic() (err error) {
 	resp, err := global.RestyClient.R().
-		SetResult(&pyresponse.PyServerResponse{}).
+		SetResult(&global.PyServerResponse{}).
 		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/basic/update-basic")
 	if err != nil {
 		return err
 	} else if resp.StatusCode() != 200 {
 		return errors.New("AskSinoPyUpdateBasic api fail")
 	}
-	res := *resp.Result().(*pyresponse.PyServerResponse)
-	if res.Status != pyresponse.SuccessStatus {
+	res := *resp.Result().(*global.PyServerResponse)
+	if res.Status != global.SuccessStatus {
 		err = errors.New("sinopac srv update basic fail")
 	}
 	return err

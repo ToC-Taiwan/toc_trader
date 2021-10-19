@@ -2,16 +2,13 @@
 package core
 
 import (
-	"errors"
 	"fmt"
-	"net"
 	"os"
 	"time"
 
 	"github.com/manifoldco/promptui"
 	"gitlab.tocraw.com/root/toc_trader/init/sysparminit"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
-	"gitlab.tocraw.com/root/toc_trader/pkg/models/pyresponse"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/stock"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/targetstock"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/choosetarget"
@@ -97,58 +94,4 @@ func TradeProcess() {
 		// Add Top Rank Targets
 		go addRankTarget()
 	}
-}
-
-func sendCurrentIP() {
-	var err error
-	results := findMachineIP()
-	resp, err := global.RestyClient.R().
-		SetHeader("X-Trade-Bot-Host", results[len(results)-1]).
-		SetResult(&pyresponse.PyServerResponse{}).
-		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/system/tradebothost")
-	if err != nil {
-		logger.Logger.Error(err)
-		return
-	} else if resp.StatusCode() != 200 {
-		logger.Logger.Error("SendCurrentIP api fail")
-		return
-	}
-	res := *resp.Result().(*pyresponse.PyServerResponse)
-	if res.Status != "success" {
-		logger.Logger.Error(errors.New("sendCurrentIP fail"))
-	}
-}
-
-func findMachineIP() []string {
-	var results []string
-	ifaces, err := net.Interfaces()
-	if err != nil {
-		logger.Logger.Error(err)
-	}
-	var addrs []net.Addr
-	for _, i := range ifaces {
-		if i.HardwareAddr.String() == "" {
-			continue
-		}
-		addrs, err = i.Addrs()
-		if err != nil {
-			logger.Logger.Error(err)
-		}
-		for _, addr := range addrs {
-			if ip := addr.(*net.IPNet).IP.To4(); ip != nil {
-				if ip[0] != 127 && ip[0] != 169 {
-					results = append(results, ip.String())
-				}
-			}
-		}
-	}
-	return results
-}
-
-func checkIsOpenTime() bool {
-	starTime := global.TradeDay.Add(1 * time.Hour)
-	if time.Now().After(starTime) && time.Now().Before(global.TradeDayEndTime) {
-		return true
-	}
-	return false
 }

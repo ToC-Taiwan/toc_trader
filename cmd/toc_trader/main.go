@@ -38,9 +38,8 @@ func main() {
 	// Keep thread running
 	for {
 		exit := <-global.ExitChannel
-		if exit == "exit" {
+		if exit == global.ExitSignal {
 			logger.Logger.Panic("manual exit")
-			// os.Exit(0)
 		}
 	}
 }

@@ -26,7 +26,7 @@ func UpdateSysparm(key string, value interface{}) (err error) {
 			logger.Logger.Error(err.Error() + "\n" + string(debug.Stack()))
 		}
 	}()
-	db, err := gorm.Open(sqlite.Open("./global.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("./config/global.db"), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}

@@ -7,5 +7,5 @@ import (
 
 // RestartService RestartService
 func RestartService() {
-	global.ExitChannel <- "exit"
+	global.ExitChannel <- global.ExitSignal
 }

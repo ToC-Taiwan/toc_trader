@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
-	"gitlab.tocraw.com/root/toc_trader/pkg/models/pyresponse"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/traderecord"
 	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 )
@@ -136,7 +135,7 @@ func FetchOrderStatus() (err error) {
 		return errors.New("FetchOrderStatus api fail")
 	}
 	res := *resp.Result().(*traderecord.SinoStatusResponse)
-	if res.Status != pyresponse.SuccessStatus {
+	if res.Status != global.SuccessStatus {
 		return errors.New("FetchOrderStatus fail")
 	}
 	return err

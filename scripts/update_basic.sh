@@ -3,5 +3,5 @@
 go-callvis \
     -focus gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot \
     -skipbrowser \
-    -file=./assets/callvis/callvis \
+    -file=./assets/callvis \
     ./cmd/toc_trader || exit 1

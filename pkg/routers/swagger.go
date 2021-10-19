@@ -10,7 +10,6 @@ import (
 
 	"gitlab.tocraw.com/root/toc_trader/docs"
 	"gitlab.tocraw.com/root/toc_trader/init/sysparminit"
-	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 )
 
 // AddSwagger AddSwagger
@@ -22,11 +21,11 @@ import (
 // @BasePath /trade-bot
 func AddSwagger(router *gin.Engine) {
 	deployment := os.Getenv("DEPLOYMENT")
-	docs.SwaggerInfo.Host = "toc-trader.tocraw.com:" + sysparminit.GlobalSettings.GetHTTPPort()
+	docs.SwaggerInfo.Host = "172.20.10.222:" + sysparminit.GlobalSettings.GetHTTPPort()
 	if deployment != "docker" {
-		docs.SwaggerInfo.Host = "localhost:" + sysparminit.GlobalSettings.GetHTTPPort()
+		docs.SwaggerInfo.Host = "127.0.0.1:" + sysparminit.GlobalSettings.GetHTTPPort()
 	}
 	url := ginSwagger.URL("/swagger/doc.json")
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
-	logger.Logger.Info("http://" + docs.SwaggerInfo.Host + "/swagger/index.html")
+	// logger.Logger.Info("http://" + docs.SwaggerInfo.Host + "/swagger/index.html")
 }

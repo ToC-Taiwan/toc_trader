@@ -11,6 +11,8 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/init/sysparminit"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/analyzeentiretick"
+	"gitlab.tocraw.com/root/toc_trader/pkg/models/analyzestreamtick"
+	"gitlab.tocraw.com/root/toc_trader/pkg/models/bidask"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/entiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/holiday"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/kbar"
@@ -51,15 +53,15 @@ func init() {
 
 	err = global.GlobalDB.AutoMigrate(
 		&analyzeentiretick.AnalyzeEntireTick{},
-		// &analyzestreamtick.AnalyzeStreamTick{},
-		// &bidask.BidAsk{},
+		&analyzestreamtick.AnalyzeStreamTick{},
+		&bidask.BidAsk{},
 		&entiretick.EntireTick{},
-		&streamtick.StreamTick{},
 		&holiday.Holiday{},
 		&kbar.Kbar{},
 		&simulate.Result{},
 		&simulationcond.AnalyzeCondition{},
 		&stock.Stock{},
+		&streamtick.StreamTick{},
 		&targetstock.Target{},
 		&tradeevent.EventResponse{},
 		&traderecord.TradeRecord{},

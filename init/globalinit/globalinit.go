@@ -13,7 +13,7 @@ import (
 
 func init() {
 	var err error
-	global.ExitChannel = make(chan string)
+	global.ExitChannel = make(chan int)
 	global.HTTPPort = sysparminit.GlobalSettings.GetHTTPPort()
 	global.PyServerHost = sysparminit.GlobalSettings.GetPyServerHost()
 	global.PyServerPort = sysparminit.GlobalSettings.GetPyServerPort()

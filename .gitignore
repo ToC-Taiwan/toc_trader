@@ -131,9 +131,10 @@ dmypy.json
 
 # Mine
 .DS_Store
-logs
+logs/*
 cmd/toc_trader/toc_trader
 coverage.out
 report.xml
 go_test_result
-global.db
+config/global.db
+!.gitkeep

@@ -6,7 +6,6 @@ import (
 	"runtime/debug"
 
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
-	"gitlab.tocraw.com/root/toc_trader/pkg/models/pyresponse"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/streamtick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/bidaskprocess"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/streamtickprocess"
@@ -54,14 +53,14 @@ func SubStreamTick(stockArr []string) {
 	}
 	resp, err := global.RestyClient.R().
 		SetBody(stocks).
-		SetResult(&pyresponse.PyServerResponse{}).
+		SetResult(&global.PyServerResponse{}).
 		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/subscribe/streamtick")
 	if err != nil {
 		panic(err)
 	} else if resp.StatusCode() != 200 {
 		panic("SubStreamTick api fail")
 	}
-	res := *resp.Result().(*pyresponse.PyServerResponse)
+	res := *resp.Result().(*global.PyServerResponse)
 	if res.Status != SucessStatus {
 		panic("Subscribe fail")
 	}
@@ -92,14 +91,14 @@ func SubBidAsk(stockArr []string) {
 	}
 	resp, err := global.RestyClient.R().
 		SetBody(stocks).
-		SetResult(&pyresponse.PyServerResponse{}).
+		SetResult(&global.PyServerResponse{}).
 		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/subscribe/bid-ask")
 	if err != nil {
 		panic(err)
 	} else if resp.StatusCode() != 200 {
 		panic("SubBidAsk api fail")
 	}
-	res := *resp.Result().(*pyresponse.PyServerResponse)
+	res := *resp.Result().(*global.PyServerResponse)
 	if res.Status != SucessStatus {
 		panic("Subscribe bidask fail")
 	}
@@ -129,14 +128,14 @@ func UnSubscribeAll(dataType TickType) {
 		url = "/pyapi/unsubscribeall/bid-ask"
 	}
 	resp, err := global.RestyClient.R().
-		SetResult(&pyresponse.PyServerResponse{}).
+		SetResult(&global.PyServerResponse{}).
 		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + url)
 	if err != nil {
 		panic(err)
 	} else if resp.StatusCode() != 200 {
 		panic("UnSubscribeAll api fail")
 	}
-	res := *resp.Result().(*pyresponse.PyServerResponse)
+	res := *resp.Result().(*global.PyServerResponse)
 	if res.Status != SucessStatus {
 		panic("Unsubscribe fail")
 	}

@@ -5,11 +5,10 @@ import (
 	"errors"
 
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
-	"gitlab.tocraw.com/root/toc_trader/pkg/models/pyresponse"
 )
 
 // PlaceOrder PlaceOrder
-func PlaceOrder(action OrderAction, stockNum string, stockQuantity int64, stockPrice float64) (returnOrder pyresponse.PyServerResponse, err error) {
+func PlaceOrder(action OrderAction, stockNum string, stockQuantity int64, stockPrice float64) (returnOrder global.PyServerResponse, err error) {
 	if stockNum == "" || stockQuantity == 0 {
 		return returnOrder, errors.New("PlaceOrder input error")
 	}
@@ -29,14 +28,14 @@ func PlaceOrder(action OrderAction, stockNum string, stockQuantity int64, stockP
 	}
 	resp, err := global.RestyClient.R().
 		SetBody(order).
-		SetResult(&pyresponse.PyServerResponse{}).
+		SetResult(&global.PyServerResponse{}).
 		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + url)
 	if err != nil {
 		return returnOrder, err
 	} else if resp.StatusCode() != 200 {
 		return returnOrder, errors.New("PlaceOrder api fail")
 	}
-	res := *resp.Result().(*pyresponse.PyServerResponse)
+	res := *resp.Result().(*global.PyServerResponse)
 	return res, err
 }
 
@@ -50,14 +49,14 @@ func Cancel(orderID string) (err error) {
 	}
 	resp, err := global.RestyClient.R().
 		SetBody(order).
-		SetResult(&pyresponse.PyServerResponse{}).
+		SetResult(&global.PyServerResponse{}).
 		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/trade/cancel")
 	if err != nil {
 		return err
 	} else if resp.StatusCode() != 200 {
 		return errors.New("Cancel api fail")
 	}
-	res := *resp.Result().(*pyresponse.PyServerResponse)
+	res := *resp.Result().(*global.PyServerResponse)
 	if res.Status == "fail" {
 		return errors.New("Cancel fail")
 	}

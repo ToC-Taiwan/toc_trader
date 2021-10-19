@@ -1,5 +1,5 @@
-// Package pyresponse package pyapiserver
-package pyresponse
+// Package global package global
+package global
 
 // PyServerResponse PyServerResponse
 type PyServerResponse struct {

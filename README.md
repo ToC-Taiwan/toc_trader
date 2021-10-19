@@ -91,7 +91,7 @@ WARN[2021/10/18 02:34:42] Cond: {Model:{ID:37659 CreatedAt:2021-10-18 02:29:41.2
 
 ### Trade Bot Service
 
-![callvis](./assets/callvis/callvis.svg "callvis")
+![callvis](./assets/callvis.svg "callvis")
 
 ## Authors
 

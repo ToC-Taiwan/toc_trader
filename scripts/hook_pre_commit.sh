@@ -65,7 +65,7 @@ fi
 git add ./docs/docs.go
 git add ./docs/swagger.json
 git add ./docs/swagger.yaml
-git add ./assets/callvis/callvis.gv
-git add ./assets/callvis/callvis.svg
+git add ./assets/callvis.gv
+git add ./assets/callvis.svg
 git clean -fxd
 exit 0

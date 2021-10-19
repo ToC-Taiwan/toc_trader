@@ -10,6 +10,8 @@ import (
 )
 
 const (
+	// ExitSignal ExitSignal
+	ExitSignal int = 1
 	// TradeYear TradeYear
 	TradeYear int64 = 2021
 	// OneTimeQuantity OneTimeQuantity
@@ -31,7 +33,7 @@ var GlobalDB *gorm.DB
 var RestyClient *resty.Client
 
 // ExitChannel ExitChannel
-var ExitChannel chan string
+var ExitChannel chan int
 
 // TradeDay TradeDay
 var TradeDay time.Time

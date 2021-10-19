@@ -26,7 +26,6 @@ RUN apt update -y && \
     apt clean && \
     mkdir toc_trader && \
     mkdir toc_trader/configs && \
-    mkdir toc_trader/configs/certs && \
     mkdir toc_trader/cmd && \
     mkdir toc_trader/cmd/toc_trader && \
     mkdir toc_trader/scripts && \
@@ -36,7 +35,6 @@ WORKDIR /toc_trader
 
 COPY --from=build-stage /build_space/cmd/toc_trader/toc_trader ./cmd/toc_trader/toc_trader
 COPY --from=build-stage /build_space/scripts/docker-entrypoint.sh ./scripts/docker-entrypoint.sh
-COPY --from=build-stage /build_space/configs/certs ./configs/certs/
 
 WORKDIR /toc_trader/cmd/toc_trader
 
