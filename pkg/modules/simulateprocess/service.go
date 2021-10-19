@@ -149,8 +149,8 @@ func getBestCond(historyCount int, useGlobal bool) {
 	if useGlobal {
 		conds = append(conds, &global.TickAnalyzeCondition)
 	} else {
-		for m := 55; m >= 55; m -= 5 {
-			for u := 5; u <= 15; u += 5 {
+		for m := 70; m >= 70; m -= 5 {
+			for u := 5; u <= 5; u += 5 {
 				for i := 50; i >= 50; i -= 5 {
 					for z := 0; z <= 5; z++ {
 						for o := 11; o >= 1; o -= 2 {
