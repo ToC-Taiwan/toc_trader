@@ -75,7 +75,7 @@ func TickProcess(lastClose float64, cond simulationcond.AnalyzeCondition, ch cha
 			}
 			rsi, err := tickanalyze.GenerateRSI(input)
 			if err != nil {
-				logger.Logger.Errorf("TickProcess Stock: %s, Err: %s", tick.StockNum, err)
+				logger.Logger.Errorf("GenerateRSI at StreamTickProcess Stock: %s, Err: %s", tick.StockNum, err)
 				continue
 			}
 

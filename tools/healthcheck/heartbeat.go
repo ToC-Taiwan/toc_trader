@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
-	"gitlab.tocraw.com/root/toc_trader/pkg/modules/process"
 )
 
 // FullRestart FullRestart
@@ -13,7 +12,7 @@ func FullRestart() (err error) {
 	if err = askSinopacSRVRestart(); err != nil {
 		return err
 	}
-	process.RestartService()
+	RestartService()
 	return err
 }
 
@@ -31,4 +30,9 @@ func askSinopacSRVRestart() error {
 		return errors.New(res.Status)
 	}
 	return err
+}
+
+// RestartService RestartService
+func RestartService() {
+	global.ExitChannel <- global.ExitSignal
 }

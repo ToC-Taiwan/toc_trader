@@ -89,7 +89,7 @@ func TickProcess(stockNum string, lastClose float64, cond simulationcond.Analyze
 			unSavedTicksInOutRatio := common.Round(100*(float64(outSum)/float64(outSum+inSum)), 2)
 			rsi, err := tickanalyze.GenerateRSI(input)
 			if err != nil {
-				logger.Logger.Errorf("TickProcess Stock: %s, Err: %s", stockNum, err)
+				logger.Logger.Errorf("GenerateRSI at EntireTickProcess Stock: %s, Err: %s", stockNum, err)
 				continue
 			}
 			analyze := analyzeentiretick.AnalyzeEntireTick{
@@ -101,7 +101,7 @@ func TickProcess(stockNum string, lastClose float64, cond simulationcond.Analyze
 				OutSum:           outSum,
 				InSum:            inSum,
 				OutInRatio:       unSavedTicksInOutRatio,
-				TotalTime:        common.Round(totalTime, 2),
+				TotalTime:        totalTime,
 				CloseDiff:        closeDiff,
 				Rsi:              rsi,
 				Open:             open,

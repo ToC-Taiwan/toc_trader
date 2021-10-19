@@ -11,7 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/handlers"
-	"gitlab.tocraw.com/root/toc_trader/pkg/modules/process"
 	"gitlab.tocraw.com/root/toc_trader/tools/healthcheck"
 	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 )
@@ -41,7 +40,7 @@ func Restart(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, res)
 		return
 	}
-	process.RestartService()
+	healthcheck.RestartService()
 	c.JSON(http.StatusOK, nil)
 }
 
