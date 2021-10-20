@@ -24,11 +24,23 @@
             "command": "pg_ctl -D ~/dev_projects/postgres_data -l ~/dev_projects/postgres_data/logfile stop"
         },
         {
+            "label": "Remove binary",
+            "type": "shell",
+            "command": "rm -rf ./toc_trader"
+        },
+        {
             "label": "Pre Launch",
             "dependsOn": [
                 "Start local postgres",
                 "Build",
                 "Launch terminal",
+            ]
+        },
+        {
+            "label": "Post Launch",
+            "dependsOn": [
+                "End local postgres",
+                "Remove binary",
             ]
         }
     ]

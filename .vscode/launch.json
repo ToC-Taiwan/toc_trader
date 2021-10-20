@@ -14,7 +14,7 @@
             "mode": "exec",
             "program": "${workspaceFolder}/toc_trader",
             "preLaunchTask": "Pre Launch",
-            "postDebugTask": "End local postgres",
+            "postDebugTask": "Post Launch",
         }
     ]
 }
