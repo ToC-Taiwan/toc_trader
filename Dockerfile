@@ -25,8 +25,6 @@ RUN apt update -y && \
     apt autoremove -y && \
     apt clean && \
     mkdir toc_trader && \
-    mkdir toc_trader/cmd && \
-    mkdir toc_trader/cmd/toc_trader && \
     mkdir toc_trader/configs && \
     mkdir toc_trader/logs && \
     mkdir toc_trader/scripts && \
@@ -34,7 +32,7 @@ RUN apt update -y && \
 
 WORKDIR /toc_trader
 
-COPY --from=build-stage /build_space/cmd/toc_trader/toc_trader ./cmd/toc_trader/toc_trader
+COPY --from=build-stage /build_space/cmd/toc_trader/toc_trader ./toc_trader
 COPY --from=build-stage /build_space/scripts/docker-entrypoint.sh ./scripts/docker-entrypoint.sh
 
 WORKDIR /toc_trader/cmd/toc_trader

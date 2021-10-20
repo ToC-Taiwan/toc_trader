@@ -2,7 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
-.vscode
+# .vscode
 node_modules
 # C extensions
 *.so
@@ -132,7 +132,7 @@ dmypy.json
 # Mine
 .DS_Store
 logs/*
-cmd/toc_trader/toc_trader
+toc_trader
 coverage.out
 report.xml
 go_test_result

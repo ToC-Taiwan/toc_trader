@@ -3,6 +3,7 @@ package logger
 
 import (
 	"os"
+	"path/filepath"
 
 	"github.com/rifflock/lfshook"
 	"github.com/sirupsen/logrus"
@@ -17,17 +18,19 @@ func GetLogger() *logrus.Logger {
 	if Log != nil {
 		return Log
 	}
-	var basePath string
+	ex, err := os.Executable()
+	if err != nil {
+		panic(err)
+	}
+	basePath := filepath.Dir(ex)
 	Log = logrus.New()
 	deployment := os.Getenv("DEPLOYMENT")
 	if deployment == "docker" {
-		basePath = "/toc_trader"
 		Log.SetFormatter(&logrus.JSONFormatter{
 			TimestampFormat: global.LongTimeLayout,
 			PrettyPrint:     false,
 		})
 	} else {
-		basePath = "./"
 		Log.SetFormatter(&logrus.TextFormatter{
 			TimestampFormat:  "2006/01/02 15:04:05",
 			FullTimestamp:    true,

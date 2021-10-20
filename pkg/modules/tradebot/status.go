@@ -55,7 +55,7 @@ func showStatus() {
 				"Back":            back,
 				"Real":            balance + back,
 			}).Info("Current Trade Status")
-			if balance < -1000 {
+			if balance < -1000 && (global.TradeSwitch.Buy || global.TradeSwitch.SellFirst) {
 				global.TradeSwitch.Buy = false
 				global.TradeSwitch.SellFirst = false
 				logger.GetLogger().Warn("Enable buy and Sell first are all OFF because too...")

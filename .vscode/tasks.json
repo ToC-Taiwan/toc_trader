@@ -1,0 +1,35 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Launch terminal",
+            "type": "shell",
+            "command": "open /Applications/iTerm.app && ${workspaceFolder}/debug/launch_terminal.py"
+        },
+        {
+            "label": "Build",
+            "type": "shell",
+            "command": "go build -gcflags=all=\"-N -l\" ./cmd/toc_trader/"
+        },
+        {
+            "label": "Start local postgres",
+            "type": "shell",
+            "command": "pg_ctl -D ~/dev_projects/postgres_data -l ~/dev_projects/postgres_data/logfile start"
+        },
+        {
+            "label": "End local postgres",
+            "type": "shell",
+            "command": "pg_ctl -D ~/dev_projects/postgres_data -l ~/dev_projects/postgres_data/logfile stop"
+        },
+        {
+            "label": "Pre Launch",
+            "dependsOn": [
+                "Start local postgres",
+                "Build",
+                "Launch terminal",
+            ]
+        }
+    ]
+}

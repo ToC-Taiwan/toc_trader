@@ -3,6 +3,7 @@ package sysparminit
 
 import (
 	"os"
+	"path/filepath"
 	"runtime"
 
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/sysparm"
@@ -14,12 +15,17 @@ import (
 var GlobalSettings sysparm.GlobalSettingMap
 
 // ConfigPath ConfigPath
-var ConfigPath string = "./configs/global.db"
+var ConfigPath string
 
 func init() {
+	ex, err := os.Executable()
+	if err != nil {
+		panic(err)
+	}
+	exPath := filepath.Dir(ex)
+	ConfigPath = exPath + "/configs/global.db"
 	deployment := os.Getenv("DEPLOYMENT")
 	if deployment == "docker" {
-		ConfigPath = "/toc_trader/configs/global.db"
 		sysparm.DefaultSetting["runmode"] = "release"
 		sysparm.DefaultSetting["database"] = "tradebot"
 		sysparm.DefaultSetting["dbhost"] = "172.20.10.10"
