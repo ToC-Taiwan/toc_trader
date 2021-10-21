@@ -2,77 +2,15 @@
 package dbinit
 
 import (
-	"time"
-
 	_ "github.com/lib/pq" // postgres driver for "database/sql"
 
 	"database/sql"
 
 	"gitlab.tocraw.com/root/toc_trader/init/sysparminit"
-	"gitlab.tocraw.com/root/toc_trader/pkg/global"
-	"gitlab.tocraw.com/root/toc_trader/pkg/models/analyzeentiretick"
-	"gitlab.tocraw.com/root/toc_trader/pkg/models/analyzestreamtick"
-	"gitlab.tocraw.com/root/toc_trader/pkg/models/bidask"
-	"gitlab.tocraw.com/root/toc_trader/pkg/models/entiretick"
-	"gitlab.tocraw.com/root/toc_trader/pkg/models/holiday"
-	"gitlab.tocraw.com/root/toc_trader/pkg/models/kbar"
-	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulate"
-	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulationcond"
-	"gitlab.tocraw.com/root/toc_trader/pkg/models/stock"
-	"gitlab.tocraw.com/root/toc_trader/pkg/models/streamtick"
-	"gitlab.tocraw.com/root/toc_trader/pkg/models/targetstock"
-	"gitlab.tocraw.com/root/toc_trader/pkg/models/tradeevent"
-	"gitlab.tocraw.com/root/toc_trader/pkg/models/traderecord"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/parameters"
-	"gitlab.tocraw.com/root/toc_trader/tools/logger"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-
-	gormlogger "gorm.io/gorm/logger"
 )
 
 func init() {
-	var err error
-	initDataBase()
-	dbLogger := gormlogger.New(logger.GetLogger(), gormlogger.Config{
-		SlowThreshold:             1000 * time.Millisecond,
-		Colorful:                  true,
-		IgnoreRecordNotFoundError: false,
-		LogLevel:                  gormlogger.Warn,
-	})
-	dsn := "host=" + sysparminit.GlobalSettings.GetDBHost() +
-		" user=" + sysparminit.GlobalSettings.GetDBUser() +
-		" password=" + sysparminit.GlobalSettings.GetDBPass() +
-		" dbname=" + sysparminit.GlobalSettings.GetDBName() +
-		" port=" + sysparminit.GlobalSettings.GetDBPort() +
-		" sslmode=disable" +
-		" TimeZone=" + sysparminit.GlobalSettings.GetDBTimeZone()
-	global.GlobalDB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{Logger: dbLogger})
-	if err != nil {
-		panic(err)
-	}
-
-	err = global.GlobalDB.AutoMigrate(
-		&analyzeentiretick.AnalyzeEntireTick{},
-		&analyzestreamtick.AnalyzeStreamTick{},
-		&bidask.BidAsk{},
-		&entiretick.EntireTick{},
-		&holiday.Holiday{},
-		&kbar.Kbar{},
-		&simulate.Result{},
-		&simulationcond.AnalyzeCondition{},
-		&stock.Stock{},
-		&streamtick.StreamTick{},
-		&targetstock.Target{},
-		&tradeevent.EventResponse{},
-		&traderecord.TradeRecord{},
-	)
-	if err != nil {
-		panic(err)
-	}
-}
-
-func initDataBase() {
 	db, err := sql.Open(
 		"postgres",
 		"user="+sysparminit.GlobalSettings.GetDBUser()+" password="+sysparminit.GlobalSettings.GetDBPass()+" host="+sysparminit.GlobalSettings.GetDBHost()+" port="+sysparminit.GlobalSettings.GetDBPort()+" sslmode=disable")

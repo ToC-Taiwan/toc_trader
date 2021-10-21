@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
+	"gitlab.tocraw.com/root/toc_trader/tools/rest"
 )
 
 // PlaceOrder PlaceOrder
@@ -23,7 +24,7 @@ func PlaceOrder(action OrderAction, stockNum string, stockQuantity int64, stockP
 		Price:    stockPrice,
 		Quantity: stockQuantity,
 	}
-	resp, err := global.RestyClient.R().
+	resp, err := rest.GetClient().R().
 		SetBody(order).
 		SetResult(&global.PyServerResponse{}).
 		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + url)
@@ -44,7 +45,7 @@ func Cancel(orderID string) (err error) {
 	order := CancelBody{
 		OrderID: orderID,
 	}
-	resp, err := global.RestyClient.R().
+	resp, err := rest.GetClient().R().
 		SetBody(order).
 		SetResult(&global.PyServerResponse{}).
 		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/trade/cancel")

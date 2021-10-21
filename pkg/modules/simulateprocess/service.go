@@ -20,6 +20,7 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/importbasic"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot"
 	"gitlab.tocraw.com/root/toc_trader/tools/common"
+	"gitlab.tocraw.com/root/toc_trader/tools/db"
 	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 )
 
@@ -182,7 +183,7 @@ func getBestCond(historyCount int, useGlobal bool) {
 			}
 		}
 	}
-	if err := simulationcond.InsertMultiRecord(conds, global.GlobalDB); err != nil {
+	if err := simulationcond.InsertMultiRecord(conds, db.GetAgent()); err != nil {
 		panic(err)
 	}
 	totalTimesChan <- len(conds)
@@ -365,7 +366,7 @@ func catchResult(useGlobal bool) {
 			save = append(save, result)
 		}
 		if !ok {
-			if err := simulate.InsertMultiRecord(save, global.GlobalDB); err != nil {
+			if err := simulate.InsertMultiRecord(save, db.GetAgent()); err != nil {
 				logger.GetLogger().Error(err)
 			}
 			var wg sync.WaitGroup
@@ -394,7 +395,7 @@ func catchResult(useGlobal bool) {
 		}
 		if count%10 == 0 {
 			// logger.GetLogger().Warnf("Best: %d", tmp[0].Balance)
-			if err := simulate.InsertMultiRecord(save, global.GlobalDB); err != nil {
+			if err := simulate.InsertMultiRecord(save, db.GetAgent()); err != nil {
 				logger.GetLogger().Error(err)
 			}
 			save = []simulate.Result{}
@@ -443,7 +444,7 @@ func progressBar(total int) {
 func storeAllEntireTick(stockArr []string, tradeDayArr []time.Time) {
 	for _, stockNum := range stockArr {
 		for _, date := range tradeDayArr {
-			ticks, err := entiretick.GetAllEntiretickByStockByDate(stockNum, date.Format(global.ShortTimeLayout), global.GlobalDB)
+			ticks, err := entiretick.GetAllEntiretickByStockByDate(stockNum, date.Format(global.ShortTimeLayout), db.GetAgent())
 			if err != nil {
 				logger.GetLogger().Error(err)
 				continue
@@ -454,10 +455,10 @@ func storeAllEntireTick(stockArr []string, tradeDayArr []time.Time) {
 }
 
 func clearAllSimulation() {
-	if err := simulate.DeleteAll(global.GlobalDB); err != nil {
+	if err := simulate.DeleteAll(db.GetAgent()); err != nil {
 		panic(err)
 	}
-	if err := simulationcond.DeleteAll(global.GlobalDB); err != nil {
+	if err := simulationcond.DeleteAll(db.GetAgent()); err != nil {
 		panic(err)
 	}
 }

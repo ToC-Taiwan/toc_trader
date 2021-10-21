@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
+	"gitlab.tocraw.com/root/toc_trader/tools/rest"
 )
 
 // FullRestart FullRestart
@@ -17,7 +18,7 @@ func FullRestart() (err error) {
 }
 
 func askSinopacSRVRestart() error {
-	resp, err := global.RestyClient.R().
+	resp, err := rest.GetClient().R().
 		SetResult(&global.PyServerResponse{}).
 		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/system/restart")
 	if err != nil {

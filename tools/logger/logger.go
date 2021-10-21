@@ -42,13 +42,13 @@ func GetLogger() *logrus.Logger {
 	Log.SetLevel(logrus.TraceLevel)
 	Log.SetOutput(os.Stdout)
 	pathMap := lfshook.PathMap{
-		logrus.PanicLevel: basePath + "/logs/panic.log",
-		logrus.FatalLevel: basePath + "/logs/fetal.log",
-		logrus.ErrorLevel: basePath + "/logs/error.log",
-		logrus.WarnLevel:  basePath + "/logs/warn.log",
-		logrus.InfoLevel:  basePath + "/logs/info.log",
-		logrus.DebugLevel: basePath + "/logs/debug.log",
-		logrus.TraceLevel: basePath + "/logs/error.log",
+		logrus.PanicLevel: basePath + "/logs/panic.json",
+		logrus.FatalLevel: basePath + "/logs/fetal.json",
+		logrus.ErrorLevel: basePath + "/logs/error.json",
+		logrus.WarnLevel:  basePath + "/logs/warn.json",
+		logrus.InfoLevel:  basePath + "/logs/info.json",
+		logrus.DebugLevel: basePath + "/logs/debug.json",
+		logrus.TraceLevel: basePath + "/logs/error.json",
 	}
 	Log.Hooks.Add(lfshook.NewHook(
 		pathMap,

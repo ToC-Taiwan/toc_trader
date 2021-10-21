@@ -4,9 +4,7 @@ package global
 import (
 	"time"
 
-	"github.com/go-resty/resty/v2"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulationcond"
-	"gorm.io/gorm"
 )
 
 const (
@@ -27,10 +25,10 @@ const (
 )
 
 // GlobalDB GlobalDB
-var GlobalDB *gorm.DB
+// var GlobalDB *gorm.DB
 
 // RestyClient RestyClient
-var RestyClient *resty.Client
+// var RestyClient *resty.Client
 
 // ExitChannel ExitChannel
 var ExitChannel chan int

@@ -10,6 +10,7 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/bidaskprocess"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/streamtickprocess"
 	"gitlab.tocraw.com/root/toc_trader/tools/logger"
+	"gitlab.tocraw.com/root/toc_trader/tools/rest"
 )
 
 // SucessStatus SucessStatus
@@ -51,7 +52,7 @@ func SubStreamTick(stockArr []string) {
 	stocks := SubBody{
 		StockNumArr: stockArr,
 	}
-	resp, err := global.RestyClient.R().
+	resp, err := rest.GetClient().R().
 		SetBody(stocks).
 		SetResult(&global.PyServerResponse{}).
 		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/subscribe/streamtick")
@@ -89,7 +90,7 @@ func SubBidAsk(stockArr []string) {
 	stocks := SubBody{
 		StockNumArr: stockArr,
 	}
-	resp, err := global.RestyClient.R().
+	resp, err := rest.GetClient().R().
 		SetBody(stocks).
 		SetResult(&global.PyServerResponse{}).
 		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/subscribe/bid-ask")
@@ -127,7 +128,7 @@ func UnSubscribeAll(dataType TickType) {
 	case dataType == BidAsk:
 		url = "/pyapi/unsubscribeall/bid-ask"
 	}
-	resp, err := global.RestyClient.R().
+	resp, err := rest.GetClient().R().
 		SetResult(&global.PyServerResponse{}).
 		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + url)
 	if err != nil {

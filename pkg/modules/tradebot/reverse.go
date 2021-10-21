@@ -11,6 +11,7 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/streamtick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/traderecord"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tickanalyze"
+	"gitlab.tocraw.com/root/toc_trader/tools/db"
 	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 	"gitlab.tocraw.com/root/toc_trader/tools/stockutil"
 )
@@ -87,7 +88,7 @@ func BuyLaterBot(ch chan *streamtick.StreamTick, cond simulationcond.AnalyzeCond
 		if len(historyClose) > int(cond.HistoryCloseCount) {
 			historyClose = historyClose[1:]
 		}
-		filled, err := traderecord.CheckIsFilledByOrderID(SellFirstOrderMap.GetOrderIDByStockNum(tick.StockNum), global.GlobalDB)
+		filled, err := traderecord.CheckIsFilledByOrderID(SellFirstOrderMap.GetOrderIDByStockNum(tick.StockNum), db.GetAgent())
 		if err != nil {
 			logger.GetLogger().Error(err)
 			continue
@@ -154,7 +155,7 @@ func GetBuyLaterPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyC
 // CheckSellFirstOrderStatus CheckSellFirstOrderStatus
 func CheckSellFirstOrderStatus(record traderecord.TradeRecord) {
 	for {
-		order, err := traderecord.GetOrderByOrderID(record.OrderID, global.GlobalDB)
+		order, err := traderecord.GetOrderByOrderID(record.OrderID, db.GetAgent())
 		if err != nil {
 			logger.GetLogger().Error(err)
 			continue
@@ -202,7 +203,7 @@ func CheckSellFirstOrderStatus(record traderecord.TradeRecord) {
 // CheckBuyLaterOrderStatus CheckBuyLaterOrderStatus
 func CheckBuyLaterOrderStatus(record traderecord.TradeRecord) {
 	for {
-		order, err := traderecord.GetOrderByOrderID(record.OrderID, global.GlobalDB)
+		order, err := traderecord.GetOrderByOrderID(record.OrderID, db.GetAgent())
 		if err != nil {
 			logger.GetLogger().Error(err)
 			continue

@@ -10,6 +10,7 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tickanalyze"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot"
 	"gitlab.tocraw.com/root/toc_trader/tools/common"
+	"gitlab.tocraw.com/root/toc_trader/tools/db"
 	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 )
 
@@ -114,7 +115,7 @@ func SaveStreamTicks(saveCh chan []*streamtick.StreamTick) {
 	for {
 		unSavedTicks := <-saveCh
 		if len(unSavedTicks) != 0 {
-			if err := streamtick.InsertMultiRecord(unSavedTicks, global.GlobalDB); err != nil {
+			if err := streamtick.InsertMultiRecord(unSavedTicks, db.GetAgent()); err != nil {
 				logger.GetLogger().Error(err)
 				continue
 			}

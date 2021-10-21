@@ -6,8 +6,6 @@ import (
 
 	_ "gitlab.tocraw.com/root/toc_trader/init/dbinit" // dbinit
 
-	_ "gitlab.tocraw.com/root/toc_trader/init/restyinit" // restyinit
-
 	_ "gitlab.tocraw.com/root/toc_trader/init/taskinit" // taskinit
 
 	_ "gitlab.tocraw.com/root/toc_trader/init/globalinit" // globalinit

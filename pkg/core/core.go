@@ -16,6 +16,7 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/importbasic"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/simulateprocess"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot"
+	"gitlab.tocraw.com/root/toc_trader/tools/db"
 	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 )
 
@@ -55,11 +56,11 @@ func TradeProcess() {
 		}
 		tmp := []time.Time{global.LastTradeDay}
 		fetchentiretick.FetchEntireTick(targets, tmp, global.TickAnalyzeCondition)
-		if dbTarget, err := targetstock.GetTargetByTime(global.LastTradeDay, global.GlobalDB); err != nil {
+		if dbTarget, err := targetstock.GetTargetByTime(global.LastTradeDay, db.GetAgent()); err != nil {
 			panic(err)
 		} else if len(dbTarget) == 0 {
 			logger.GetLogger().Info("Saving targets")
-			targetStockArr, err := stock.GetStocksFromNumArr(targets, global.GlobalDB)
+			targetStockArr, err := stock.GetStocksFromNumArr(targets, db.GetAgent())
 			if err != nil {
 				panic(err)
 			}
@@ -69,7 +70,7 @@ func TradeProcess() {
 					Stock:        v,
 				})
 			}
-			if err := targetstock.InsertMultiTarget(savedTarget, global.GlobalDB); err != nil {
+			if err := targetstock.InsertMultiTarget(savedTarget, db.GetAgent()); err != nil {
 				panic(err)
 			}
 		}

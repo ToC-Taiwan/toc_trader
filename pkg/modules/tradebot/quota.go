@@ -6,6 +6,7 @@ import (
 
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/traderecord"
+	"gitlab.tocraw.com/root/toc_trader/tools/db"
 )
 
 // TradeQuota TradeQuota
@@ -22,7 +23,7 @@ const (
 
 // InitStartUpQuota InitStartUpQuota
 func InitStartUpQuota() (err error) {
-	realOrder, err := traderecord.GetAllorderByDayTime(global.TradeDay, global.GlobalDB)
+	realOrder, err := traderecord.GetAllorderByDayTime(global.TradeDay, db.GetAgent())
 	if err != nil {
 		return err
 	}

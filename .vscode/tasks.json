@@ -19,6 +19,11 @@
             "command": "pg_ctl -D ~/dev_projects/postgres_data -l ~/dev_projects/postgres_data/logfile start"
         },
         {
+            "label": "Remove log",
+            "type": "shell",
+            "command": "rm -rf ./logs/*.json || true"
+        },
+        {
             "label": "End local postgres",
             "type": "shell",
             "command": "pg_ctl -D ~/dev_projects/postgres_data -l ~/dev_projects/postgres_data/logfile stop"
@@ -32,6 +37,7 @@
             "label": "Pre Launch",
             "dependsOn": [
                 "Start local postgres",
+                "Remove log",
                 "Build",
                 "Launch terminal",
             ]

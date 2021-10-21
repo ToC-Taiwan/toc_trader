@@ -7,12 +7,13 @@ import (
 
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/tools/logger"
+	"gitlab.tocraw.com/root/toc_trader/tools/rest"
 )
 
 func sendCurrentIP() {
 	var err error
 	results := findMachineIP()
-	resp, err := global.RestyClient.R().
+	resp, err := rest.GetClient().R().
 		SetHeader("X-Trade-Bot-Host", results[len(results)-1]).
 		SetResult(&global.PyServerResponse{}).
 		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/system/tradebothost")

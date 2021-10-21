@@ -7,7 +7,9 @@ import (
 
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/traderecord"
+	"gitlab.tocraw.com/root/toc_trader/tools/db"
 	"gitlab.tocraw.com/root/toc_trader/tools/logger"
+	"gitlab.tocraw.com/root/toc_trader/tools/rest"
 )
 
 // StatusFirstBack StatusFirstBack
@@ -29,7 +31,7 @@ func CheckOrderStatusLoop() {
 				panic(err)
 			}
 			logger.GetLogger().Warnf("Initial Quota: %d", TradeQuota)
-			dbOrder, err := traderecord.GetAllorderByDayTime(global.TradeDay, global.GlobalDB)
+			dbOrder, err := traderecord.GetAllorderByDayTime(global.TradeDay, db.GetAgent())
 			if err != nil {
 				logger.GetLogger().Error(err)
 				continue
@@ -126,7 +128,7 @@ func initBalance(orders []traderecord.TradeRecord) {
 
 // FetchOrderStatus FetchOrderStatus
 func FetchOrderStatus() (err error) {
-	resp, err := global.RestyClient.R().
+	resp, err := rest.GetClient().R().
 		SetResult(&traderecord.SinoStatusResponse{}).
 		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/trade/status")
 	if err != nil {
