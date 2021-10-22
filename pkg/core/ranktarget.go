@@ -34,7 +34,7 @@ func addRankTarget() {
 
 func checkIsOpenTime() bool {
 	starTime := global.TradeDay.Add(1 * time.Hour)
-	if time.Now().After(starTime) && time.Now().Before(global.TradeDayEndTime) {
+	if time.Now().After(starTime) && time.Now().Before(global.TradeInDayEndTime) {
 		return true
 	}
 	return false

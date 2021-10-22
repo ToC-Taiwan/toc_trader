@@ -9,6 +9,6 @@ import (
 
 func getLastTradeTimeByEntireTickTimeStamp(timeStamp int64) int64 {
 	tmp := time.Unix(0, timeStamp)
-	endTime := time.Date(tmp.Year(), tmp.Month(), tmp.Day(), global.TradeEndHour, global.TradeEndMinute, 0, 0, time.UTC)
+	endTime := time.Date(tmp.Year(), tmp.Month(), tmp.Day(), global.TradeOutEndHour, global.TradeOutEndMinute, 0, 0, time.UTC)
 	return endTime.UnixNano()
 }

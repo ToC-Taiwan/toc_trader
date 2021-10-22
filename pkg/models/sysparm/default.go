@@ -36,7 +36,7 @@ var DefaultSetting = map[string]interface{}{
 	"dbtimezone":                      "Asia/Taipei",
 	"kbar_period":                     120,
 	"target_condition":                `[{"limit_price_low":10,"limit_price_high":50,"limit_volume":10000}]`,
-	"black_stock_arr":                 `["1314","2317"]`,
+	"black_stock_arr":                 `["1314","2317","3481","3701"]`,
 	"black_category_arr":              `["17"]`,
 	"cleanevent_cron":                 "0 0 4 * * ?",
 	"restart_sinopac_toc_trader_cron": "0 20 8 * * ?",

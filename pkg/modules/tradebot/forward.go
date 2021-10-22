@@ -124,7 +124,7 @@ func SellBot(ch chan *streamtick.StreamTick, cond simulationcond.AnalyzeConditio
 // GetSellPrice GetSellPrice
 func GetSellPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyClose []float64, originalOrderClose float64, cond simulationcond.AnalyzeCondition) float64 {
 	tickTimeUnix := time.Unix(0, tick.TimeStamp)
-	lastTime := time.Date(tickTimeUnix.Year(), tickTimeUnix.Month(), tickTimeUnix.Day(), global.TradeEndHour, global.TradeEndMinute, 0, 0, time.Local)
+	lastTime := time.Date(tickTimeUnix.Year(), tickTimeUnix.Month(), tickTimeUnix.Day(), global.TradeOutEndHour, global.TradeOutEndMinute, 0, 0, time.Local)
 	if len(historyClose) < int(cond.HistoryCloseCount) && tickTimeUnix.Before(lastTime) {
 		return 0
 	}

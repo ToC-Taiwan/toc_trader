@@ -18,17 +18,15 @@ const (
 	LongTimeLayout string = "2006-01-02 15:04:05"
 	// ShortTimeLayout ShortTimeLayout
 	ShortTimeLayout string = "2006-01-02"
-	// TradeEndHour TradeEndHour
-	TradeEndHour int = 13
-	// TradeEndMinute TradeEndMinute
-	TradeEndMinute int = 0
+	// TradeInEndHour TradeInEndHour
+	TradeInEndHour int = 12
+	// TradeInEndMinute TradeInEndMinute
+	TradeInEndMinute int = 40
+	// TradeOutEndHour TradeOutEndHour
+	TradeOutEndHour int = 13
+	// TradeOutEndMinute TradeOutEndMinute
+	TradeOutEndMinute int = 10
 )
-
-// GlobalDB GlobalDB
-// var GlobalDB *gorm.DB
-
-// RestyClient RestyClient
-// var RestyClient *resty.Client
 
 // ExitChannel ExitChannel
 var ExitChannel chan int
@@ -36,8 +34,8 @@ var ExitChannel chan int
 // TradeDay TradeDay
 var TradeDay time.Time
 
-// TradeDayEndTime TradeDayEndTime
-var TradeDayEndTime time.Time
+// TradeInDayEndTime TradeInDayEndTime
+var TradeInDayEndTime time.Time
 
 // LastTradeDay LastTradeDay
 var LastTradeDay time.Time

@@ -150,31 +150,37 @@ func getBestCond(historyCount int, useGlobal bool) {
 	if useGlobal {
 		conds = append(conds, &global.TickAnalyzeCondition)
 	} else {
-		for m := 70; m >= 70; m -= 5 {
+		for m := 80; m >= 80; m -= 10 {
 			for u := 5; u <= 5; u += 5 {
 				for i := 50; i >= 50; i -= 5 {
-					for z := 0; z <= 5; z++ {
-						for o := 11; o >= 1; o -= 2 {
-							for p := 1; p <= 5; p++ {
-								for v := 3; v <= 6; v++ {
-									cond := simulationcond.AnalyzeCondition{
-										HistoryCloseCount:    int64(historyCount),
-										OutInRatio:           float64(m),
-										ReverseOutInRatio:    float64(u),
-										CloseDiff:            0,
-										CloseChangeRatioLow:  -1,
-										CloseChangeRatioHigh: 8,
-										OpenChangeRatio:      4,
-										RsiHigh:              float64(i) + float64(z)/10,
-										RsiLow:               float64(i),
-										ReverseRsiHigh:       float64(i) + float64(z)/10,
-										ReverseRsiLow:        float64(i),
-										TicksPeriodThreshold: float64(o),
-										TicksPeriodLimit:     float64(o) * 1.3,
-										TicksPeriodCount:     p,
-										VolumePerSecond:      int64(v),
+					for z := 0; z <= 1; z++ {
+						for o := 5; o >= 5; o -= 2 {
+							for p := 1; p <= 1; p++ {
+								for v := 5; v <= 5; v++ {
+									for g := -5; g <= 0; g++ {
+										for h := 3; h <= 8; h++ {
+											for j := 3; j <= 8; j++ {
+												cond := simulationcond.AnalyzeCondition{
+													HistoryCloseCount:    int64(historyCount),
+													OutInRatio:           float64(m),
+													ReverseOutInRatio:    float64(u),
+													CloseDiff:            0,
+													CloseChangeRatioLow:  float64(g),
+													CloseChangeRatioHigh: float64(h),
+													OpenChangeRatio:      float64(j),
+													RsiHigh:              float64(i) + float64(z)/10,
+													RsiLow:               float64(i),
+													ReverseRsiHigh:       float64(i) + float64(z)/10,
+													ReverseRsiLow:        float64(i),
+													TicksPeriodThreshold: float64(o),
+													TicksPeriodLimit:     float64(o) * 1.3,
+													TicksPeriodCount:     p,
+													VolumePerSecond:      int64(v),
+												}
+												conds = append(conds, &cond)
+											}
+										}
 									}
-									conds = append(conds, &cond)
 								}
 							}
 						}
