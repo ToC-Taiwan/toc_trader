@@ -19,9 +19,9 @@ const (
 	// ShortTimeLayout ShortTimeLayout
 	ShortTimeLayout string = "2006-01-02"
 	// TradeInEndHour TradeInEndHour
-	TradeInEndHour int = 12
+	TradeInEndHour int = 9
 	// TradeInEndMinute TradeInEndMinute
-	TradeInEndMinute int = 40
+	TradeInEndMinute int = 55
 	// TradeOutEndHour TradeOutEndHour
 	TradeOutEndHour int = 13
 	// TradeOutEndMinute TradeOutEndMinute

@@ -2,9 +2,9 @@
 package dbinit
 
 import (
-	_ "github.com/lib/pq" // postgres driver for "database/sql"
-
 	"database/sql"
+
+	_ "github.com/lib/pq" // postgres driver for "database/sql"
 
 	"gitlab.tocraw.com/root/toc_trader/init/sysparminit"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/parameters"

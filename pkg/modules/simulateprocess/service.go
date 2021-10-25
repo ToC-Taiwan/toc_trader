@@ -24,14 +24,16 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 )
 
-var balanceType string
-var allTickMap entireTickMap
-var resultChan chan simulate.Result
-var totalTimesChan chan int
-var totalTimes, finishTimes int
-var simulateDayArr []time.Time
-var targetArrMap targetArrMutex
-var discardOverTime bool
+var (
+	balanceType             string
+	allTickMap              entireTickMap
+	resultChan              chan simulate.Result
+	totalTimesChan          chan int
+	totalTimes, finishTimes int
+	simulateDayArr          []time.Time
+	targetArrMap            targetArrMutex
+	discardOverTime         bool
+)
 
 // Simulate Simulate
 func Simulate() {
@@ -150,35 +152,33 @@ func getBestCond(historyCount int, useGlobal bool) {
 	if useGlobal {
 		conds = append(conds, &global.TickAnalyzeCondition)
 	} else {
-		for m := 80; m >= 80; m -= 10 {
-			for u := 5; u <= 5; u += 5 {
+		for m := 95; m >= 80; m -= 5 {
+			for u := 3; u <= 9; u += 3 {
 				for i := 50; i >= 50; i -= 5 {
-					for z := 0; z <= 1; z++ {
-						for o := 5; o >= 5; o -= 2 {
-							for p := 1; p <= 1; p++ {
-								for v := 5; v <= 5; v++ {
-									for g := -5; g <= 0; g++ {
-										for h := 3; h <= 8; h++ {
-											for j := 3; j <= 8; j++ {
-												cond := simulationcond.AnalyzeCondition{
-													HistoryCloseCount:    int64(historyCount),
-													OutInRatio:           float64(m),
-													ReverseOutInRatio:    float64(u),
-													CloseDiff:            0,
-													CloseChangeRatioLow:  float64(g),
-													CloseChangeRatioHigh: float64(h),
-													OpenChangeRatio:      float64(j),
-													RsiHigh:              float64(i) + float64(z)/10,
-													RsiLow:               float64(i),
-													ReverseRsiHigh:       float64(i) + float64(z)/10,
-													ReverseRsiLow:        float64(i),
-													TicksPeriodThreshold: float64(o),
-													TicksPeriodLimit:     float64(o) * 1.3,
-													TicksPeriodCount:     p,
-													VolumePerSecond:      int64(v),
-												}
-												conds = append(conds, &cond)
+					for z := 0; z <= 5; z++ {
+						for o := 10; o >= 10; o -= 2 {
+							for p := 1; p <= 2; p++ {
+								for v := 5; v <= 8; v++ {
+									for g := -3; g <= -3; g++ {
+										for h := 7; h >= 7; h-- {
+											cond := simulationcond.AnalyzeCondition{
+												HistoryCloseCount:    int64(historyCount),
+												OutInRatio:           float64(m),
+												ReverseOutInRatio:    float64(u),
+												CloseDiff:            0,
+												CloseChangeRatioLow:  float64(g),
+												CloseChangeRatioHigh: float64(h),
+												OpenChangeRatio:      float64(h),
+												RsiHigh:              float64(i) + float64(z)/10,
+												RsiLow:               float64(i),
+												ReverseRsiHigh:       float64(i) + float64(z)/10,
+												ReverseRsiLow:        float64(i),
+												TicksPeriodThreshold: float64(o),
+												TicksPeriodLimit:     float64(o) * 1.3,
+												TicksPeriodCount:     p,
+												VolumePerSecond:      int64(v),
 											}
+											conds = append(conds, &cond)
 										}
 									}
 								}
@@ -260,8 +260,9 @@ func SearchTradePoint(tradeDayArr []time.Time, cond simulationcond.AnalyzeCondit
 func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.AnalyzeEntireTick, cond simulationcond.AnalyzeCondition, training bool, wg *sync.WaitGroup) {
 	defer wg.Done()
 	var forwardBalance, reverseBalance int64
-	var tradeCount int64
+	var tradeCount, positiveCount int64
 	for date, analyzeMap := range analyzeMapMap {
+		var dateForwardBalance, dateReverseBalance int64
 		if balanceType == "c" && (len(analyzeMap[0]) == 0 || len(analyzeMap[1]) == 0) && training {
 			totalTimesChan <- -1
 			return
@@ -269,7 +270,8 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 		sellTimeStamp := make(map[string]int64)
 		for stockNum, v := range analyzeMap[0] {
 			ticks := allTickMap.getAllTicksByStockNumAndDate(stockNum, date)
-			endTradeTime := getLastTradeTimeByEntireTickTimeStamp(ticks[0].TimeStamp)
+			endTradeInTime := getLastTradeInTimeByEntireTickTimeStamp(ticks[0].TimeStamp)
+			endTradeOutTime := getLastTradeOutTimeByEntireTickTimeStamp(ticks[0].TimeStamp)
 			var historyClose []float64
 			var buyPrice, sellPrice float64
 			for _, k := range ticks {
@@ -277,7 +279,7 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 				if len(historyClose) > int(cond.HistoryCloseCount) {
 					historyClose = historyClose[1:]
 				}
-				if k.TimeStamp == v.TimeStamp && buyPrice == 0 {
+				if k.TimeStamp == v.TimeStamp && buyPrice == 0 && v.TimeStamp < endTradeInTime {
 					historyClose = []float64{}
 					buyPrice = k.Close
 				}
@@ -289,27 +291,31 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 					}
 				}
 			}
-			if sellPrice == 0 {
+			if sellPrice == 0 && !training && buyPrice != 0 {
 				logger.GetLogger().Warnf("%s no sell point", stockNum)
 			} else {
 				buyCost := tradebot.GetStockBuyCost(buyPrice, global.OneTimeQuantity)
 				sellCost := tradebot.GetStockSellCost(sellPrice, global.OneTimeQuantity)
 				back := tradebot.GetStockTradeFeeDiscount(buyPrice, global.OneTimeQuantity) + tradebot.GetStockTradeFeeDiscount(sellPrice, global.OneTimeQuantity)
 				forwardBalance += (sellCost - buyCost + back)
-				if sellTimeStamp[v.StockNum] > endTradeTime && training && discardOverTime {
+				dateForwardBalance += (sellCost - buyCost + back)
+				if sellTimeStamp[v.StockNum] > endTradeOutTime && training && discardOverTime {
 					totalTimesChan <- -1
 					return
 				}
 				tradeCount++
-				if !training {
-					logger.GetLogger().Warnf("%s Forward Balance: %d, Stock: %s, Name: %s, Total Time: %d, %.2f, %.2f", date, sellCost-buyCost+back, v.StockNum, global.AllStockNameMap.GetName(v.StockNum), (sellTimeStamp[v.StockNum]-v.TimeStamp)/1000/1000/1000, buyPrice, sellPrice)
+				if !training && (sellCost-buyCost+back) != 0 {
+					buyTime := time.Unix(0, v.TimeStamp).Add(-8 * time.Hour)
+					sellTime := time.Unix(0, sellTimeStamp[v.StockNum]).Add(-8 * time.Hour)
+					logger.GetLogger().Warnf("%s Forward Balance: %d, Stock: %s, Name: %s, Buy at %s, Sell at %s", date, sellCost-buyCost+back, v.StockNum, global.AllStockNameMap.GetName(v.StockNum), buyTime.Format(global.LongTimeLayout), sellTime.Format(global.LongTimeLayout))
 				}
 			}
 		}
 		sellTimeStamp = make(map[string]int64)
 		for stockNum, v := range analyzeMap[1] {
 			ticks := allTickMap.getAllTicksByStockNumAndDate(stockNum, date)
-			endTradeTime := getLastTradeTimeByEntireTickTimeStamp(ticks[0].TimeStamp)
+			endTradeInTime := getLastTradeInTimeByEntireTickTimeStamp(ticks[0].TimeStamp)
+			endTradeOutTime := getLastTradeOutTimeByEntireTickTimeStamp(ticks[0].TimeStamp)
 			var historyClose []float64
 			var sellFirstPrice, buyLaterPrice float64
 			for _, k := range ticks {
@@ -317,7 +323,7 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 				if len(historyClose) > int(cond.HistoryCloseCount) {
 					historyClose = historyClose[1:]
 				}
-				if k.TimeStamp == v.TimeStamp && sellFirstPrice == 0 {
+				if k.TimeStamp == v.TimeStamp && sellFirstPrice == 0 && v.TimeStamp < endTradeInTime {
 					historyClose = []float64{}
 					sellFirstPrice = k.Close
 				}
@@ -329,22 +335,31 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 					}
 				}
 			}
-			if buyLaterPrice == 0 {
+			if buyLaterPrice == 0 && !training && sellFirstPrice != 0 {
 				logger.GetLogger().Warnf("%s no buy later point", stockNum)
 			} else {
 				buyCost := tradebot.GetStockBuyCost(buyLaterPrice, global.OneTimeQuantity)
 				sellCost := tradebot.GetStockSellCost(sellFirstPrice, global.OneTimeQuantity)
 				back := tradebot.GetStockTradeFeeDiscount(buyLaterPrice, global.OneTimeQuantity) + tradebot.GetStockTradeFeeDiscount(sellFirstPrice, global.OneTimeQuantity)
-				if sellTimeStamp[v.StockNum] > endTradeTime && training && discardOverTime {
+				if sellTimeStamp[v.StockNum] > endTradeOutTime && training && discardOverTime {
 					totalTimesChan <- -1
 					return
 				}
 				tradeCount++
 				reverseBalance += (sellCost - buyCost + back)
-				if !training {
-					logger.GetLogger().Warnf("%s Reverse Balance: %d, Stock: %s, Name: %s, Total Time: %d, %.2f, %.2f", date, sellCost-buyCost+back, v.StockNum, global.AllStockNameMap.GetName(v.StockNum), (sellTimeStamp[v.StockNum]-v.TimeStamp)/1000/1000/1000, buyLaterPrice, sellFirstPrice)
+				dateReverseBalance += (sellCost - buyCost + back)
+				if !training && (sellCost-buyCost+back) != 0 {
+					sellFirstTime := time.Unix(0, v.TimeStamp).Add(-8 * time.Hour)
+					buyLaterTime := time.Unix(0, sellTimeStamp[v.StockNum]).Add(-8 * time.Hour)
+					logger.GetLogger().Warnf("%s Reverse Balance: %d, Stock: %s, Name: %s, Sell first at %s, Buy later at %s", date, sellCost-buyCost+back, v.StockNum, global.AllStockNameMap.GetName(v.StockNum), sellFirstTime.Format(global.LongTimeLayout), buyLaterTime.Format(global.LongTimeLayout))
 				}
 			}
+		}
+		if !training {
+			logger.GetLogger().Warnf("%s Forward: %d, Reverse: %d", date, dateForwardBalance, dateReverseBalance)
+		}
+		if dateForwardBalance+dateReverseBalance > 0 {
+			positiveCount++
 		}
 	}
 	tmp := simulate.Result{
@@ -353,11 +368,13 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 		ReverseBalance: reverseBalance,
 		TradeCount:     tradeCount,
 		Cond:           cond,
+		PositiveDays:   positiveCount,
+		TotalDays:      int64(len(analyzeMapMap)),
 	}
 	if training {
 		resultChan <- tmp
 	} else {
-		logger.GetLogger().Warnf("Total Balance: %d, TradeCount: %d", tmp.Balance, tradeCount)
+		logger.GetLogger().Warnf("Total Balance: %d, TradeCount: %d, PositiveCount: %d", tmp.Balance, tradeCount, positiveCount)
 		logger.GetLogger().Warnf("Cond: %+v", cond)
 	}
 }

@@ -72,6 +72,20 @@ WARN[2021/10/21 21:47:22] 2021-10-21 Reverse Balance: 61, Stock: 2340, Name: 光
 WARN[2021/10/21 21:47:22] 2021-10-21 Reverse Balance: -190, Stock: 3481, Name: 群創, Total Time: 2049, 15.55, 15.40
 WARN[2021/10/21 21:47:22] Total Balance: 5341, TradeCount: 19
 WARN[2021/10/21 21:47:22] Cond: {Model:{ID:5409 CreatedAt:2021-10-21 21:44:06.483372 +0800 CST UpdatedAt:2021-10-21 21:44:06.483372 +0800 CST DeletedAt:{Time:0001-01-01 00:00:00 +0000 UTC Valid:false}} HistoryCloseCount:2500 OutInRatio:70 ReverseOutInRatio:5 CloseDiff:0 CloseChangeRatioLow:-1 CloseChangeRatioHigh:8 OpenChangeRatio:4 RsiHigh:50.1 RsiLow:50 ReverseRsiHigh:50.1 ReverseRsiLow:50 TicksPeriodThreshold:5 TicksPeriodLimit:6.5 TicksPeriodCount:1 VolumePerSecond:5}
+
+WARN[2021/10/26 01:36:39] 2021-10-25 Reverse Balance: 1065, Stock: 5351, Name: 鈺創, Total Time: 2072, 51.20, 52.40
+WARN[2021/10/26 01:36:39] 2021-10-25 Reverse Balance: 105, Stock: 2340, Name: 光磊, Total Time: 6161, 36.80, 37.00
+WARN[2021/10/26 01:36:39] 2021-10-25 Forward: 0, Reverse: 1170
+WARN[2021/10/26 01:36:39] 2021-10-22 Reverse Balance: -519, Stock: 3508, Name: 位速, Total Time: 3917, 26.85, 26.40
+WARN[2021/10/26 01:36:39] 2021-10-22 Reverse Balance: 882, Stock: 1710, Name: 東聯, Total Time: 7372, 25.70, 26.65
+WARN[2021/10/26 01:36:39] 2021-10-22 Forward: 0, Reverse: 363
+WARN[2021/10/26 01:36:39] 2021-10-21 Reverse Balance: 505, Stock: 2401, Name: 凌陽, Total Time: 6275, 36.10, 36.70
+WARN[2021/10/26 01:36:39] 2021-10-21 Reverse Balance: 643, Stock: 2399, Name: 映泰, Total Time: 7644, 21.60, 22.30
+WARN[2021/10/26 01:36:39] 2021-10-21 Reverse Balance: -677, Stock: 1727, Name: 中華化, Total Time: 2418, 49.30, 48.75
+WARN[2021/10/26 01:36:39] 2021-10-21 Reverse Balance: 976, Stock: 2498, Name: 宏達電, Total Time: 716, 47.15, 48.25
+WARN[2021/10/26 01:36:39] 2021-10-21 Forward: 0, Reverse: 1447
+WARN[2021/10/26 01:36:39] Total Balance: 2980, TradeCount: 23, PositiveCount: 3
+WARN[2021/10/26 01:36:39] Cond: {Model:{ID:41638 CreatedAt:2021-10-26 01:23:54.539557 +0800 CST UpdatedAt:2021-10-26 01:23:54.539557 +0800 CST DeletedAt:{Time:0001-01-01 00:00:00 +0000 UTC Valid:false}} HistoryCloseCount:2000 OutInRatio:80 ReverseOutInRatio:6 CloseDiff:0 CloseChangeRatioLow:0 CloseChangeRatioHigh:6 OpenChangeRatio:3 RsiHigh:50.1 RsiLow:50 ReverseRsiHigh:50.1 ReverseRsiLow:50 TicksPeriodThreshold:9 TicksPeriodLimit:11.700000000000001 TicksPeriodCount:2 VolumePerSecond:6}
 ```
 
 ### Trade Bot Service

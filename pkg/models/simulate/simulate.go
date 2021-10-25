@@ -13,6 +13,8 @@ type Result struct {
 	ForwardBalance int64 `gorm:"column:forward_balance;"`
 	ReverseBalance int64 `gorm:"column:reverse_balance;"`
 	TradeCount     int64 `gorm:"column:trade_count;"`
+	PositiveDays   int64 `gorm:"column:positive_days;"`
+	TotalDays      int64 `gorm:"column:total_days;"`
 	CondID         int64
 	Cond           simulationcond.AnalyzeCondition `gorm:"foreignKey:CondID"`
 }
