@@ -19,9 +19,9 @@ const (
 	// ShortTimeLayout ShortTimeLayout
 	ShortTimeLayout string = "2006-01-02"
 	// TradeInEndHour TradeInEndHour
-	TradeInEndHour int = 9
+	TradeInEndHour int = 10
 	// TradeInEndMinute TradeInEndMinute
-	TradeInEndMinute int = 55
+	TradeInEndMinute int = 15
 	// TradeOutEndHour TradeOutEndHour
 	TradeOutEndHour int = 13
 	// TradeOutEndMinute TradeOutEndMinute
@@ -34,8 +34,11 @@ var ExitChannel chan int
 // TradeDay TradeDay
 var TradeDay time.Time
 
-// TradeInDayEndTime TradeInDayEndTime
-var TradeInDayEndTime time.Time
+// TradeDayInEndTime TradeDayInEndTime
+var TradeDayInEndTime time.Time
+
+// TradeDayOutEndTime TradeDayOutEndTime
+var TradeDayOutEndTime time.Time
 
 // LastTradeDay LastTradeDay
 var LastTradeDay time.Time
@@ -67,5 +70,11 @@ var AllStockNameMap stringStringMutex
 // StockCloseByDateMap StockCloseByDateMap
 var StockCloseByDateMap stringStringFloat64Mutex
 
-// TickAnalyzeCondition TickAnalyzeCondition
-var TickAnalyzeCondition simulationcond.AnalyzeCondition
+// CentralCond CentralCond
+var CentralCond simulationcond.AnalyzeCondition
+
+// ForwardCond ForwardCond
+var ForwardCond simulationcond.AnalyzeCondition
+
+// ReverseCond ReverseCond
+var ReverseCond simulationcond.AnalyzeCondition

@@ -2,6 +2,7 @@
 package globalinit
 
 import (
+	"os"
 	"time"
 
 	"gitlab.tocraw.com/root/toc_trader/init/sysparminit"
@@ -28,22 +29,67 @@ func init() {
 		MeanTimeReverseTradeStockNum: 25,
 	}
 
-	global.TickAnalyzeCondition = simulationcond.AnalyzeCondition{
-		HistoryCloseCount:    1500,
-		OutInRatio:           80,
-		ReverseOutInRatio:    6,
-		CloseDiff:            0,
-		CloseChangeRatioLow:  -3,
-		CloseChangeRatioHigh: 7,
-		OpenChangeRatio:      7,
-		RsiHigh:              50.1,
-		RsiLow:               50,
-		ReverseRsiHigh:       50.1,
-		ReverseRsiLow:        50,
-		TicksPeriodThreshold: 10,
-		TicksPeriodLimit:     10 * 1.3,
-		TicksPeriodCount:     1,
-		VolumePerSecond:      7,
+	deployment := os.Getenv("DEPLOYMENT")
+	if deployment != "docker" {
+		global.TradeSwitch.Buy = false
+		global.TradeSwitch.SellFirst = false
+	}
+
+	global.CentralCond = simulationcond.AnalyzeCondition{
+		TrimHistoryCloseCount: true,
+		HistoryCloseCount:     2500,
+		OutInRatio:            60,
+		ReverseOutInRatio:     10,
+		CloseDiff:             0,
+		CloseChangeRatioLow:   -3,
+		CloseChangeRatioHigh:  7,
+		OpenChangeRatio:       7,
+		RsiHigh:               50,
+		RsiLow:                50,
+		ReverseRsiHigh:        50,
+		ReverseRsiLow:         50,
+		TicksPeriodThreshold:  10,
+		TicksPeriodLimit:      10 * 1.3,
+		TicksPeriodCount:      1,
+		VolumePerSecond:       5,
+	}
+
+	global.ForwardCond = simulationcond.AnalyzeCondition{
+		TrimHistoryCloseCount: true,
+		HistoryCloseCount:     2500,
+		OutInRatio:            90,
+		ReverseOutInRatio:     3,
+		CloseDiff:             0,
+		CloseChangeRatioLow:   -3,
+		CloseChangeRatioHigh:  7,
+		OpenChangeRatio:       7,
+		RsiHigh:               50.4,
+		RsiLow:                50,
+		ReverseRsiHigh:        50.4,
+		ReverseRsiLow:         50,
+		TicksPeriodThreshold:  10,
+		TicksPeriodLimit:      10 * 1.3,
+		TicksPeriodCount:      2,
+		VolumePerSecond:       5,
+	}
+
+	global.ReverseCond = simulationcond.AnalyzeCondition{
+		TrimHistoryCloseCount: true,
+		HistoryCloseCount:     2500,
+		OutInRatio:            90,
+		ReverseOutInRatio:     6,
+		CloseDiff:             0,
+		CloseChangeRatioLow:   -3,
+		CloseChangeRatioHigh:  7,
+		OpenChangeRatio:       7,
+		RsiHigh:               50.4,
+		RsiLow:                50,
+		ReverseRsiHigh:        50.4,
+		ReverseRsiLow:         50,
+		TicksPeriodThreshold:  10,
+		TicksPeriodLimit:      10 * 1.3,
+		TicksPeriodCount:      1,
+		VolumePerSecond:       10,
 	}
 
 	if err = importbasic.ImportHoliday(); err != nil {
@@ -53,12 +99,21 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	global.TradeInDayEndTime = time.Date(
+	global.TradeDayInEndTime = time.Date(
 		global.TradeDay.Year(),
 		global.TradeDay.Month(),
 		global.TradeDay.Day(),
 		global.TradeInEndHour,
 		global.TradeInEndMinute,
+		0,
+		0,
+		time.Local)
+	global.TradeDayOutEndTime = time.Date(
+		global.TradeDay.Year(),
+		global.TradeDay.Month(),
+		global.TradeDay.Day(),
+		global.TradeOutEndHour,
+		global.TradeOutEndMinute,
 		0,
 		0,
 		time.Local)
@@ -76,6 +131,9 @@ func init() {
 	}).Info("Last Trade Days")
 
 	logger.GetLogger().WithFields(map[string]interface{}{
-		"TradeInDayEndTime": global.TradeInDayEndTime.Format(global.LongTimeLayout),
-	}).Info("Trade End Time")
+		"TradeDayInEndTime": global.TradeDayInEndTime.Format(global.LongTimeLayout),
+	}).Info("Trade In End Time")
+	logger.GetLogger().WithFields(map[string]interface{}{
+		"TradeDayInEndTime": global.TradeDayOutEndTime.Format(global.LongTimeLayout),
+	}).Info("Trade Out End Time")
 }

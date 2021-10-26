@@ -46,7 +46,7 @@ func CheckOrderStatusLoop() {
 func showStatus() {
 	tick := time.Tick(60 * time.Second)
 	for range tick {
-		if isCurrentOrderAllFinished() && time.Now().Before(global.TradeInDayEndTime.Add(2*time.Hour)) {
+		if isCurrentOrderAllFinished() && time.Now().Before(global.TradeDayOutEndTime.Add(2*time.Hour)) {
 			balance := FilledSellOrderMap.GetTotalSellCost() + FilledSellFirstOrderMap.GetTotalSellCost() - FilledBuyLaterOrderMap.GetTotalBuyCost() - FilledBuyOrderMap.GetTotalBuyCost()
 			back := FilledBuyOrderMap.GetTotalCostBack() + FilledSellOrderMap.GetTotalCostBack() + FilledSellFirstOrderMap.GetTotalCostBack() + FilledBuyLaterOrderMap.GetTotalCostBack()
 			logger.GetLogger().WithFields(map[string]interface{}{
@@ -69,7 +69,7 @@ func showStatus() {
 func tradeSwitch() {
 	tick := time.Tick(20 * time.Second)
 	for range tick {
-		if time.Now().After(global.TradeInDayEndTime) && (global.TradeSwitch.Buy || global.TradeSwitch.SellFirst) {
+		if time.Now().After(global.TradeDayInEndTime) && (global.TradeSwitch.Buy || global.TradeSwitch.SellFirst) {
 			global.TradeSwitch.Buy = false
 			global.TradeSwitch.SellFirst = false
 			logger.GetLogger().Warn("Enable buy and Sell first are all OFF")

@@ -16,25 +16,25 @@ import (
 
 // TickProcess TickProcess
 func TickProcess(lastClose float64, cond simulationcond.AnalyzeCondition, ch chan *streamtick.StreamTick, saveCh chan []*streamtick.StreamTick) {
+	var input quote.Quote
+	var unSavedTicks streamtick.PtrArrArr
+	var tmpArr streamtick.PtrArr
+	var lastSaveLastClose, openChangeRatio float64
 	var sellChan, buyLaterChan chan *streamtick.StreamTick
 	if lastClose == 0 {
 		return
 	}
 	analyzeTickChan := make(chan *analyzestreamtick.AnalyzeStreamTick)
-	go tradebot.TradeAgent(analyzeTickChan, cond)
+	go tradebot.TradeAgent(analyzeTickChan)
 
-	if global.TradeSwitch.Buy {
-		buyLaterChan = make(chan *streamtick.StreamTick)
-		go tradebot.BuyLaterBot(buyLaterChan, cond)
-	}
 	if global.TradeSwitch.Sell {
 		sellChan = make(chan *streamtick.StreamTick)
-		go tradebot.SellBot(sellChan, cond)
+		go tradebot.SellBot(sellChan, global.ForwardCond, &input.Close)
 	}
-	var input quote.Quote
-	var unSavedTicks streamtick.PtrArrArr
-	var tmpArr streamtick.PtrArr
-	var lastSaveLastClose, openChangeRatio float64
+	if global.TradeSwitch.BuyLater {
+		buyLaterChan = make(chan *streamtick.StreamTick)
+		go tradebot.BuyLaterBot(buyLaterChan, global.ReverseCond, &input.Close)
+	}
 	for {
 		tick := <-ch
 		if openChangeRatio == 0 {
@@ -71,7 +71,7 @@ func TickProcess(lastClose float64, cond simulationcond.AnalyzeCondition, ch cha
 			if len(input.Close) < int(cond.HistoryCloseCount) {
 				unSavedTicks.ClearAll()
 				continue
-			} else {
+			} else if cond.TrimHistoryCloseCount {
 				input.Close = input.Close[len(input.Close)-int(cond.HistoryCloseCount):]
 			}
 			rsi, err := tickanalyze.GenerateRSI(input)

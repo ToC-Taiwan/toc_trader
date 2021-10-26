@@ -2,7 +2,6 @@
 package simulateprocess
 
 import (
-	"fmt"
 	"sync"
 	"time"
 
@@ -101,7 +100,7 @@ func Simulate() {
 			panic(err)
 		} else {
 			for i, v := range targets {
-				fmt.Printf("%s volume rank no. %d is %s\n", date.Format(global.ShortTimeLayout), i+1, global.AllStockNameMap.GetName(v))
+				logger.GetLogger().Infof("%s volume rank no. %d is %s\n", date.Format(global.ShortTimeLayout), i+1, global.AllStockNameMap.GetName(v))
 			}
 			targetArrMap.saveByDate(tradeDayArr[i-1].Format(global.ShortTimeLayout), targets)
 			for {
@@ -114,7 +113,7 @@ func Simulate() {
 				}
 			}
 			tmp := []time.Time{tradeDayArr[i-1]}
-			fetchentiretick.FetchEntireTick(targets, tmp, global.TickAnalyzeCondition)
+			fetchentiretick.FetchEntireTick(targets, tmp, global.CentralCond)
 			storeAllEntireTick(targets, tmp)
 		}
 	}
@@ -128,7 +127,7 @@ func Simulate() {
 
 	var wg sync.WaitGroup
 	if useGlobal {
-		getBestCond(int(global.TickAnalyzeCondition.HistoryCloseCount), useGlobal)
+		getBestCond(int(global.CentralCond.HistoryCloseCount), useGlobal)
 	} else {
 		for i := 2500; i >= 1500; i -= 500 {
 			wg.Add(1)
@@ -150,33 +149,34 @@ func getBestCond(historyCount int, useGlobal bool) {
 	var wg sync.WaitGroup
 	var conds []*simulationcond.AnalyzeCondition
 	if useGlobal {
-		conds = append(conds, &global.TickAnalyzeCondition)
+		conds = append(conds, &global.CentralCond)
 	} else {
 		for m := 95; m >= 80; m -= 5 {
-			for u := 3; u <= 9; u += 3 {
-				for i := 50; i >= 50; i -= 5 {
+			for u := 3; u <= 3; u += 3 {
+				for i := 50; i >= 50; i-- {
 					for z := 0; z <= 5; z++ {
 						for o := 10; o >= 10; o -= 2 {
-							for p := 1; p <= 2; p++ {
-								for v := 5; v <= 8; v++ {
+							for p := 2; p >= 1; p-- {
+								for v := 10; v >= 5; v-- {
 									for g := -3; g <= -3; g++ {
 										for h := 7; h >= 7; h-- {
 											cond := simulationcond.AnalyzeCondition{
-												HistoryCloseCount:    int64(historyCount),
-												OutInRatio:           float64(m),
-												ReverseOutInRatio:    float64(u),
-												CloseDiff:            0,
-												CloseChangeRatioLow:  float64(g),
-												CloseChangeRatioHigh: float64(h),
-												OpenChangeRatio:      float64(h),
-												RsiHigh:              float64(i) + float64(z)/10,
-												RsiLow:               float64(i),
-												ReverseRsiHigh:       float64(i) + float64(z)/10,
-												ReverseRsiLow:        float64(i),
-												TicksPeriodThreshold: float64(o),
-												TicksPeriodLimit:     float64(o) * 1.3,
-												TicksPeriodCount:     p,
-												VolumePerSecond:      int64(v),
+												TrimHistoryCloseCount: true,
+												HistoryCloseCount:     int64(historyCount),
+												OutInRatio:            float64(m),
+												ReverseOutInRatio:     float64(u),
+												CloseDiff:             0,
+												CloseChangeRatioLow:   float64(g),
+												CloseChangeRatioHigh:  float64(h),
+												OpenChangeRatio:       float64(h),
+												RsiHigh:               float64(i) + float64(z)/10,
+												RsiLow:                float64(i),
+												ReverseRsiHigh:        float64(i) + float64(z)/10,
+												ReverseRsiLow:         float64(i),
+												TicksPeriodThreshold:  float64(o),
+												TicksPeriodLimit:      float64(o) * 1.3,
+												TicksPeriodCount:      p,
+												VolumePerSecond:       int64(v),
 											}
 											conds = append(conds, &cond)
 										}
@@ -276,11 +276,11 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 			var buyPrice, sellPrice float64
 			for _, k := range ticks {
 				historyClose = append(historyClose, k.Close)
-				if len(historyClose) > int(cond.HistoryCloseCount) {
+				if len(historyClose) > int(cond.HistoryCloseCount) && cond.TrimHistoryCloseCount {
 					historyClose = historyClose[1:]
 				}
 				if k.TimeStamp == v.TimeStamp && buyPrice == 0 && v.TimeStamp < endTradeInTime {
-					historyClose = []float64{}
+					// historyClose = []float64{}
 					buyPrice = k.Close
 				}
 				if buyPrice != 0 {
@@ -320,11 +320,11 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 			var sellFirstPrice, buyLaterPrice float64
 			for _, k := range ticks {
 				historyClose = append(historyClose, k.Close)
-				if len(historyClose) > int(cond.HistoryCloseCount) {
+				if len(historyClose) > int(cond.HistoryCloseCount) && cond.TrimHistoryCloseCount {
 					historyClose = historyClose[1:]
 				}
 				if k.TimeStamp == v.TimeStamp && sellFirstPrice == 0 && v.TimeStamp < endTradeInTime {
-					historyClose = []float64{}
+					// historyClose = []float64{}
 					sellFirstPrice = k.Close
 				}
 				if sellFirstPrice != 0 {

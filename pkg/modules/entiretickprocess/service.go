@@ -78,7 +78,7 @@ func TickProcess(stockNum string, lastClose float64, cond simulationcond.Analyze
 			if len(input.Close) < int(cond.HistoryCloseCount) {
 				unSavedTicks.ClearAll()
 				continue
-			} else {
+			} else if cond.TrimHistoryCloseCount {
 				input.Close = input.Close[len(input.Close)-int(cond.HistoryCloseCount):]
 			}
 			closeDiff := common.Round((unSavedTicks.GetLastClose() - lastSaveLastClose), 2)

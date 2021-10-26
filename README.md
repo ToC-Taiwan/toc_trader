@@ -95,3 +95,34 @@ WARN[2021/10/26 01:36:39] Cond: {Model:{ID:41638 CreatedAt:2021-10-26 01:23:54.5
 ## Authors
 
 - [**Tim Hsu**](https://gitlab.tocraw.com/root)
+
+```log
+WARN[2021/10/27 03:29:39] 2021-10-25 Reverse Balance: -195, Stock: 2337, Name: 旺宏, Sell first at 2021-10-25 11:15:21, Buy later at 2021-10-25 11:15:58
+WARN[2021/10/27 03:29:39] 2021-10-25 Reverse Balance: -189, Stock: 2014, Name: 中鴻, Sell first at 2021-10-25 10:41:22, Buy later at 2021-10-25 10:42:32
+WARN[2021/10/27 03:29:39] 2021-10-25 Reverse Balance: 102, Stock: 2401, Name: 凌陽, Sell first at 2021-10-25 09:33:20, Buy later at 2021-10-25 09:37:31
+WARN[2021/10/27 03:29:39] 2021-10-25 Reverse Balance: -169, Stock: 1710, Name: 東聯, Sell first at 2021-10-25 10:21:07, Buy later at 2021-10-25 10:22:48
+WARN[2021/10/27 03:29:39] 2021-10-25 Reverse Balance: -166, Stock: 1711, Name: 永光, Sell first at 2021-10-25 09:44:10, Buy later at 2021-10-25 09:44:12
+WARN[2021/10/27 03:29:39] 2021-10-25 Reverse Balance: 491, Stock: 1308, Name: 亞聚, Sell first at 2021-10-25 11:55:38, Buy later at 2021-10-25 13:10:06
+WARN[2021/10/27 03:29:39] 2021-10-25 Reverse Balance: 306, Stock: 2340, Name: 光磊, Sell first at 2021-10-25 09:29:21, Buy later at 2021-10-25 09:44:22
+WARN[2021/10/27 03:29:39] 2021-10-25 Reverse Balance: -16, Stock: 2344, Name: 華邦電, Sell first at 2021-10-25 12:20:53, Buy later at 2021-10-25 13:10:00
+WARN[2021/10/27 03:29:39] 2021-10-25 Reverse Balance: -207, Stock: 2328, Name: 廣宇, Sell first at 2021-10-25 09:51:44, Buy later at 2021-10-25 09:51:56
+WARN[2021/10/27 03:29:39] 2021-10-25 Reverse Balance: -228, Stock: 2388, Name: 威盛, Sell first at 2021-10-25 09:57:35, Buy later at 2021-10-25 09:57:52
+WARN[2021/10/27 03:29:39] 2021-10-25 Reverse Balance: -218, Stock: 1727, Name: 中華化, Sell first at 2021-10-25 09:51:54, Buy later at 2021-10-25 09:52:11
+WARN[2021/10/27 03:29:39] 2021-10-25 Reverse Balance: -165, Stock: 2023, Name: 燁輝, Sell first at 2021-10-25 11:45:01, Buy later at 2021-10-25 11:45:03
+WARN[2021/10/27 03:29:39] 2021-10-25 Reverse Balance: 143, Stock: 3062, Name: 建漢, Sell first at 2021-10-25 09:06:23, Buy later at 2021-10-25 09:06:23
+WARN[2021/10/27 03:29:39] 2021-10-25 Reverse Balance: 164, Stock: 5351, Name: 鈺創, Sell first at 2021-10-25 09:25:02, Buy later at 2021-10-25 09:25:37
+WARN[2021/10/27 03:29:39] 2021-10-25 Forward: 0, Reverse: -347
+WARN[2021/10/27 03:29:39] 2021-10-26 Reverse Balance: -166, Stock: 2426, Name: 鼎元, Sell first at 2021-10-26 11:41:54, Buy later at 2021-10-26 11:43:57
+WARN[2021/10/27 03:29:39] 2021-10-26 Reverse Balance: 81, Stock: 2344, Name: 華邦電, Sell first at 2021-10-26 09:35:40, Buy later at 2021-10-26 09:42:19
+WARN[2021/10/27 03:29:39] 2021-10-26 Reverse Balance: 201, Stock: 2340, Name: 光磊, Sell first at 2021-10-26 09:14:29, Buy later at 2021-10-26 09:16:29
+WARN[2021/10/27 03:29:39] 2021-10-26 Reverse Balance: -199, Stock: 2337, Name: 旺宏, Sell first at 2021-10-26 10:28:30, Buy later at 2021-10-26 10:29:08
+WARN[2021/10/27 03:29:39] 2021-10-26 Reverse Balance: 501, Stock: 2401, Name: 凌陽, Sell first at 2021-10-26 09:56:03, Buy later at 2021-10-26 10:11:55
+WARN[2021/10/27 03:29:39] 2021-10-26 Reverse Balance: -27, Stock: 1101, Name: 台泥, Sell first at 2021-10-26 11:00:44, Buy later at 2021-10-26 11:22:29
+WARN[2021/10/27 03:29:39] 2021-10-26 Reverse Balance: 35, Stock: 2104, Name: 國際中橡, Sell first at 2021-10-26 11:09:04, Buy later at 2021-10-26 11:21:05
+WARN[2021/10/27 03:29:39] 2021-10-26 Reverse Balance: 239, Stock: 3062, Name: 建漢, Sell first at 2021-10-26 09:42:43, Buy later at 2021-10-26 09:43:38
+WARN[2021/10/27 03:29:39] 2021-10-26 Reverse Balance: -174, Stock: 2605, Name: 新興, Sell first at 2021-10-26 12:12:22, Buy later at 2021-10-26 12:44:52
+WARN[2021/10/27 03:29:39] 2021-10-26 Reverse Balance: 331, Stock: 3323, Name: 加百裕, Sell first at 2021-10-26 09:11:45, Buy later at 2021-10-26 09:15:38
+WARN[2021/10/27 03:29:39] 2021-10-26 Forward: 0, Reverse: 822
+WARN[2021/10/27 03:29:39] Total Balance: 475, TradeCount: 26, PositiveCount: 1
+WARN[2021/10/27 03:29:39] Cond: {Model:{ID:43008 CreatedAt:2021-10-27 03:25:48.810576 +0800 CST UpdatedAt:2021-10-27 03:25:48.810576 +0800 CST DeletedAt:{Time:0001-01-01 00:00:00 +0000 UTC Valid:false}} TrimHistoryCloseCount:true HistoryCloseCount:1500 OutInRatio:95 ReverseOutInRatio:4 CloseDiff:0 CloseChangeRatioLow:-3 CloseChangeRatioHigh:7 OpenChangeRatio:7 RsiHigh:50.4 RsiLow:50 ReverseRsiHigh:50.4 ReverseRsiLow:50 TicksPeriodThreshold:6 TicksPeriodLimit:7.800000000000001 TicksPeriodCount:1 VolumePerSecond:8}
+```

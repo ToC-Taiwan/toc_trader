@@ -2,7 +2,6 @@
 package core
 
 import (
-	"fmt"
 	"os"
 	"time"
 
@@ -52,10 +51,10 @@ func TradeProcess() {
 		global.TargetArr = targets
 		choosetarget.SubscribeTarget(global.TargetArr)
 		for i, v := range targets {
-			fmt.Printf("%s volume rank no. %d is %s\n", global.LastTradeDay.Format(global.ShortTimeLayout), i+1, global.AllStockNameMap.GetName(v))
+			logger.GetLogger().Infof("%s volume rank no. %d is %s\n", global.LastTradeDay.Format(global.ShortTimeLayout), i+1, global.AllStockNameMap.GetName(v))
 		}
 		tmp := []time.Time{global.LastTradeDay}
-		fetchentiretick.FetchEntireTick(targets, tmp, global.TickAnalyzeCondition)
+		fetchentiretick.FetchEntireTick(targets, tmp, global.CentralCond)
 		if dbTarget, err := targetstock.GetTargetByTime(global.LastTradeDay, db.GetAgent()); err != nil {
 			panic(err)
 		} else if len(dbTarget) == 0 {

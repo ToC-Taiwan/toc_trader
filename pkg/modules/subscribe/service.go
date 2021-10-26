@@ -46,7 +46,7 @@ func SubStreamTick(stockArr []string) {
 		}
 		ch := make(chan *streamtick.StreamTick)
 		StreamTickChannelMap.Set(stockNum, ch)
-		go streamtickprocess.TickProcess(lastClose, global.TickAnalyzeCondition, ch, saveCh)
+		go streamtickprocess.TickProcess(lastClose, global.CentralCond, ch, saveCh)
 	}
 
 	stocks := SubBody{
