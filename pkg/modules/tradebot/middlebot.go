@@ -6,15 +6,24 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/analyzestreamtick"
 )
 
-// TradeAgent TradeAgent
-func TradeAgent(ch chan *analyzestreamtick.AnalyzeStreamTick) {
+// BuyAgent BuyAgent
+func BuyAgent(ch chan *analyzestreamtick.AnalyzeStreamTick) {
 	for {
 		analyzeTick := <-ch
-		if checkInBuyMap(analyzeTick.StockNum) || checkInSellFirstMap(analyzeTick.StockNum) {
+		if checkInBuyMap(analyzeTick.StockNum) {
 			continue
 		}
 		if IsBuyPoint(analyzeTick, global.ForwardCond) && global.TradeSwitch.Buy {
 			go BuyBot(analyzeTick)
+		}
+	}
+}
+
+// SellFirstAgent SellFirstAgent
+func SellFirstAgent(ch chan *analyzestreamtick.AnalyzeStreamTick) {
+	for {
+		analyzeTick := <-ch
+		if checkInSellFirstMap(analyzeTick.StockNum) {
 			continue
 		}
 		if IsSellFirstPoint(analyzeTick, global.ReverseCond) && global.TradeSwitch.SellFirst {

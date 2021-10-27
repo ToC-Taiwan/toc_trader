@@ -151,17 +151,17 @@ func getBestCond(historyCount int, useGlobal bool) {
 	if useGlobal {
 		conds = append(conds, &global.CentralCond)
 	} else {
-		for m := 95; m >= 80; m -= 5 {
-			for u := 3; u <= 3; u += 3 {
-				for i := 50; i >= 50; i-- {
-					for z := 0; z <= 5; z++ {
-						for o := 10; o >= 10; o -= 2 {
+		for m := 80; m >= 80; m -= 5 {
+			for u := 3; u <= 12; u += 3 {
+				for i := 50; i <= 50; i++ {
+					for z := 1; z <= 10; z++ {
+						for o := 10; o >= 6; o -= 2 {
 							for p := 2; p >= 1; p-- {
-								for v := 10; v >= 5; v-- {
+								for v := 12; v >= 6; v -= 2 {
 									for g := -3; g <= -3; g++ {
 										for h := 7; h >= 7; h-- {
 											cond := simulationcond.AnalyzeCondition{
-												TrimHistoryCloseCount: true,
+												TrimHistoryCloseCount: false,
 												HistoryCloseCount:     int64(historyCount),
 												OutInRatio:            float64(m),
 												ReverseOutInRatio:     float64(u),
@@ -169,10 +169,10 @@ func getBestCond(historyCount int, useGlobal bool) {
 												CloseChangeRatioLow:   float64(g),
 												CloseChangeRatioHigh:  float64(h),
 												OpenChangeRatio:       float64(h),
-												RsiHigh:               float64(i) + float64(z)/10,
-												RsiLow:                float64(i),
-												ReverseRsiHigh:        float64(i) + float64(z)/10,
-												ReverseRsiLow:         float64(i),
+												RsiHigh:               float64(i) - float64(z)*0.2,
+												RsiLow:                47,
+												ReverseRsiHigh:        float64(i) - float64(z)*0.2,
+												ReverseRsiLow:         47,
 												TicksPeriodThreshold:  float64(o),
 												TicksPeriodLimit:      float64(o) * 1.3,
 												TicksPeriodCount:      p,

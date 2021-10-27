@@ -16,8 +16,11 @@ import (
 // SucessStatus SucessStatus
 const SucessStatus string = "success"
 
-// StreamTickChannelMap StreamTickChannelMap
-var StreamTickChannelMap streamTickChannelMapMutexStruct
+// ForwardStreamTickChannelMap ForwardStreamTickChannelMap
+var ForwardStreamTickChannelMap streamTickChannelMapMutexStruct
+
+// ReverseStreamTickChannelMap ReverseStreamTickChannelMap
+var ReverseStreamTickChannelMap streamTickChannelMapMutexStruct
 
 // SubStreamTick SubStreamTick
 func SubStreamTick(stockArr []string) {
@@ -35,6 +38,7 @@ func SubStreamTick(stockArr []string) {
 			logger.GetLogger().Error(err.Error() + "\n" + string(debug.Stack()))
 		}
 	}()
+
 	saveCh := make(chan []*streamtick.StreamTick, len(stockArr)*3)
 	go streamtickprocess.SaveStreamTicks(saveCh)
 
@@ -44,9 +48,14 @@ func SubStreamTick(stockArr []string) {
 			logger.GetLogger().Warnf("Stock %s has no lastClose", stockNum)
 			continue
 		}
-		ch := make(chan *streamtick.StreamTick)
-		StreamTickChannelMap.Set(stockNum, ch)
-		go streamtickprocess.TickProcess(lastClose, global.CentralCond, ch, saveCh)
+
+		forwardCh := make(chan *streamtick.StreamTick)
+		ForwardStreamTickChannelMap.Set(stockNum, forwardCh)
+		go streamtickprocess.ForwardTickProcess(lastClose, global.ForwardCond, forwardCh, saveCh)
+
+		reverseCh := make(chan *streamtick.StreamTick)
+		ReverseStreamTickChannelMap.Set(stockNum, reverseCh)
+		go streamtickprocess.ReverseTickProcess(lastClose, global.ReverseCond, reverseCh)
 	}
 
 	stocks := SubBody{

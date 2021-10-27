@@ -13,22 +13,22 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 )
 
-// ForwardTickProcess ForwardTickProcess
-func ForwardTickProcess(lastClose float64, cond simulationcond.AnalyzeCondition, ch chan *streamtick.StreamTick, saveCh chan []*streamtick.StreamTick) {
+// ReverseTickProcess ReverseTickProcess
+func ReverseTickProcess(lastClose float64, cond simulationcond.AnalyzeCondition, ch chan *streamtick.StreamTick) {
 	var input quote.Quote
 	var unSavedTicks streamtick.PtrArrArr
 	var tmpArr streamtick.PtrArr
 	var lastSaveLastClose, openChangeRatio float64
-	var sellChan chan *streamtick.StreamTick
+	var buyLaterChan chan *streamtick.StreamTick
 	if lastClose == 0 {
 		return
 	}
 	analyzeTickChan := make(chan *analyzestreamtick.AnalyzeStreamTick)
-	go tradebot.BuyAgent(analyzeTickChan)
+	go tradebot.SellFirstAgent(analyzeTickChan)
 
-	if global.TradeSwitch.Sell {
-		sellChan = make(chan *streamtick.StreamTick)
-		go tradebot.SellBot(sellChan, global.ForwardCond, &input.Close)
+	if global.TradeSwitch.BuyLater {
+		buyLaterChan = make(chan *streamtick.StreamTick)
+		go tradebot.BuyLaterBot(buyLaterChan, global.ReverseCond, &input.Close)
 	}
 	for {
 		tick := <-ch
@@ -36,8 +36,8 @@ func ForwardTickProcess(lastClose float64, cond simulationcond.AnalyzeCondition,
 			openChangeRatio = common.Round((tick.Open - lastClose), 2)
 		}
 		tmpArr = append(tmpArr, tick)
-		if tradebot.FilledBuyOrderMap.CheckStockExist(tick.StockNum) {
-			sellChan <- tick
+		if tradebot.FilledSellFirstOrderMap.CheckStockExist(tick.StockNum) {
+			buyLaterChan <- tick
 		}
 
 		if tmpArr.GetTotalTime() < cond.TicksPeriodThreshold {
@@ -47,7 +47,6 @@ func ForwardTickProcess(lastClose float64, cond simulationcond.AnalyzeCondition,
 			unSavedTicks.ClearAll()
 		}
 		unSavedTicks.Append(tmpArr)
-		saveCh <- tmpArr
 		tmpArr = []*streamtick.StreamTick{}
 
 		if unSavedTicks.GetCount() >= cond.TicksPeriodCount {

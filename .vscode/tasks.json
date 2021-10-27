@@ -19,7 +19,7 @@
         {
             "label": "Start local postgres",
             "type": "shell",
-            "command": "pg_ctl -D ~/dev_projects/postgres_data -l ~/dev_projects/postgres_data/logfile start"
+            "command": "pg_ctl -D ./data/toc_trader -l ./data/toc_trader/logfile start"
         },
         {
             "label": "Remove log",
@@ -29,7 +29,7 @@
         {
             "label": "End local postgres",
             "type": "shell",
-            "command": "pg_ctl -D ~/dev_projects/postgres_data -l ~/dev_projects/postgres_data/logfile stop"
+            "command": "pg_ctl -D ./data/toc_trader -l ./data/toc_trader/logfile stop"
         },
         {
             "label": "Remove binary",
@@ -40,7 +40,6 @@
             "label": "Pre Launch",
             "dependsOn": [
                 "Start local postgres",
-                "Remove log",
                 "Build",
                 "Launch terminal",
             ]

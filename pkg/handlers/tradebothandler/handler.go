@@ -69,7 +69,8 @@ func ReceiveStreamTick(c *gin.Context) {
 		return
 	}
 	if tmp.TimeStamp != 0 {
-		*subscribe.StreamTickChannelMap.GetChannelByStockNum(req.Tick.Code) <- tmp
+		*subscribe.ForwardStreamTickChannelMap.GetChannelByStockNum(req.Tick.Code) <- tmp
+		*subscribe.ReverseStreamTickChannelMap.GetChannelByStockNum(req.Tick.Code) <- tmp
 	}
 	c.JSON(http.StatusOK, nil)
 }
