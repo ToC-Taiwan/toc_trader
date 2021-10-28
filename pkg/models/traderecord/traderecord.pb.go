@@ -7,11 +7,10 @@
 package traderecord
 
 import (
-	reflect "reflect"
-	sync "sync"
-
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -204,14 +203,11 @@ func file_trade_bot_protobuf_src_traderecord_proto_rawDescGZIP() []byte {
 	return file_trade_bot_protobuf_src_traderecord_proto_rawDescData
 }
 
-var (
-	file_trade_bot_protobuf_src_traderecord_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-	file_trade_bot_protobuf_src_traderecord_proto_goTypes  = []interface{}{
-		(*TradeRecordArrProto)(nil), // 0: trade_record_protobuf.TradeRecordArrProto
-		(*TradeRecordProto)(nil),    // 1: trade_record_protobuf.TradeRecordProto
-	}
-)
-
+var file_trade_bot_protobuf_src_traderecord_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_trade_bot_protobuf_src_traderecord_proto_goTypes = []interface{}{
+	(*TradeRecordArrProto)(nil), // 0: trade_record_protobuf.TradeRecordArrProto
+	(*TradeRecordProto)(nil),    // 1: trade_record_protobuf.TradeRecordProto
+}
 var file_trade_bot_protobuf_src_traderecord_proto_depIdxs = []int32{
 	1, // 0: trade_record_protobuf.TradeRecordArrProto.data:type_name -> trade_record_protobuf.TradeRecordProto
 	1, // [1:1] is the sub-list for method output_type

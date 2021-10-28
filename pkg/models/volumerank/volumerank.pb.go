@@ -7,11 +7,10 @@
 package volumerank
 
 import (
-	reflect "reflect"
-	sync "sync"
-
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -401,14 +400,11 @@ func file_trade_bot_protobuf_src_volumerank_proto_rawDescGZIP() []byte {
 	return file_trade_bot_protobuf_src_volumerank_proto_rawDescData
 }
 
-var (
-	file_trade_bot_protobuf_src_volumerank_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-	file_trade_bot_protobuf_src_volumerank_proto_goTypes  = []interface{}{
-		(*VolumeRankArrProto)(nil), // 0: volume_rank_protobuf.VolumeRankArrProto
-		(*VolumeRankProto)(nil),    // 1: volume_rank_protobuf.VolumeRankProto
-	}
-)
-
+var file_trade_bot_protobuf_src_volumerank_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_trade_bot_protobuf_src_volumerank_proto_goTypes = []interface{}{
+	(*VolumeRankArrProto)(nil), // 0: volume_rank_protobuf.VolumeRankArrProto
+	(*VolumeRankProto)(nil),    // 1: volume_rank_protobuf.VolumeRankProto
+}
 var file_trade_bot_protobuf_src_volumerank_proto_depIdxs = []int32{
 	1, // 0: volume_rank_protobuf.VolumeRankArrProto.data:type_name -> volume_rank_protobuf.VolumeRankProto
 	1, // [1:1] is the sub-list for method output_type
