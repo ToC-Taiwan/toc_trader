@@ -2,7 +2,7 @@
 package streamtick
 
 import (
-	"gitlab.tocraw.com/root/toc_trader/tools/common"
+	"gitlab.tocraw.com/root/toc_trader/internal/common"
 	"gorm.io/gorm"
 )
 
@@ -52,19 +52,6 @@ type Tabler interface {
 // TableName TableName
 func (StreamTick) TableName() string {
 	return "tick_stream"
-}
-
-// SinoPacStreamTick SinoPacStreamTick
-type SinoPacStreamTick struct {
-	Topic     string    `json:"topic"`
-	AmountSum []float64 `json:"AmountSum"`
-	Close     []float64 `json:"Close"`
-	Date      string    `json:"Date"`
-	Simtrade  int64     `json:"Simtrade"`
-	TickType  []int64   `json:"TickType"`
-	Time      string    `json:"Time"`
-	VolSum    []int64   `json:"VolSum"`
-	Volume    []int64   `json:"Volume"`
 }
 
 // ProtoToStreamTick ProtoToStreamTick

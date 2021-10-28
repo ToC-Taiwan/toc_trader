@@ -6,8 +6,8 @@ import (
 	"runtime/debug"
 	"sync"
 
+	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tradeeventprocess"
-	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 )
 
 var lock sync.RWMutex

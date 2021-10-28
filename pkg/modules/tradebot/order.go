@@ -3,13 +3,15 @@ package tradebot
 
 import (
 	"errors"
+	"net/http"
 
+	"gitlab.tocraw.com/root/toc_trader/external/sinopacsrv"
+	"gitlab.tocraw.com/root/toc_trader/internal/rest"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
-	"gitlab.tocraw.com/root/toc_trader/tools/rest"
 )
 
 // PlaceOrder PlaceOrder
-func PlaceOrder(action OrderAction, stockNum string, stockQuantity int64, stockPrice float64) (returnOrder global.PyServerResponse, err error) {
+func PlaceOrder(action OrderAction, stockNum string, stockQuantity int64, stockPrice float64) (returnOrder sinopacsrv.OrderResponse, err error) {
 	var url string
 	switch action {
 	case BuyAction:
@@ -26,14 +28,14 @@ func PlaceOrder(action OrderAction, stockNum string, stockQuantity int64, stockP
 	}
 	resp, err := rest.GetClient().R().
 		SetBody(order).
-		SetResult(&global.PyServerResponse{}).
+		SetResult(&sinopacsrv.OrderResponse{}).
 		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + url)
 	if err != nil {
 		return returnOrder, err
-	} else if resp.StatusCode() != 200 {
+	} else if resp.StatusCode() != http.StatusOK {
 		return returnOrder, errors.New("PlaceOrder api fail")
 	}
-	res := *resp.Result().(*global.PyServerResponse)
+	res := *resp.Result().(*sinopacsrv.OrderResponse)
 	return res, err
 }
 
@@ -44,21 +46,38 @@ func Cancel(orderID string) (err error) {
 	}
 	resp, err := rest.GetClient().R().
 		SetBody(order).
-		SetResult(&global.PyServerResponse{}).
+		SetResult(&sinopacsrv.OrderResponse{}).
 		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/trade/cancel")
 	if err != nil {
 		return err
-	} else if resp.StatusCode() != 200 {
+	} else if resp.StatusCode() != http.StatusOK {
 		return errors.New("Cancel api fail")
 	}
-	res := *resp.Result().(*global.PyServerResponse)
+	res := *resp.Result().(*sinopacsrv.OrderResponse)
 	switch res.Status {
-	case "fail":
-		return errors.New(string(CancelFail))
-	case "already":
-		return errors.New(string(CancelAlready))
-	case "none":
-		return errors.New(string(CancelNotFound))
+	case sinopacsrv.StatusFail:
+		return errors.New(sinopacsrv.StatusFail)
+	case sinopacsrv.StatusAlready:
+		return errors.New(sinopacsrv.StatusAlready)
+	case sinopacsrv.StatusNotFound:
+		return errors.New(sinopacsrv.StatusNotFound)
+	}
+	return err
+}
+
+// FetchOrderStatus FetchOrderStatus
+func FetchOrderStatus() (err error) {
+	resp, err := rest.GetClient().R().
+		SetResult(&sinopacsrv.SinoStatusResponse{}).
+		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/trade/status")
+	if err != nil {
+		return err
+	} else if resp.StatusCode() != http.StatusOK {
+		return errors.New("FetchOrderStatus api fail")
+	}
+	res := *resp.Result().(*sinopacsrv.SinoStatusResponse)
+	if res.Status != sinopacsrv.StatusSuccuss {
+		return errors.New("FetchOrderStatus fail")
 	}
 	return err
 }

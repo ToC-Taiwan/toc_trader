@@ -7,13 +7,13 @@ import (
 	"sync"
 
 	"github.com/markcheno/go-quote"
+	"gitlab.tocraw.com/root/toc_trader/internal/common"
+	"gitlab.tocraw.com/root/toc_trader/internal/db"
+	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/analyzeentiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/entiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulationcond"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tickanalyze"
-	"gitlab.tocraw.com/root/toc_trader/tools/common"
-	"gitlab.tocraw.com/root/toc_trader/tools/db"
-	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 )
 
 // TickProcess TickProcess

@@ -2,8 +2,15 @@
 package tradebot
 
 import (
+	"time"
+
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/analyzestreamtick"
+)
+
+var (
+	tradeInWaitTime  time.Duration = 30 * time.Second
+	tradeOutWaitTime time.Duration = 45 * time.Second
 )
 
 // BuyAgent BuyAgent

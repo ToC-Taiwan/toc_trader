@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"gitlab.tocraw.com/root/toc_trader/tools/logger"
+	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 )
 
 var lock sync.Mutex

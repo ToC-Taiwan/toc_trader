@@ -5,15 +5,16 @@ import (
 	"time"
 
 	"github.com/markcheno/go-quote"
+	"gitlab.tocraw.com/root/toc_trader/external/sinopacsrv"
+	"gitlab.tocraw.com/root/toc_trader/internal/db"
+	"gitlab.tocraw.com/root/toc_trader/internal/logger"
+	"gitlab.tocraw.com/root/toc_trader/internal/stockutil"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/analyzestreamtick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulationcond"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/streamtick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/traderecord"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tickanalyze"
-	"gitlab.tocraw.com/root/toc_trader/tools/db"
-	"gitlab.tocraw.com/root/toc_trader/tools/logger"
-	"gitlab.tocraw.com/root/toc_trader/tools/stockutil"
 )
 
 // BuyOrderMap BuyOrderMap
@@ -81,15 +82,10 @@ func BuyBot(analyzeTick *analyzestreamtick.AnalyzeStreamTick) {
 
 // SellBot SellBot
 func SellBot(ch chan *streamtick.StreamTick, cond simulationcond.AnalyzeCondition, historyClosePtr *[]float64) {
-	// var historyClose []float64
 	var filled bool
 	for {
 		tick := <-ch
 		historyClose := *historyClosePtr
-		// historyClose = append(historyClose, tick.Close)
-		// if len(historyClose) > int(cond.HistoryCloseCount) && cond.TrimHistoryCloseCount {
-		// 	historyClose = historyClose[1:]
-		// }
 		if !filled {
 			if tmpFilled, err := traderecord.CheckIsFilledByOrderID(BuyOrderMap.GetOrderIDByStockNum(tick.StockNum), db.GetAgent()); err != nil {
 				logger.GetLogger().Error(err)
@@ -160,7 +156,7 @@ func GetSellPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyClose
 func CheckBuyOrderStatus(record traderecord.TradeRecord) {
 	var cancelAlready bool
 	for {
-		time.Sleep(1 * time.Second)
+		time.Sleep(time.Second)
 		order, err := traderecord.GetOrderByOrderID(record.OrderID, db.GetAgent())
 		if err != nil {
 			logger.GetLogger().Error(err)
@@ -187,9 +183,9 @@ func CheckBuyOrderStatus(record traderecord.TradeRecord) {
 			}).Info("Buy Stock Success")
 			return
 		}
-		if record.TradeTime.Add(30*time.Second).Before(time.Now()) && order.Status != 6 && order.Status != 5 && !cancelAlready {
+		if record.TradeTime.Add(tradeInWaitTime).Before(time.Now()) && order.Status != 6 && order.Status != 5 && !cancelAlready {
 			if err := Cancel(record.OrderID); err != nil {
-				if err.Error() == string(CancelAlready) {
+				if err.Error() == sinopacsrv.StatusAlready {
 					cancelAlready = true
 					continue
 				}
@@ -213,7 +209,7 @@ func CheckBuyOrderStatus(record traderecord.TradeRecord) {
 func CheckSellOrderStatus(record traderecord.TradeRecord) {
 	var cancelAlready bool
 	for {
-		time.Sleep(1 * time.Second)
+		time.Sleep(time.Second)
 		order, err := traderecord.GetOrderByOrderID(record.OrderID, db.GetAgent())
 		if err != nil {
 			logger.GetLogger().Error(err)
@@ -245,9 +241,9 @@ func CheckSellOrderStatus(record traderecord.TradeRecord) {
 			}).Info("Sell Stock Success")
 			return
 		}
-		if record.TradeTime.Add(45*time.Second).Before(time.Now()) && order.Status != 6 && order.Status != 5 && !cancelAlready {
+		if record.TradeTime.Add(tradeOutWaitTime).Before(time.Now()) && order.Status != 6 && order.Status != 5 && !cancelAlready {
 			if err := Cancel(record.OrderID); err != nil {
-				if err.Error() == string(CancelAlready) {
+				if err.Error() == sinopacsrv.StatusAlready {
 					cancelAlready = true
 					continue
 				}

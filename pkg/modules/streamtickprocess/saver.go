@@ -2,9 +2,9 @@
 package streamtickprocess
 
 import (
+	"gitlab.tocraw.com/root/toc_trader/internal/db"
+	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/streamtick"
-	"gitlab.tocraw.com/root/toc_trader/tools/db"
-	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 )
 
 // SaveStreamTicks SaveStreamTicks

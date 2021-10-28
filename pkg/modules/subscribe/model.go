@@ -1,8 +1,7 @@
 // Package subscribe package subscribe
 package subscribe
 
-// SubBody SubBody
-type SubBody struct {
+type subBody struct {
 	StockNumArr []string `json:"stock_num_arr"`
 }
 

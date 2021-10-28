@@ -3,18 +3,17 @@ package subscribe
 
 import (
 	"errors"
+	"net/http"
 	"runtime/debug"
 
+	"gitlab.tocraw.com/root/toc_trader/external/sinopacsrv"
+	"gitlab.tocraw.com/root/toc_trader/internal/logger"
+	"gitlab.tocraw.com/root/toc_trader/internal/rest"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/streamtick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/bidaskprocess"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/streamtickprocess"
-	"gitlab.tocraw.com/root/toc_trader/tools/logger"
-	"gitlab.tocraw.com/root/toc_trader/tools/rest"
 )
-
-// SucessStatus SucessStatus
-const SucessStatus string = "success"
 
 // ForwardStreamTickChannelMap ForwardStreamTickChannelMap
 var ForwardStreamTickChannelMap streamTickChannelMapMutexStruct
@@ -58,20 +57,20 @@ func SubStreamTick(stockArr []string) {
 		go streamtickprocess.ReverseTickProcess(lastClose, global.ReverseCond, reverseCh)
 	}
 
-	stocks := SubBody{
+	stocks := subBody{
 		StockNumArr: stockArr,
 	}
 	resp, err := rest.GetClient().R().
 		SetBody(stocks).
-		SetResult(&global.PyServerResponse{}).
+		SetResult(&sinopacsrv.OrderResponse{}).
 		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/subscribe/streamtick")
 	if err != nil {
 		panic(err)
-	} else if resp.StatusCode() != 200 {
+	} else if resp.StatusCode() != http.StatusOK {
 		panic("SubStreamTick api fail")
 	}
-	res := *resp.Result().(*global.PyServerResponse)
-	if res.Status != SucessStatus {
+	res := *resp.Result().(*sinopacsrv.OrderResponse)
+	if res.Status != sinopacsrv.StatusSuccuss {
 		panic("Subscribe fail")
 	}
 }
@@ -96,20 +95,20 @@ func SubBidAsk(stockArr []string) {
 	for _, stock := range stockArr {
 		go bidaskprocess.SaveBidAsk(stock)
 	}
-	stocks := SubBody{
+	stocks := subBody{
 		StockNumArr: stockArr,
 	}
 	resp, err := rest.GetClient().R().
 		SetBody(stocks).
-		SetResult(&global.PyServerResponse{}).
+		SetResult(&sinopacsrv.OrderResponse{}).
 		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/subscribe/bid-ask")
 	if err != nil {
 		panic(err)
-	} else if resp.StatusCode() != 200 {
+	} else if resp.StatusCode() != http.StatusOK {
 		panic("SubBidAsk api fail")
 	}
-	res := *resp.Result().(*global.PyServerResponse)
-	if res.Status != SucessStatus {
+	res := *resp.Result().(*sinopacsrv.OrderResponse)
+	if res.Status != sinopacsrv.StatusSuccuss {
 		panic("Subscribe bidask fail")
 	}
 }
@@ -138,15 +137,15 @@ func UnSubscribeAll(dataType TickType) {
 		url = "/pyapi/unsubscribeall/bid-ask"
 	}
 	resp, err := rest.GetClient().R().
-		SetResult(&global.PyServerResponse{}).
+		SetResult(&sinopacsrv.OrderResponse{}).
 		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + url)
 	if err != nil {
 		panic(err)
-	} else if resp.StatusCode() != 200 {
+	} else if resp.StatusCode() != http.StatusOK {
 		panic("UnSubscribeAll api fail")
 	}
-	res := *resp.Result().(*global.PyServerResponse)
-	if res.Status != SucessStatus {
+	res := *resp.Result().(*sinopacsrv.OrderResponse)
+	if res.Status != sinopacsrv.StatusSuccuss {
 		panic("Unsubscribe fail")
 	}
 }

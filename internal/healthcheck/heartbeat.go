@@ -3,9 +3,11 @@ package healthcheck
 
 import (
 	"errors"
+	"net/http"
 
+	"gitlab.tocraw.com/root/toc_trader/external/sinopacsrv"
+	"gitlab.tocraw.com/root/toc_trader/internal/rest"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
-	"gitlab.tocraw.com/root/toc_trader/tools/rest"
 )
 
 // FullRestart FullRestart
@@ -19,14 +21,14 @@ func FullRestart() (err error) {
 
 func askSinopacSRVRestart() error {
 	resp, err := rest.GetClient().R().
-		SetResult(&global.PyServerResponse{}).
+		SetResult(&sinopacsrv.OrderResponse{}).
 		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/system/restart")
 	if err != nil {
 		return err
-	} else if resp.StatusCode() != 200 {
+	} else if resp.StatusCode() != http.StatusOK {
 		return errors.New("askSinopacSRVRestart api fail")
 	}
-	res := *resp.Result().(*global.PyServerResponse)
+	res := *resp.Result().(*sinopacsrv.OrderResponse)
 	if res.Status != "success" {
 		return errors.New(res.Status)
 	}

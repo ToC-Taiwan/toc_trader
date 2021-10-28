@@ -276,28 +276,6 @@ paths:
       summary: FullRestart
       tags:
       - mainsystem
-  /system/pyserver/host:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: host
-        in: header
-        name: py_host
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-      summary: UpdatePyServerHost
-      tags:
-      - mainsystem
   /system/restart:
     get:
       consumes:

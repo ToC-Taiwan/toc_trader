@@ -4,9 +4,9 @@ package tradebot
 import (
 	"math"
 
+	"gitlab.tocraw.com/root/toc_trader/internal/db"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/traderecord"
-	"gitlab.tocraw.com/root/toc_trader/tools/db"
 )
 
 // TradeQuota TradeQuota
@@ -16,7 +16,7 @@ const (
 	// TradeFeeRatio TradeFeeRatio
 	TradeFeeRatio float64 = 0.001425
 	// FeeDiscount FeeDiscount
-	FeeDiscount float64 = 0.38
+	FeeDiscount float64 = 0.35
 	// TradeTaxRatio TradeTaxRatio
 	TradeTaxRatio float64 = 0.0015
 )

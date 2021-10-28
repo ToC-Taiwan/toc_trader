@@ -2,12 +2,16 @@
 package simulateprocess
 
 import (
+	"net/http"
 	"sync"
 	"time"
 
 	"github.com/manifoldco/promptui"
 	"github.com/vbauerster/mpb/v7"
 	"github.com/vbauerster/mpb/v7/decor"
+	"gitlab.tocraw.com/root/toc_trader/internal/common"
+	"gitlab.tocraw.com/root/toc_trader/internal/db"
+	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/analyzeentiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/entiretick"
@@ -18,9 +22,6 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/fetchentiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/importbasic"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot"
-	"gitlab.tocraw.com/root/toc_trader/tools/common"
-	"gitlab.tocraw.com/root/toc_trader/tools/db"
-	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 )
 
 var (
@@ -96,7 +97,7 @@ func Simulate() {
 		if i == 0 {
 			continue
 		}
-		if targets, err := choosetarget.GetTargetByVolumeRankByDate(date.Format(global.ShortTimeLayout), 200); err != nil {
+		if targets, err := choosetarget.GetTargetByVolumeRankByDate(date.Format(global.ShortTimeLayout), http.StatusOK); err != nil {
 			panic(err)
 		} else {
 			for i, v := range targets {

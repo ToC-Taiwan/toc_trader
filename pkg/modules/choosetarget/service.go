@@ -3,13 +3,19 @@ package choosetarget
 
 import (
 	"errors"
+	"net/http"
 	"runtime/debug"
 	"sort"
 	"strconv"
 	"sync"
 	"time"
 
+	"gitlab.tocraw.com/root/toc_trader/external/sinopacsrv"
 	"gitlab.tocraw.com/root/toc_trader/init/sysparminit"
+	"gitlab.tocraw.com/root/toc_trader/internal/db"
+	"gitlab.tocraw.com/root/toc_trader/internal/healthcheck"
+	"gitlab.tocraw.com/root/toc_trader/internal/logger"
+	"gitlab.tocraw.com/root/toc_trader/internal/rest"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/entiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/snapshot"
@@ -21,10 +27,6 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/importbasic"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/subscribe"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot"
-	"gitlab.tocraw.com/root/toc_trader/tools/db"
-	"gitlab.tocraw.com/root/toc_trader/tools/healthcheck"
-	"gitlab.tocraw.com/root/toc_trader/tools/logger"
-	"gitlab.tocraw.com/root/toc_trader/tools/rest"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -71,7 +73,7 @@ func GetTopTarget(count int) (targetArr []string, err error) {
 		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/basic/update/snapshot")
 	if err != nil {
 		return targetArr, err
-	} else if resp.StatusCode() != 200 {
+	} else if resp.StatusCode() != http.StatusOK {
 		return targetArr, errors.New("GetTopTarget api fail")
 	}
 	body := snapshot.SnapShotArrProto{}
@@ -213,7 +215,7 @@ func UpdateLastStockVolume() {
 		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/basic/update/snapshot")
 	if err != nil {
 		panic(err)
-	} else if resp.StatusCode() != 200 {
+	} else if resp.StatusCode() != http.StatusOK {
 		panic("UpdateLastStockVolume api fail")
 	}
 	tmpMap := make(map[string]struct {
@@ -251,14 +253,14 @@ func UpdateStockCloseMapByDate(stockNumArr []string, dateArr []time.Time) error 
 		resp, err := rest.GetClient().R().
 			SetHeader("X-Date", date.Format(global.ShortTimeLayout)).
 			SetBody(stockArr).
-			SetResult(&[]StockLastCount{}).
+			SetResult(&[]sinopacsrv.StockLastCount{}).
 			Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/history/lastcount")
 		if err != nil {
 			return err
-		} else if resp.StatusCode() != 200 {
+		} else if resp.StatusCode() != http.StatusOK {
 			return errors.New("UpdateStockCloseMapByDate api fail")
 		}
-		stockLastCountArr := *resp.Result().(*[]StockLastCount)
+		stockLastCountArr := *resp.Result().(*[]sinopacsrv.StockLastCount)
 		for _, val := range stockLastCountArr {
 			if len(val.Close) != 0 {
 				global.StockCloseByDateMap.Set(val.Date, val.Code, val.Close[0])
@@ -312,7 +314,7 @@ func GetTargetByVolumeRankByDate(date string, count int64) (rankArr []string, er
 		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/trade/volumerank")
 	if err != nil {
 		return rankArr, err
-	} else if resp.StatusCode() != 200 {
+	} else if resp.StatusCode() != http.StatusOK {
 		return rankArr, errors.New("GetVolumeRankByDate api fail")
 	}
 	body := volumerank.VolumeRankArrProto{}

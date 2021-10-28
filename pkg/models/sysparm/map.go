@@ -4,7 +4,7 @@ package sysparm
 import (
 	"encoding/json"
 
-	"gitlab.tocraw.com/root/toc_trader/tools/common"
+	"gitlab.tocraw.com/root/toc_trader/internal/common"
 )
 
 // GlobalSettingMap GlobalSettingMap

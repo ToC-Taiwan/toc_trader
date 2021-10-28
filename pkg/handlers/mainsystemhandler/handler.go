@@ -3,16 +3,15 @@ package mainsystemhandler
 
 import (
 	"encoding/json"
-	"errors"
 	"io/ioutil"
 	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"gitlab.tocraw.com/root/toc_trader/internal/healthcheck"
+	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/handlers"
-	"gitlab.tocraw.com/root/toc_trader/tools/healthcheck"
-	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 )
 
 // AddHandlers AddHandlers
@@ -21,7 +20,6 @@ func AddHandlers(group *gin.RouterGroup) {
 	group.GET("/system/full_restart", FullRestart)
 	group.GET("/system/trade/switch", GetTradeBotCondition)
 	group.PUT("/system/trade/switch", UpdateTradeBotCondition)
-	group.POST("/system/pyserver/host", UpdatePyServerHost)
 }
 
 // Restart Restart
@@ -98,28 +96,6 @@ func GetTradeBotCondition(c *gin.Context) {
 		MeanTimeTradeStockNum: global.TradeSwitch.MeanTimeTradeStockNum,
 	}
 	c.JSON(http.StatusOK, data)
-}
-
-// UpdatePyServerHost UpdatePyServerHost
-// @Summary UpdatePyServerHost
-// @tags mainsystem
-// @accept json
-// @produce json
-// @param py_host header string true "host"
-// @success 200
-// @failure 500 {object} handlers.ErrorResponse
-// @Router /system/pyserver/host [post]
-func UpdatePyServerHost(c *gin.Context) {
-	var res handlers.ErrorResponse
-	host := c.Request.Header.Get("py_host")
-	logger.GetLogger().Warnf("Change PyServer to %s", host)
-	if len(host) == 0 {
-		res.Response = errors.New("host format is wrong").Error()
-		c.JSON(http.StatusInternalServerError, res)
-		return
-	}
-	global.PyServerHost = host
-	c.JSON(http.StatusOK, nil)
 }
 
 // FullRestart FullRestart

@@ -37,8 +37,13 @@ func GetLogger() *logrus.Logger {
 			QuoteEmptyFields: true,
 			PadLevelText:     false,
 			ForceColors:      true,
+			// CallerPrettyfier: func(frame *runtime.Frame) (function string, file string) {
+			// 	fileName := path.Base(frame.File)
+			// 	return frame.Function, fileName
+			// },
 		})
 	}
+	// Log.SetReportCaller(true)
 	Log.SetLevel(logrus.TraceLevel)
 	Log.SetOutput(os.Stdout)
 	pathMap := lfshook.PathMap{

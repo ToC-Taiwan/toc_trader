@@ -7,10 +7,11 @@
 package kbar
 
 import (
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
+
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 )
 
 const (
@@ -189,11 +190,14 @@ func file_trade_bot_protobuf_src_kbar_proto_rawDescGZIP() []byte {
 	return file_trade_bot_protobuf_src_kbar_proto_rawDescData
 }
 
-var file_trade_bot_protobuf_src_kbar_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_trade_bot_protobuf_src_kbar_proto_goTypes = []interface{}{
-	(*KbarArrProto)(nil), // 0: kbar_protobuf.KbarArrProto
-	(*KbarProto)(nil),    // 1: kbar_protobuf.KbarProto
-}
+var (
+	file_trade_bot_protobuf_src_kbar_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+	file_trade_bot_protobuf_src_kbar_proto_goTypes  = []interface{}{
+		(*KbarArrProto)(nil), // 0: kbar_protobuf.KbarArrProto
+		(*KbarProto)(nil),    // 1: kbar_protobuf.KbarProto
+	}
+)
+
 var file_trade_bot_protobuf_src_kbar_proto_depIdxs = []int32{
 	1, // 0: kbar_protobuf.KbarArrProto.data:type_name -> kbar_protobuf.KbarProto
 	1, // [1:1] is the sub-list for method output_type

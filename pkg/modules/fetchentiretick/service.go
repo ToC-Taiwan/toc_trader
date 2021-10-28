@@ -3,18 +3,19 @@ package fetchentiretick
 
 import (
 	"errors"
+	"net/http"
 	"runtime/debug"
 	"sync"
 	"time"
 
+	"gitlab.tocraw.com/root/toc_trader/internal/db"
+	"gitlab.tocraw.com/root/toc_trader/internal/logger"
+	"gitlab.tocraw.com/root/toc_trader/internal/rest"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/entiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulationcond"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/entiretickprocess"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/importbasic"
-	"gitlab.tocraw.com/root/toc_trader/tools/db"
-	"gitlab.tocraw.com/root/toc_trader/tools/logger"
-	"gitlab.tocraw.com/root/toc_trader/tools/rest"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -87,7 +88,7 @@ func GetAndSaveEntireTick(stockNum, date string, cond simulationcond.AnalyzeCond
 		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/history/entiretick")
 	if err != nil {
 		panic(err)
-	} else if resp.StatusCode() != 200 {
+	} else if resp.StatusCode() != http.StatusOK {
 		panic("GetAndSaveEntireTick api fail")
 	}
 	res := entiretick.EntireTickArrProto{}
@@ -128,7 +129,7 @@ func FetchByDate(stockNum, date string) (data []*entiretick.EntireTick, err erro
 		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/history/entiretick")
 	if err != nil {
 		return data, err
-	} else if resp.StatusCode() != 200 {
+	} else if resp.StatusCode() != http.StatusOK {
 		return data, errors.New("FetchByDate api fail")
 	}
 	res := entiretick.EntireTickArrProto{}

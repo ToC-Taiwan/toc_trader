@@ -35,18 +35,6 @@ func (EntireTick) TableName() string {
 	return "tick_entire"
 }
 
-// SinoPacEntireTick SinoPacEntireTick
-type SinoPacEntireTick struct {
-	gorm.Model
-	AskPrice  float64 `gorm:"column:ask_price" json:"ask_price"`
-	AskVolume int64   `gorm:"column:ask_volume" json:"ask_volume"`
-	BidPrice  float64 `gorm:"column:bid_price" json:"bid_price"`
-	BidVolume int64   `gorm:"column:bid_volume" json:"bid_volume"`
-	Close     float64 `gorm:"column:close" json:"close"`
-	TS        int64   `gorm:"column:ts" json:"ts"`
-	Volume    int64   `gorm:"column:volume" json:"volume"`
-}
-
 // ProtoToEntireTick ProtoToEntireTick
 func (c *EntireTickProto) ProtoToEntireTick(stockNum string) (tick *EntireTick, err error) {
 	var tickType int64

@@ -4,10 +4,12 @@ package core
 import (
 	"errors"
 	"net"
+	"net/http"
 
+	"gitlab.tocraw.com/root/toc_trader/external/sinopacsrv"
+	"gitlab.tocraw.com/root/toc_trader/internal/logger"
+	"gitlab.tocraw.com/root/toc_trader/internal/rest"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
-	"gitlab.tocraw.com/root/toc_trader/tools/logger"
-	"gitlab.tocraw.com/root/toc_trader/tools/rest"
 )
 
 func sendCurrentIP() {
@@ -15,17 +17,17 @@ func sendCurrentIP() {
 	results := findMachineIP()
 	resp, err := rest.GetClient().R().
 		SetHeader("X-Trade-Bot-Host", results[len(results)-1]).
-		SetResult(&global.PyServerResponse{}).
+		SetResult(&sinopacsrv.OrderResponse{}).
 		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/system/tradebothost")
 	if err != nil {
 		logger.GetLogger().Error(err)
 		return
-	} else if resp.StatusCode() != 200 {
+	} else if resp.StatusCode() != http.StatusOK {
 		logger.GetLogger().Error("SendCurrentIP api fail")
 		return
 	}
-	res := *resp.Result().(*global.PyServerResponse)
-	if res.Status != "success" {
+	res := *resp.Result().(*sinopacsrv.OrderResponse)
+	if res.Status != sinopacsrv.StatusSuccuss {
 		logger.GetLogger().Error(errors.New("sendCurrentIP fail"))
 	}
 }

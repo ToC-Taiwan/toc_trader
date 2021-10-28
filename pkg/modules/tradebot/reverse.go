@@ -5,15 +5,16 @@ import (
 	"time"
 
 	"github.com/markcheno/go-quote"
+	"gitlab.tocraw.com/root/toc_trader/external/sinopacsrv"
+	"gitlab.tocraw.com/root/toc_trader/internal/db"
+	"gitlab.tocraw.com/root/toc_trader/internal/logger"
+	"gitlab.tocraw.com/root/toc_trader/internal/stockutil"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/analyzestreamtick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulationcond"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/streamtick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/traderecord"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tickanalyze"
-	"gitlab.tocraw.com/root/toc_trader/tools/db"
-	"gitlab.tocraw.com/root/toc_trader/tools/logger"
-	"gitlab.tocraw.com/root/toc_trader/tools/stockutil"
 )
 
 // SellFirstOrderMap SellFirstOrderMap
@@ -160,7 +161,7 @@ func GetBuyLaterPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyC
 func CheckSellFirstOrderStatus(record traderecord.TradeRecord) {
 	var cancelAlready bool
 	for {
-		time.Sleep(1 * time.Second)
+		time.Sleep(time.Second)
 		order, err := traderecord.GetOrderByOrderID(record.OrderID, db.GetAgent())
 		if err != nil {
 			logger.GetLogger().Error(err)
@@ -187,9 +188,9 @@ func CheckSellFirstOrderStatus(record traderecord.TradeRecord) {
 			}).Info("Sell First Stock Success")
 			return
 		}
-		if record.TradeTime.Add(30*time.Second).Before(time.Now()) && order.Status != 6 && order.Status != 5 && !cancelAlready {
+		if record.TradeTime.Add(tradeInWaitTime).Before(time.Now()) && order.Status != 6 && order.Status != 5 && !cancelAlready {
 			if err := Cancel(record.OrderID); err != nil {
-				if err.Error() == string(CancelAlready) {
+				if err.Error() == sinopacsrv.StatusAlready {
 					cancelAlready = true
 					continue
 				}
@@ -213,7 +214,7 @@ func CheckSellFirstOrderStatus(record traderecord.TradeRecord) {
 func CheckBuyLaterOrderStatus(record traderecord.TradeRecord) {
 	var cancelAlready bool
 	for {
-		time.Sleep(1 * time.Second)
+		time.Sleep(time.Second)
 		order, err := traderecord.GetOrderByOrderID(record.OrderID, db.GetAgent())
 		if err != nil {
 			logger.GetLogger().Error(err)
@@ -245,9 +246,9 @@ func CheckBuyLaterOrderStatus(record traderecord.TradeRecord) {
 			}).Info("Buy Later Stock Success")
 			return
 		}
-		if record.TradeTime.Add(45*time.Second).Before(time.Now()) && order.Status != 6 && order.Status != 5 && !cancelAlready {
+		if record.TradeTime.Add(tradeOutWaitTime).Before(time.Now()) && order.Status != 6 && order.Status != 5 && !cancelAlready {
 			if err := Cancel(record.OrderID); err != nil {
-				if err.Error() == string(CancelAlready) {
+				if err.Error() == sinopacsrv.StatusAlready {
 					cancelAlready = true
 					continue
 				}

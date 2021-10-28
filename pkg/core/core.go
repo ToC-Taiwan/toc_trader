@@ -7,6 +7,8 @@ import (
 
 	"github.com/manifoldco/promptui"
 	"gitlab.tocraw.com/root/toc_trader/init/sysparminit"
+	"gitlab.tocraw.com/root/toc_trader/internal/db"
+	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/stock"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/targetstock"
@@ -15,8 +17,6 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/importbasic"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/simulateprocess"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot"
-	"gitlab.tocraw.com/root/toc_trader/tools/db"
-	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 )
 
 // TradeProcess TradeProcess

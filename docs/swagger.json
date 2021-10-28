@@ -149,40 +149,6 @@
                 }
             }
         },
-        "/system/pyserver/host": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "mainsystem"
-                ],
-                "summary": "UpdatePyServerHost",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "host",
-                        "name": "py_host",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": ""
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/system/restart": {
             "get": {
                 "consumes": [

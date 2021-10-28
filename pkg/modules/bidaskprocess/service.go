@@ -4,9 +4,9 @@ package bidaskprocess
 import (
 	"time"
 
+	"gitlab.tocraw.com/root/toc_trader/internal/db"
+	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/bidask"
-	"gitlab.tocraw.com/root/toc_trader/tools/db"
-	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 )
 
 // TmpBidAskMap TmpBidAskMap

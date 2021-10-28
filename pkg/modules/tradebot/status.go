@@ -2,14 +2,12 @@
 package tradebot
 
 import (
-	"errors"
 	"time"
 
+	"gitlab.tocraw.com/root/toc_trader/internal/db"
+	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/traderecord"
-	"gitlab.tocraw.com/root/toc_trader/tools/db"
-	"gitlab.tocraw.com/root/toc_trader/tools/logger"
-	"gitlab.tocraw.com/root/toc_trader/tools/rest"
 )
 
 // StatusFirstBack StatusFirstBack
@@ -124,21 +122,4 @@ func initBalance(orders []traderecord.TradeRecord) {
 			"Price":    v.Price,
 		}).Warn("Filled Sell Order")
 	}
-}
-
-// FetchOrderStatus FetchOrderStatus
-func FetchOrderStatus() (err error) {
-	resp, err := rest.GetClient().R().
-		SetResult(&traderecord.SinoStatusResponse{}).
-		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/trade/status")
-	if err != nil {
-		return err
-	} else if resp.StatusCode() != 200 {
-		return errors.New("FetchOrderStatus api fail")
-	}
-	res := *resp.Result().(*traderecord.SinoStatusResponse)
-	if res.Status != global.SuccessStatus {
-		return errors.New("FetchOrderStatus fail")
-	}
-	return err
 }

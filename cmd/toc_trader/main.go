@@ -4,8 +4,8 @@ import (
 	"time"
 
 	_ "gitlab.tocraw.com/root/toc_trader/init/sysinit"
-	"gitlab.tocraw.com/root/toc_trader/tools/logger"
-	"gitlab.tocraw.com/root/toc_trader/tools/network"
+	"gitlab.tocraw.com/root/toc_trader/internal/logger"
+	"gitlab.tocraw.com/root/toc_trader/internal/network"
 
 	"github.com/gin-gonic/gin"
 	"gitlab.tocraw.com/root/toc_trader/init/sysparminit"

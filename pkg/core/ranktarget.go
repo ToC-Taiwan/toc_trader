@@ -4,9 +4,9 @@ package core
 import (
 	"time"
 
+	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/choosetarget"
-	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 )
 
 func addRankTarget() {

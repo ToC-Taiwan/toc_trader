@@ -7,10 +7,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/handlers"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/sysparm"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/parameters"
-	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 )
 
 // AddHandlers AddHandlers

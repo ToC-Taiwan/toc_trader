@@ -3,7 +3,7 @@ package rest
 
 import (
 	"github.com/go-resty/resty/v2"
-	"gitlab.tocraw.com/root/toc_trader/tools/logger"
+	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 )
 
 // Client Client

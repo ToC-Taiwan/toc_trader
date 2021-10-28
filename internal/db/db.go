@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"gitlab.tocraw.com/root/toc_trader/init/sysparminit"
+	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/analyzeentiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/analyzestreamtick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/bidask"
@@ -18,7 +19,6 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/targetstock"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/tradeevent"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/traderecord"
-	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 

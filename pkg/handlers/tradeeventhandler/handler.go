@@ -6,11 +6,11 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"gitlab.tocraw.com/root/toc_trader/internal/healthcheck"
+	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/handlers"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/tradeevent"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tradeeventprocess"
-	"gitlab.tocraw.com/root/toc_trader/tools/healthcheck"
-	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -54,7 +54,7 @@ func ReciveTradeEvent(c *gin.Context) {
 		"Info":      req.Info,
 		"EventCode": req.EventCode,
 		"Event":     req.Event,
-	}).Info("SinoPac Event")
+	}).Info("SinoPacSRV Event")
 	if req.EventCode == 401 {
 		logger.GetLogger().Error("Terminate, sinpac srv send 401")
 		healthcheck.RestartService()

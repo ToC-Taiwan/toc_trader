@@ -4,7 +4,7 @@ package fullrestart
 import (
 	"sync"
 
-	"gitlab.tocraw.com/root/toc_trader/tools/healthcheck"
+	"gitlab.tocraw.com/root/toc_trader/internal/healthcheck"
 )
 
 var lock sync.RWMutex

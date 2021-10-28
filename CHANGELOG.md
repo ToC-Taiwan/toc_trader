@@ -1,9 +1,12 @@
 # CHANGELOG
 
-## Unreleased (2021-10-22)
+## Unreleased (2021-10-28)
 
 ### New feature
 
+- **tradebot**: :fire: separate forward, reverse cond, fix status, add trim historyClose switch([`83bd6ec`](https://gitlab.tocraw.com/root/toc_trader/commit/83bd6ec6562e58bec03706ab0f52d6bc9ee59523)) (@TimHsu@M1BP-20210907)
+- **tradebot**: :fire: count positive days, shrink trade in time([`7bb62e6`](https://gitlab.tocraw.com/root/toc_trader/commit/7bb62e611de002f295e9d8219b331ce1036846a8)) (@TimHsu@M1BP-20210907)
+- **md**: :card_file_box: add changelog and contributing([`2409dcf`](https://gitlab.tocraw.com/root/toc_trader/commit/2409dcfda00e2d1851f85f9070afaca76cb85f18)) (@TimHsu@M1BP-20210907)
 - **tradebot**: :beers: separate buy and sell end time, modify cond([`355f0dc`](https://gitlab.tocraw.com/root/toc_trader/commit/355f0dca120df7ffddf14f1e9ffc2c75f16bd23a)) (@TimHsu@M1BP-20210907)
 - **debugee**: :twisted_rightwards_arrows: add debug configuration([`d779253`](https://gitlab.tocraw.com/root/toc_trader/commit/d7792539dbd4144f92a36f0b25cf2baaef58aff3)) (@TimHsu@M1BP-20210907)
 - **exec**: :twisted_rightwards_arrows: add windows support, change to prompt, split buy sell wait time([`b7f1a0a`](https://gitlab.tocraw.com/root/toc_trader/commit/b7f1a0a277d8f6c7983ff9e168b9736ee4d3c185)) (@TimHsu@M1BP-20210907)
@@ -14,6 +17,8 @@
 
 ### Bugs fixed
 
+- **tradebot**: :page_facing_up: fix cancel, add already, none cancel from sinopac_srv([`8727aea`](https://gitlab.tocraw.com/root/toc_trader/commit/8727aead78a477c850c1f025a56ab314c4e0302f)) (@TimHsu@M1BP-20210907)
+- **tradebot**: :sparkles: separate tickprocess to forward, reverse, try fix cancel fail but sucess([`8beb028`](https://gitlab.tocraw.com/root/toc_trader/commit/8beb0284e7a708d1c04ea8f497143c67ebfc307c)) (@TimHsu@M1BP-20210907)
 - **docker**: :pushpin: fix wrong config path again([`bcf9683`](https://gitlab.tocraw.com/root/toc_trader/commit/bcf9683f574aa3e58210a6a7e5ea0cbe437e900e)) (@TimHsu@M1BP-20210907)
 - **docker**: :rocket: fix wrong config path([`f6222bd`](https://gitlab.tocraw.com/root/toc_trader/commit/f6222bd42eba2f7245ac12005c1377075b7b6da1)) (@TimHsu@M1BP-20210907)
 - **target**: :white_check_mark: fix wrong target date([`0b06d83`](https://gitlab.tocraw.com/root/toc_trader/commit/0b06d83d0755807d41471ac51c9650fb80b2c0f0)) (@TimHsu@M1BP-20210907)

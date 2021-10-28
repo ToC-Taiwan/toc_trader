@@ -7,10 +7,11 @@
 package bidask
 
 import (
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
+
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 )
 
 const (
@@ -243,11 +244,14 @@ func file_trade_bot_protobuf_src_bidask_proto_rawDescGZIP() []byte {
 	return file_trade_bot_protobuf_src_bidask_proto_rawDescData
 }
 
-var file_trade_bot_protobuf_src_bidask_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_trade_bot_protobuf_src_bidask_proto_goTypes = []interface{}{
-	(*BidAskProto)(nil),            // 0: bidask_protobuf.BidAskProto
-	(*BidAskProto_BidAskData)(nil), // 1: bidask_protobuf.BidAskProto.BidAskData
-}
+var (
+	file_trade_bot_protobuf_src_bidask_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+	file_trade_bot_protobuf_src_bidask_proto_goTypes  = []interface{}{
+		(*BidAskProto)(nil),            // 0: bidask_protobuf.BidAskProto
+		(*BidAskProto_BidAskData)(nil), // 1: bidask_protobuf.BidAskProto.BidAskData
+	}
+)
+
 var file_trade_bot_protobuf_src_bidask_proto_depIdxs = []int32{
 	1, // 0: bidask_protobuf.BidAskProto.bid_ask:type_name -> bidask_protobuf.BidAskProto.BidAskData
 	1, // [1:1] is the sub-list for method output_type

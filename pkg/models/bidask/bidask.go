@@ -4,7 +4,7 @@ package bidask
 import (
 	"sort"
 
-	"gitlab.tocraw.com/root/toc_trader/tools/common"
+	"gitlab.tocraw.com/root/toc_trader/internal/common"
 	"gorm.io/gorm"
 )
 

@@ -3,14 +3,14 @@ package streamtickprocess
 
 import (
 	"github.com/markcheno/go-quote"
+	"gitlab.tocraw.com/root/toc_trader/internal/common"
+	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/analyzestreamtick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulationcond"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/streamtick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tickanalyze"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot"
-	"gitlab.tocraw.com/root/toc_trader/tools/common"
-	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 )
 
 // ForwardTickProcess ForwardTickProcess

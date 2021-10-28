@@ -3,14 +3,15 @@ package fetchentiretick
 
 import (
 	"errors"
+	"net/http"
 	"sync"
 	"time"
 
+	"gitlab.tocraw.com/root/toc_trader/internal/db"
+	"gitlab.tocraw.com/root/toc_trader/internal/logger"
+	"gitlab.tocraw.com/root/toc_trader/internal/rest"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/kbar"
-	"gitlab.tocraw.com/root/toc_trader/tools/db"
-	"gitlab.tocraw.com/root/toc_trader/tools/logger"
-	"gitlab.tocraw.com/root/toc_trader/tools/rest"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -78,7 +79,7 @@ func FetchKbarByDateRange(stockNum string, start, end time.Time, saveCh chan *kb
 		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/history/kbar")
 	if err != nil {
 		return err
-	} else if resp.StatusCode() != 200 {
+	} else if resp.StatusCode() != http.StatusOK {
 		return errors.New("FetchKbarByDateRange api fail")
 	}
 	res := kbar.KbarArrProto{}

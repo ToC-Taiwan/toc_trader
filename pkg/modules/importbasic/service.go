@@ -3,15 +3,17 @@ package importbasic
 
 import (
 	"errors"
+	"net/http"
 	"runtime/debug"
 	"time"
 
+	"gitlab.tocraw.com/root/toc_trader/external/sinopacsrv"
+	"gitlab.tocraw.com/root/toc_trader/internal/db"
+	"gitlab.tocraw.com/root/toc_trader/internal/logger"
+	"gitlab.tocraw.com/root/toc_trader/internal/rest"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/holiday"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/stock"
-	"gitlab.tocraw.com/root/toc_trader/tools/db"
-	"gitlab.tocraw.com/root/toc_trader/tools/logger"
-	"gitlab.tocraw.com/root/toc_trader/tools/rest"
 )
 
 // AllStockDetailMap AllStockDetailMap
@@ -34,7 +36,7 @@ func ImportAllStock() {
 		}
 	}()
 	// Update basic first
-	err = AskSinoPyUpdateBasic()
+	err = AskSinoSRVUpdateBasic()
 	if err != nil {
 		panic(err)
 	}
@@ -48,14 +50,14 @@ func ImportAllStock() {
 	}
 	// Get stock detail from Sinopac SRV
 	resp, err := rest.GetClient().R().
-		SetResult(&[]FetchStockBody{}).
+		SetResult(&[]sinopacsrv.FetchStockBody{}).
 		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/basic/importstock")
 	if err != nil {
 		panic(err)
-	} else if resp.StatusCode() != 200 {
+	} else if resp.StatusCode() != http.StatusOK {
 		panic("ImportAllStock api fail")
 	}
-	res := *resp.Result().(*[]FetchStockBody)
+	res := *resp.Result().(*[]sinopacsrv.FetchStockBody)
 	var importStock, already int64
 	var insertArr []stock.Stock
 	for _, v := range res {
@@ -228,17 +230,17 @@ func GetLastTradeDayByDate(tradeDay string) (lastTradeDay time.Time, err error) 
 }
 
 // AskSinoPyUpdateBasic AskSinoPyUpdateBasic
-func AskSinoPyUpdateBasic() (err error) {
+func AskSinoSRVUpdateBasic() (err error) {
 	resp, err := rest.GetClient().R().
-		SetResult(&global.PyServerResponse{}).
+		SetResult(&sinopacsrv.OrderResponse{}).
 		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/basic/update-basic")
 	if err != nil {
 		return err
-	} else if resp.StatusCode() != 200 {
+	} else if resp.StatusCode() != http.StatusOK {
 		return errors.New("AskSinoPyUpdateBasic api fail")
 	}
-	res := *resp.Result().(*global.PyServerResponse)
-	if res.Status != global.SuccessStatus {
+	res := *resp.Result().(*sinopacsrv.OrderResponse)
+	if res.Status != sinopacsrv.StatusSuccuss {
 		err = errors.New("sinopac srv update basic fail")
 	}
 	return err

@@ -2,7 +2,7 @@
 package stockutil
 
 import (
-	"gitlab.tocraw.com/root/toc_trader/tools/common"
+	"gitlab.tocraw.com/root/toc_trader/internal/common"
 )
 
 // GetNewClose GetNewClose

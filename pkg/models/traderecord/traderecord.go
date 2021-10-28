@@ -67,44 +67,6 @@ const (
 	Filling string = "Filling"
 )
 
-// SinoPacOrderStatus SinoPacOrderStatus
-type SinoPacOrderStatus struct {
-	Action    string  `json:"action"`
-	Code      string  `json:"code"`
-	ID        string  `json:"id"`
-	Price     float64 `json:"price"`
-	Quantity  int64   `json:"quantity"`
-	Status    string  `json:"status"`
-	OrderTime string  `json:"order_time"`
-}
-
-// ToTradeRecord ToTradeRecord
-// func (c *SinoPacOrderStatus) ToTradeRecord() (record *TradeRecord, err error) {
-// 	name := global.AllStockNameMap.GetName(c.Code)
-// 	orderTime, err := time.ParseInLocation(global.LongTimeLayout, c.OrderTime, time.Local)
-// 	if err != nil {
-// 		return record, err
-// 	}
-// 	status := StatusListMap[c.Status]
-// 	action := ActionListMap[c.Action]
-// 	return &TradeRecord{
-// 		StockNum:  c.Code,
-// 		StockName: name,
-// 		Action:    action,
-// 		Price:     c.Price,
-// 		Quantity:  c.Quantity,
-// 		Status:    status,
-// 		OrderID:   c.ID,
-// 		OrderTime: orderTime,
-// 	}, err
-// }
-
-// SinoStatusResponse SinoStatusResponse
-type SinoStatusResponse struct {
-	Status string               `json:"status"`
-	Data   []SinoPacOrderStatus `json:"data"`
-}
-
 // ToTradeRecordFromProto ToTradeRecordFromProto
 func (c *TradeRecordArrProto) ToTradeRecordFromProto() (record []*TradeRecord, err error) {
 	for _, v := range c.Data {

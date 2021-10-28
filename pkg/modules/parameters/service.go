@@ -6,8 +6,8 @@ import (
 	"runtime/debug"
 
 	"gitlab.tocraw.com/root/toc_trader/init/sysparminit"
+	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/sysparm"
-	"gitlab.tocraw.com/root/toc_trader/tools/logger"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
