@@ -24,3 +24,14 @@ const (
 	// SellFirstAction SellFirstAction
 	SellFirstAction
 )
+
+type orderError string
+
+const (
+	// CancelFail CancelFail
+	CancelFail orderError = "cancel fail"
+	// CancelAlready CancelAlready
+	CancelAlready orderError = "cancel already"
+	// CancelNotFound CancelNotFound
+	CancelNotFound orderError = "order not found"
+)

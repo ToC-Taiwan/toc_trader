@@ -158,110 +158,110 @@ func GetBuyLaterPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyC
 
 // CheckSellFirstOrderStatus CheckSellFirstOrderStatus
 func CheckSellFirstOrderStatus(record traderecord.TradeRecord) {
-	var order traderecord.TradeRecord
+	var cancelAlready bool
 	for {
-		if order.OrderID == "" {
-			if dbOrder, err := traderecord.GetOrderByOrderID(record.OrderID, db.GetAgent()); err != nil {
-				logger.GetLogger().Error(err)
-				continue
-			} else {
-				order = dbOrder
-			}
-		} else {
-			if order.Status == 4 || order.Status == 5 {
-				TradeQuota += record.BuyCost
-				SellFirstOrderMap.DeleteByStockNum(record.StockNum)
-				logger.GetLogger().WithFields(map[string]interface{}{
-					"StockNum": order.StockNum,
-					"Name":     order.StockName,
-					"Quantity": order.Quantity,
-					"Price":    order.Price,
-				}).Info("Place Order Fail or already canceled")
-				return
-			}
-			if record.TradeTime.Add(30*time.Second).Before(time.Now()) && order.Status != 6 && order.Status != 5 {
-				if err := Cancel(record.OrderID); err != nil {
-					logger.GetLogger().Error(err)
+		time.Sleep(1 * time.Second)
+		order, err := traderecord.GetOrderByOrderID(record.OrderID, db.GetAgent())
+		if err != nil {
+			logger.GetLogger().Error(err)
+			continue
+		}
+		if order.Status == 4 || order.Status == 5 {
+			TradeQuota += record.BuyCost
+			SellFirstOrderMap.DeleteByStockNum(record.StockNum)
+			logger.GetLogger().WithFields(map[string]interface{}{
+				"StockNum": order.StockNum,
+				"Name":     order.StockName,
+				"Quantity": order.Quantity,
+				"Price":    order.Price,
+			}).Info("CheckSellFirstOrderStatus: Order Fail or Canceled")
+			return
+		}
+		if order.Status == 6 {
+			FilledSellFirstOrderMap.Set(order)
+			logger.GetLogger().WithFields(map[string]interface{}{
+				"StockNum": order.StockNum,
+				"Name":     order.StockName,
+				"Quantity": order.Quantity,
+				"Price":    order.Price,
+			}).Info("Sell First Stock Success")
+			return
+		}
+		if record.TradeTime.Add(30*time.Second).Before(time.Now()) && order.Status != 6 && order.Status != 5 && !cancelAlready {
+			if err := Cancel(record.OrderID); err != nil {
+				if err.Error() == string(CancelAlready) {
+					cancelAlready = true
 					continue
 				}
-				TradeQuota += record.BuyCost
-				SellFirstOrderMap.DeleteByStockNum(record.StockNum)
-				logger.GetLogger().WithFields(map[string]interface{}{
-					"StockNum": order.StockNum,
-					"Name":     order.StockName,
-					"Quantity": order.Quantity,
-					"Price":    order.Price,
-				}).Info("Cancel Sell First Order Success")
-				return
+				logger.GetLogger().Error(err)
+				continue
 			}
-			if order.Status == 6 {
-				FilledSellFirstOrderMap.Set(order)
-				logger.GetLogger().WithFields(map[string]interface{}{
-					"StockNum": order.StockNum,
-					"Name":     order.StockName,
-					"Quantity": order.Quantity,
-					"Price":    order.Price,
-				}).Info("Sell First Stock Success")
-				return
-			}
+			TradeQuota += record.BuyCost
+			SellFirstOrderMap.DeleteByStockNum(record.StockNum)
+			logger.GetLogger().WithFields(map[string]interface{}{
+				"StockNum": order.StockNum,
+				"Name":     order.StockName,
+				"Quantity": order.Quantity,
+				"Price":    order.Price,
+			}).Info("Cancel Sell First Order Success")
+			return
 		}
-		time.Sleep(1 * time.Second)
 	}
 }
 
 // CheckBuyLaterOrderStatus CheckBuyLaterOrderStatus
 func CheckBuyLaterOrderStatus(record traderecord.TradeRecord) {
-	var order traderecord.TradeRecord
+	var cancelAlready bool
 	for {
-		if order.OrderID == "" {
-			if dbOrder, err := traderecord.GetOrderByOrderID(record.OrderID, db.GetAgent()); err != nil {
-				logger.GetLogger().Error(err)
-				continue
-			} else {
-				order = dbOrder
+		time.Sleep(1 * time.Second)
+		order, err := traderecord.GetOrderByOrderID(record.OrderID, db.GetAgent())
+		if err != nil {
+			logger.GetLogger().Error(err)
+			continue
+		}
+		if order.Status == 4 || order.Status == 5 {
+			TradeQuota += record.BuyCost
+			SellFirstOrderMap.DeleteByStockNum(record.StockNum)
+			logger.GetLogger().WithFields(map[string]interface{}{
+				"StockNum": order.StockNum,
+				"Name":     order.StockName,
+				"Quantity": order.Quantity,
+				"Price":    order.Price,
+			}).Info("CheckBuyLaterOrderStatus: Order Fail or Canceled")
+			return
+		}
+		if order.Status == 6 {
+			FilledBuyLaterOrderMap.Set(order)
+			SellFirstOrderMap.DeleteByStockNum(record.StockNum)
+			BuyLaterOrderMap.DeleteByStockNum(record.StockNum)
+			if ManualBuyLaterMap.CheckStockExist(record.StockNum) {
+				ManualBuyLaterMap.DeleteByStockNum(record.StockNum)
 			}
-		} else {
-			if order.Status == 4 || order.Status == 5 {
-				TradeQuota += record.BuyCost
-				SellFirstOrderMap.DeleteByStockNum(record.StockNum)
-				logger.GetLogger().WithFields(map[string]interface{}{
-					"StockNum": order.StockNum,
-					"Name":     order.StockName,
-					"Quantity": order.Quantity,
-					"Price":    order.Price,
-				}).Info("Place Order Fail or already canceled")
-				return
-			}
-			if record.TradeTime.Add(45*time.Second).Before(time.Now()) && order.Status != 6 && order.Status != 5 {
-				if err := Cancel(record.OrderID); err != nil {
-					logger.GetLogger().Error(err)
+			logger.GetLogger().WithFields(map[string]interface{}{
+				"StockNum": order.StockNum,
+				"Name":     order.StockName,
+				"Quantity": order.Quantity,
+				"Price":    order.Price,
+			}).Info("Buy Later Stock Success")
+			return
+		}
+		if record.TradeTime.Add(45*time.Second).Before(time.Now()) && order.Status != 6 && order.Status != 5 && !cancelAlready {
+			if err := Cancel(record.OrderID); err != nil {
+				if err.Error() == string(CancelAlready) {
+					cancelAlready = true
 					continue
 				}
-				BuyLaterOrderMap.DeleteByStockNum(record.StockNum)
-				logger.GetLogger().WithFields(map[string]interface{}{
-					"StockNum": order.StockNum,
-					"Name":     order.StockName,
-					"Quantity": order.Quantity,
-					"Price":    order.Price,
-				}).Info("Cancel Buy Later Order Success")
-				return
+				logger.GetLogger().Error(err)
+				continue
 			}
-			if order.Status == 6 {
-				FilledBuyLaterOrderMap.Set(order)
-				SellFirstOrderMap.DeleteByStockNum(record.StockNum)
-				BuyLaterOrderMap.DeleteByStockNum(record.StockNum)
-				if ManualBuyLaterMap.CheckStockExist(record.StockNum) {
-					ManualBuyLaterMap.DeleteByStockNum(record.StockNum)
-				}
-				logger.GetLogger().WithFields(map[string]interface{}{
-					"StockNum": order.StockNum,
-					"Name":     order.StockName,
-					"Quantity": order.Quantity,
-					"Price":    order.Price,
-				}).Info("Buy Later Stock Success")
-				return
-			}
+			BuyLaterOrderMap.DeleteByStockNum(record.StockNum)
+			logger.GetLogger().WithFields(map[string]interface{}{
+				"StockNum": order.StockNum,
+				"Name":     order.StockName,
+				"Quantity": order.Quantity,
+				"Price":    order.Price,
+			}).Info("Cancel Buy Later Order Success")
+			return
 		}
-		time.Sleep(1 * time.Second)
 	}
 }

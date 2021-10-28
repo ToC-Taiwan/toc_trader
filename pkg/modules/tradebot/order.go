@@ -39,9 +39,6 @@ func PlaceOrder(action OrderAction, stockNum string, stockQuantity int64, stockP
 
 // Cancel Cancel
 func Cancel(orderID string) (err error) {
-	if orderID == "" {
-		return errors.New("Cancel input error")
-	}
 	order := CancelBody{
 		OrderID: orderID,
 	}
@@ -55,8 +52,13 @@ func Cancel(orderID string) (err error) {
 		return errors.New("Cancel api fail")
 	}
 	res := *resp.Result().(*global.PyServerResponse)
-	if res.Status == "fail" {
-		return errors.New("Cancel fail")
+	switch res.Status {
+	case "fail":
+		return errors.New(string(CancelFail))
+	case "already":
+		return errors.New(string(CancelAlready))
+	case "none":
+		return errors.New(string(CancelNotFound))
 	}
 	return err
 }
