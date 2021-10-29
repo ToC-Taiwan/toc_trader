@@ -37,7 +37,35 @@ func TradeProcess() {
 			panic(err)
 		}
 		if result == "y" {
-			simulateprocess.Simulate()
+			prompt := promptui.Prompt{
+				Label: "Balance type?(a: forward, b: reverse, c: force_both)",
+			}
+			balanceTypeAns, err := prompt.Run()
+			if err != nil {
+				panic(err)
+			}
+			prompt = promptui.Prompt{
+				Label: "Discard over time trade?(y/n)",
+			}
+			discardAns, err := prompt.Run()
+			if err != nil {
+				panic(err)
+			}
+			prompt = promptui.Prompt{
+				Label: "Use global cond?(y/n)",
+			}
+			useGlobalAns, err := prompt.Run()
+			if err != nil {
+				panic(err)
+			}
+			prompt = promptui.Prompt{
+				Label: "N days?",
+			}
+			countAns, err := prompt.Run()
+			if err != nil {
+				panic(err)
+			}
+			simulateprocess.Simulate(balanceTypeAns, discardAns, useGlobalAns, countAns)
 		}
 	}
 	// Generate global target array and fetch entireTick

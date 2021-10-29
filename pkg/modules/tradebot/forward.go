@@ -169,24 +169,18 @@ func CheckBuyOrderStatus(record traderecord.TradeRecord) {
 			TradeQuota += record.BuyCost
 			BuyOrderMap.DeleteByStockNum(record.StockNum)
 			logger.GetLogger().WithFields(map[string]interface{}{
-				"StockNum": order.StockNum,
-				"Name":     order.StockName,
-				"Quantity": order.Quantity,
-				"Price":    order.Price,
+				"StockNum": order.StockNum, "Name": order.StockName, "Quantity": order.Quantity, "Price": order.Price, "Status": order.Status,
 			}).Info("CheckBuyOrderStatus: Order Fail or Canceled")
 			return
 		}
 		if order.Status == 6 {
 			FilledBuyOrderMap.Set(order)
 			logger.GetLogger().WithFields(map[string]interface{}{
-				"StockNum": order.StockNum,
-				"Name":     order.StockName,
-				"Quantity": order.Quantity,
-				"Price":    order.Price,
+				"StockNum": order.StockNum, "Name": order.StockName, "Quantity": order.Quantity, "Price": order.Price,
 			}).Info("Buy Stock Success")
 			return
 		}
-		if record.TradeTime.Add(tradeInWaitTime).Before(time.Now()) && order.Status != 6 && order.Status != 5 && !cancelAlready {
+		if record.TradeTime.Add(tradeInWaitTime).Before(time.Now()) && !cancelAlready {
 			if err := Cancel(record.OrderID); err != nil {
 				if err.Error() == sinopacsrv.StatusAlready {
 					cancelAlready = true
@@ -195,15 +189,6 @@ func CheckBuyOrderStatus(record traderecord.TradeRecord) {
 				logger.GetLogger().Error(err)
 				continue
 			}
-			TradeQuota += record.BuyCost
-			BuyOrderMap.DeleteByStockNum(record.StockNum)
-			logger.GetLogger().WithFields(map[string]interface{}{
-				"StockNum": order.StockNum,
-				"Name":     order.StockName,
-				"Quantity": order.Quantity,
-				"Price":    order.Price,
-			}).Info("Cancel Buy Order Success")
-			return
 		}
 	}
 }
@@ -220,12 +205,9 @@ func CheckSellOrderStatus(record traderecord.TradeRecord) {
 		}
 		if order.Status == 4 || order.Status == 5 {
 			TradeQuota += record.BuyCost
-			BuyOrderMap.DeleteByStockNum(record.StockNum)
+			SellOrderMap.DeleteByStockNum(record.StockNum)
 			logger.GetLogger().WithFields(map[string]interface{}{
-				"StockNum": order.StockNum,
-				"Name":     order.StockName,
-				"Quantity": order.Quantity,
-				"Price":    order.Price,
+				"StockNum": order.StockNum, "Name": order.StockName, "Quantity": order.Quantity, "Price": order.Price, "Status": order.Status,
 			}).Info("CheckSellOrderStatus: Order Fail or Canceled")
 			return
 		}
@@ -237,14 +219,11 @@ func CheckSellOrderStatus(record traderecord.TradeRecord) {
 				ManualSellMap.DeleteByStockNum(record.StockNum)
 			}
 			logger.GetLogger().WithFields(map[string]interface{}{
-				"StockNum": order.StockNum,
-				"Name":     order.StockName,
-				"Quantity": order.Quantity,
-				"Price":    order.Price,
+				"StockNum": order.StockNum, "Name": order.StockName, "Quantity": order.Quantity, "Price": order.Price,
 			}).Info("Sell Stock Success")
 			return
 		}
-		if record.TradeTime.Add(tradeOutWaitTime).Before(time.Now()) && order.Status != 6 && order.Status != 5 && !cancelAlready {
+		if record.TradeTime.Add(tradeOutWaitTime).Before(time.Now()) && !cancelAlready {
 			if err := Cancel(record.OrderID); err != nil {
 				if err.Error() == sinopacsrv.StatusAlready {
 					cancelAlready = true
@@ -253,14 +232,6 @@ func CheckSellOrderStatus(record traderecord.TradeRecord) {
 				logger.GetLogger().Error(err)
 				continue
 			}
-			SellOrderMap.DeleteByStockNum(record.StockNum)
-			logger.GetLogger().WithFields(map[string]interface{}{
-				"StockNum": order.StockNum,
-				"Name":     order.StockName,
-				"Quantity": order.Quantity,
-				"Price":    order.Price,
-			}).Info("Cancel Sell Order Success")
-			return
 		}
 	}
 }

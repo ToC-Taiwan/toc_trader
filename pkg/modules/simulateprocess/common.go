@@ -18,3 +18,11 @@ func getLastTradeInTimeByEntireTickTimeStamp(timeStamp int64) int64 {
 	endTime := time.Date(tmp.Year(), tmp.Month(), tmp.Day(), global.TradeInEndHour, global.TradeInEndMinute, 0, 0, time.UTC)
 	return endTime.UnixNano()
 }
+
+type simulateType int
+
+const (
+	simTypeForward simulateType = iota + 1
+	simTypeReverse
+	simTypeCentral
+)

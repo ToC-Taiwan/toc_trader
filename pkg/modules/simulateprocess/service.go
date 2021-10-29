@@ -6,7 +6,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/manifoldco/promptui"
 	"github.com/vbauerster/mpb/v7"
 	"github.com/vbauerster/mpb/v7/decor"
 	"gitlab.tocraw.com/root/toc_trader/internal/common"
@@ -25,7 +24,7 @@ import (
 )
 
 var (
-	balanceType             string
+	balanceType             simulateType
 	allTickMap              entireTickMap
 	resultChan              chan simulate.Result
 	totalTimesChan          chan int
@@ -33,57 +32,28 @@ var (
 	simulateDayArr          []time.Time
 	targetArrMap            targetArrMutex
 	discardOverTime         bool
+	bestForward             simulationcond.AnalyzeCondition
+	bestReverse             simulationcond.AnalyzeCondition
 )
 
 // Simulate Simulate
-func Simulate() {
-	prompt := promptui.Prompt{
-		Label: "Balance type?(a: forward, b: reverse, c: force_both)",
-	}
-	balanceTypeAns, err := prompt.Run()
-	if err != nil {
-		panic(err)
-	}
-	switch balanceTypeAns {
+func Simulate(simType, discardOT, useDefault, dayCount string) {
+	switch simType {
 	case "a":
-		balanceType = "a"
+		balanceType = simTypeForward
 	case "b":
-		balanceType = "b"
+		balanceType = simTypeReverse
 	case "c":
-		balanceType = "c"
+		balanceType = simTypeCentral
 	}
-
-	prompt = promptui.Prompt{
-		Label: "Discard over time trade?(y/n)",
-	}
-	result, err := prompt.Run()
-	if err != nil {
-		panic(err)
-	}
-	if result == "y" {
+	if discardOT == "y" {
 		discardOverTime = true
 	}
-
 	var useGlobal bool
-	prompt = promptui.Prompt{
-		Label: "Use global cond?(y/n)",
-	}
-	result, err = prompt.Run()
-	if err != nil {
-		panic(err)
-	}
-	if result == "y" {
+	if useDefault == "y" {
 		useGlobal = true
 	}
-
-	prompt = promptui.Prompt{
-		Label: "N days?",
-	}
-	result, err = prompt.Run()
-	if err != nil {
-		panic(err)
-	}
-	n, err := common.StrToInt64(result)
+	n, err := common.StrToInt64(dayCount)
 	if err != nil {
 		panic(err)
 	}
@@ -92,7 +62,6 @@ func Simulate() {
 	if err != nil {
 		panic(err)
 	}
-
 	for i, date := range tradeDayArr {
 		if i == 0 {
 			continue
@@ -128,7 +97,16 @@ func Simulate() {
 
 	var wg sync.WaitGroup
 	if useGlobal {
-		getBestCond(int(global.CentralCond.HistoryCloseCount), useGlobal)
+		var historyCount int64
+		switch balanceType {
+		case simTypeForward:
+			historyCount = global.ForwardCond.HistoryCloseCount
+		case simTypeReverse:
+			historyCount = global.ForwardCond.HistoryCloseCount
+		case simTypeCentral:
+			historyCount = global.CentralCond.HistoryCloseCount
+		}
+		getBestCond(int(historyCount), useGlobal)
 	} else {
 		for i := 2500; i >= 1500; i -= 500 {
 			wg.Add(1)
@@ -150,53 +128,22 @@ func getBestCond(historyCount int, useGlobal bool) {
 	var wg sync.WaitGroup
 	var conds []*simulationcond.AnalyzeCondition
 	if useGlobal {
-		conds = append(conds, &global.CentralCond)
+		switch balanceType {
+		case simTypeForward:
+			conds = append(conds, &global.ForwardCond)
+		case simTypeReverse:
+			conds = append(conds, &global.ReverseCond)
+		case simTypeCentral:
+			conds = append(conds, &global.CentralCond)
+		}
 	} else {
-		var i float64
-		for m := 90; m >= 90; m -= 5 {
-			for u := 3; u <= 3; u += 3 {
-				for g := -3; g <= -3; g++ {
-					for h := 7; h >= 7; h-- {
-						for i = 50; i <= 51; i += 0.1 {
-							for k := 0; k <= 9; k++ {
-								for o := 8; o >= 8; o -= 2 {
-									for p := 1; p >= 1; p-- {
-										for v := 12; v >= 12; v -= 2 {
-											// Forward
-											rsiLow := i
-											rsiHigh := i + float64(k)*0.1
-											// Reverse
-											// rsiHigh := float64(i) - float64(z)*0.1
-											// rsiLow := rsiHigh - 0.4
-											// rsiHigh := 49.2
-											// rsiLow := 48.8
-											cond := simulationcond.AnalyzeCondition{
-												TrimHistoryCloseCount: false,
-												HistoryCloseCount:     int64(historyCount),
-												OutInRatio:            float64(m),
-												ReverseOutInRatio:     float64(u),
-												CloseDiff:             0,
-												CloseChangeRatioLow:   float64(g),
-												CloseChangeRatioHigh:  float64(h),
-												OpenChangeRatio:       float64(h),
-												RsiHigh:               rsiHigh,
-												RsiLow:                rsiLow,
-												ReverseRsiHigh:        rsiHigh,
-												ReverseRsiLow:         rsiLow,
-												TicksPeriodThreshold:  float64(o),
-												TicksPeriodLimit:      float64(o) * 1.3,
-												TicksPeriodCount:      p,
-												VolumePerSecond:       int64(v),
-											}
-											conds = append(conds, &cond)
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
+		switch balanceType {
+		case simTypeForward:
+			conds = generateForwardConds(historyCount)
+		case simTypeReverse:
+			conds = generateReverseConds(historyCount)
+		case simTypeCentral:
+			conds = generateCentralConds(historyCount)
 		}
 	}
 	if err := simulationcond.InsertMultiRecord(conds, db.GetAgent()); err != nil {
@@ -255,9 +202,9 @@ func SearchTradePoint(tradeDayArr []time.Time, cond simulationcond.AnalyzeCondit
 			if tickTimeUnix.After(lastTime) || buyPointMap[v.StockNum] != nil || sellFirstPointMap[v.StockNum] != nil {
 				continue
 			}
-			if tradebot.IsBuyPoint(tmp, cond) && (balanceType == "a" || balanceType == "c") {
+			if tradebot.IsBuyPoint(tmp, cond) && (balanceType == simTypeForward || balanceType == simTypeCentral) {
 				buyPointMap[v.StockNum] = v
-			} else if tradebot.IsSellFirstPoint(tmp, cond) && (balanceType == "b" || balanceType == "c") {
+			} else if tradebot.IsSellFirstPoint(tmp, cond) && (balanceType == simTypeReverse || balanceType == simTypeCentral) {
 				sellFirstPointMap[v.StockNum] = v
 			}
 		}
@@ -273,7 +220,7 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 	var tradeCount, positiveCount int64
 	for date, analyzeMap := range analyzeMapMap {
 		var dateForwardBalance, dateReverseBalance int64
-		if balanceType == "c" && (len(analyzeMap[0]) == 0 || len(analyzeMap[1]) == 0) && training {
+		if balanceType == simTypeCentral && (len(analyzeMap[0]) == 0 || len(analyzeMap[1]) == 0) && training {
 			totalTimesChan <- -1
 			return
 		}
@@ -407,8 +354,8 @@ func catchResult(useGlobal bool) {
 				for _, k := range tmp {
 					wg.Add(1)
 					go GetBalance(SearchTradePoint(simulateDayArr, k.Cond), k.Cond, false, &wg)
+					wg.Wait()
 				}
-				wg.Wait()
 			} else if !useGlobal {
 				logger.GetLogger().Info("No best result")
 			}
@@ -490,4 +437,135 @@ func clearAllSimulation() {
 	if err := simulationcond.DeleteAll(db.GetAgent()); err != nil {
 		panic(err)
 	}
+}
+
+func generateForwardConds(historyCount int) []*simulationcond.AnalyzeCondition {
+	var conds []*simulationcond.AnalyzeCondition
+	var i float64
+	for m := 90; m >= 90; m -= 5 {
+		for u := 3; u <= 3; u += 3 {
+			for g := -3; g <= -3; g++ {
+				for h := 7; h >= 7; h-- {
+					for i = 50; i <= 51; i += 0.1 {
+						for k := 0; k <= 6; k++ {
+							for o := 8; o >= 4; o -= 2 {
+								for p := 2; p >= 1; p-- {
+									for v := 12; v >= 6; v -= 2 {
+										cond := simulationcond.AnalyzeCondition{
+											TrimHistoryCloseCount: false,
+											HistoryCloseCount:     int64(historyCount),
+											OutInRatio:            float64(m),
+											ReverseOutInRatio:     float64(u),
+											CloseDiff:             0,
+											CloseChangeRatioLow:   float64(g),
+											CloseChangeRatioHigh:  float64(h),
+											OpenChangeRatio:       float64(h),
+											RsiHigh:               i + float64(k)*0.1,
+											RsiLow:                i,
+											ReverseRsiHigh:        i + float64(k)*0.1,
+											ReverseRsiLow:         i,
+											TicksPeriodThreshold:  float64(o),
+											TicksPeriodLimit:      float64(o) * 1.3,
+											TicksPeriodCount:      p,
+											VolumePerSecond:       int64(v),
+										}
+										conds = append(conds, &cond)
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return conds
+}
+
+func generateReverseConds(historyCount int) []*simulationcond.AnalyzeCondition {
+	var conds []*simulationcond.AnalyzeCondition
+	var i float64
+	for m := 90; m >= 90; m -= 5 {
+		for u := 3; u <= 3; u += 3 {
+			for g := -3; g <= -3; g++ {
+				for h := 7; h >= 7; h-- {
+					for i = 50; i >= 49; i -= 0.1 {
+						for k := 0; k <= 6; k++ {
+							for o := 10; o >= 6; o -= 2 {
+								for p := 2; p >= 1; p-- {
+									for v := 12; v >= 6; v -= 2 {
+										cond := simulationcond.AnalyzeCondition{
+											TrimHistoryCloseCount: false,
+											HistoryCloseCount:     int64(historyCount),
+											OutInRatio:            float64(m),
+											ReverseOutInRatio:     float64(u),
+											CloseDiff:             0,
+											CloseChangeRatioLow:   float64(g),
+											CloseChangeRatioHigh:  float64(h),
+											OpenChangeRatio:       float64(h),
+											RsiHigh:               i,
+											RsiLow:                i - float64(k)*0.1,
+											ReverseRsiHigh:        i,
+											ReverseRsiLow:         i - float64(k)*0.1,
+											TicksPeriodThreshold:  float64(o),
+											TicksPeriodLimit:      float64(o) * 1.3,
+											TicksPeriodCount:      p,
+											VolumePerSecond:       int64(v),
+										}
+										conds = append(conds, &cond)
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return conds
+}
+
+func generateCentralConds(historyCount int) []*simulationcond.AnalyzeCondition {
+	var conds []*simulationcond.AnalyzeCondition
+	var i, t float64
+	for m := 90; m >= 80; m -= 5 {
+		for u := 3; u <= 9; u += 3 {
+			for g := -3; g <= -3; g++ {
+				for h := 7; h >= 7; h-- {
+					for i = 49; i <= 51; i += 0.1 {
+						for k := 0; k <= 9; k++ {
+							for t = 0; t <= 0.9; t += 0.1 {
+								for o := 10; o >= 6; o -= 2 {
+									for p := 2; p >= 1; p-- {
+										for v := 12; v >= 6; v -= 2 {
+											cond := simulationcond.AnalyzeCondition{
+												TrimHistoryCloseCount: false,
+												HistoryCloseCount:     int64(historyCount),
+												OutInRatio:            float64(m),
+												ReverseOutInRatio:     float64(u),
+												CloseDiff:             0,
+												CloseChangeRatioLow:   float64(g),
+												CloseChangeRatioHigh:  float64(h),
+												OpenChangeRatio:       float64(h),
+												RsiHigh:               i + float64(k)*0.1 + t,
+												RsiLow:                i + float64(k)*0.1,
+												ReverseRsiHigh:        i - float64(k)*0.1,
+												ReverseRsiLow:         i - float64(k)*0.1 - t,
+												TicksPeriodThreshold:  float64(o),
+												TicksPeriodLimit:      float64(o) * 1.3,
+												TicksPeriodCount:      p,
+												VolumePerSecond:       int64(v),
+											}
+											conds = append(conds, &cond)
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return conds
 }
