@@ -80,6 +80,7 @@ func (c *FetchStockBody) ToStock() stock.Stock {
 
 // SinopacHealthStatus SinopacHealthStatus
 type SinopacHealthStatus struct {
-	Status    string `json:"status"`
-	UpTimeMin int64  `json:"up_time_min"`
+	Status      string `json:"status"`
+	UpTimeMin   int64  `json:"up_time_min"`
+	ServerToken string `json:"server_token"`
 }

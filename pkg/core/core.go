@@ -8,6 +8,7 @@ import (
 	"github.com/manifoldco/promptui"
 	"gitlab.tocraw.com/root/toc_trader/init/sysparminit"
 	"gitlab.tocraw.com/root/toc_trader/internal/db"
+	"gitlab.tocraw.com/root/toc_trader/internal/healthcheck"
 	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/stock"
@@ -23,6 +24,13 @@ import (
 func TradeProcess() {
 	// Import all stock and update AllStockNameMap
 	importbasic.ImportAllStock()
+	go func() {
+		for range time.Tick(30 * time.Second) {
+			if err := healthcheck.CheckSinopacSRVStatus(); err != nil {
+				panic(err)
+			}
+		}
+	}()
 	// Development
 	deployment := os.Getenv("DEPLOYMENT")
 	if deployment != "docker" {

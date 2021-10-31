@@ -6,9 +6,12 @@ import (
 	"net/http"
 
 	"gitlab.tocraw.com/root/toc_trader/external/sinopacsrv"
+	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/internal/rest"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 )
+
+var serverToken string
 
 // FullRestart FullRestart
 func FullRestart() (err error) {
@@ -38,4 +41,25 @@ func askSinopacSRVRestart() error {
 // RestartService RestartService
 func RestartService() {
 	global.ExitChannel <- global.ExitSignal
+}
+
+// CheckSinopacSRVStatus CheckSinopacSRVStatus
+func CheckSinopacSRVStatus() error {
+	resp, err := rest.GetClient().R().
+		SetResult(&sinopacsrv.SinopacHealthStatus{}).
+		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/system/healthcheck")
+	if err != nil {
+		return err
+	} else if resp.StatusCode() != http.StatusOK {
+		return errors.New("CheckSinopacSRVStatus api fail")
+	}
+	res := *resp.Result().(*sinopacsrv.SinopacHealthStatus)
+	if serverToken == "" {
+		serverToken = res.ServerToken
+	} else if serverToken != res.ServerToken {
+		logger.GetLogger().Warn("Token expired")
+		global.ExitChannel <- global.ExitSignal
+	}
+	logger.GetLogger().Tracef("Status: %s, UpTime: %d min, Token: %s", res.Status, res.UpTimeMin, res.ServerToken)
+	return err
 }

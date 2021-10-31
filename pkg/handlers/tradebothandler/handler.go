@@ -53,7 +53,7 @@ func ReceiveStreamTick(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, res)
 		return
 	}
-	if req.Tick.Simtrade == 1 {
+	if req.Tick.Simtrade == 1 && req.Tick.Volume > 100 {
 		logger.GetLogger().WithFields(map[string]interface{}{
 			"TickType": req.Tick.TickType,
 			"Volume":   req.Tick.Volume,

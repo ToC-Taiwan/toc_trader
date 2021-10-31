@@ -84,7 +84,6 @@ docker-deploy:
       --restart always \
       -e TZ="Asia/Taipei" \
       -dt $IMAGE_TAG"
-  when: manual
   environment:
     name: review/$CI_COMMIT_REF_NAME
     on_stop: stop_production
