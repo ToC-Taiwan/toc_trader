@@ -60,6 +60,5 @@ func CheckSinopacSRVStatus() error {
 		logger.GetLogger().Warn("Token expired")
 		global.ExitChannel <- global.ExitSignal
 	}
-	logger.GetLogger().Tracef("Status: %s, UpTime: %d min, Token: %s", res.Status, res.UpTimeMin, res.ServerToken)
 	return err
 }
