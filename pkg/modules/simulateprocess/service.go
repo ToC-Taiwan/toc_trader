@@ -198,13 +198,15 @@ func SearchTradePoint(tradeDayArr []time.Time, cond simulationcond.AnalyzeCondit
 		for _, v := range allPoint {
 			tmp := v.ToAnalyzeStreamTick()
 			tickTimeUnix := time.Unix(0, tmp.TimeStamp)
-			lastTime := time.Date(tickTimeUnix.Year(), tickTimeUnix.Month(), tickTimeUnix.Day(), 13, 0, 0, 0, time.Local)
+			lastTime := time.Date(tickTimeUnix.Year(), tickTimeUnix.Month(), tickTimeUnix.Day(), global.TradeOutEndHour, global.TradeOutEndMinute, 0, 0, time.Local)
 			if tickTimeUnix.After(lastTime) || buyPointMap[v.StockNum] != nil || sellFirstPointMap[v.StockNum] != nil {
 				continue
 			}
 			if tradebot.IsBuyPoint(tmp, cond) && (balanceType == simTypeForward || balanceType == simTypeCentral) {
 				buyPointMap[v.StockNum] = v
-			} else if tradebot.IsSellFirstPoint(tmp, cond) && (balanceType == simTypeReverse || balanceType == simTypeCentral) {
+				continue
+			}
+			if tradebot.IsSellFirstPoint(tmp, cond) && (balanceType == simTypeReverse || balanceType == simTypeCentral) {
 				sellFirstPointMap[v.StockNum] = v
 			}
 		}
@@ -239,6 +241,7 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 				if k.TimeStamp == v.TimeStamp && buyPrice == 0 && v.TimeStamp < endTradeInTime {
 					// historyClose = []float64{}
 					buyPrice = k.Close
+					tradeCount++
 				}
 				if buyPrice != 0 {
 					sellPrice = tradebot.GetSellPrice(k.ToStreamTick(), time.Unix(0, v.TimeStamp).Add(-8*time.Hour), historyClose, buyPrice, cond)
@@ -260,7 +263,6 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 					totalTimesChan <- -1
 					return
 				}
-				tradeCount++
 				if !training && (sellCost-buyCost+back) != 0 {
 					buyTime := time.Unix(0, v.TimeStamp).Add(-8 * time.Hour)
 					sellTime := time.Unix(0, sellTimeStamp[v.StockNum]).Add(-8 * time.Hour)
@@ -282,6 +284,7 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 				}
 				if k.TimeStamp == v.TimeStamp && sellFirstPrice == 0 && v.TimeStamp < endTradeInTime {
 					sellFirstPrice = k.Close
+					tradeCount++
 				}
 				if sellFirstPrice != 0 {
 					buyLaterPrice = tradebot.GetBuyLaterPrice(k.ToStreamTick(), time.Unix(0, v.TimeStamp).Add(-8*time.Hour), historyClose, sellFirstPrice, cond)
@@ -301,7 +304,6 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 					totalTimesChan <- -1
 					return
 				}
-				tradeCount++
 				reverseBalance += (sellCost - buyCost + back)
 				dateReverseBalance += (sellCost - buyCost + back)
 				if !training && (sellCost-buyCost+back) != 0 {
@@ -329,7 +331,7 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 	}
 	if training {
 		resultChan <- tmp
-	} else {
+	} else if tmp.Balance != 0 {
 		logger.GetLogger().Warnf("Total Balance: %d, TradeCount: %d, PositiveCount: %d", tmp.Balance, tradeCount, positiveCount)
 		logger.GetLogger().Warnf("Cond: %+v", cond)
 	}
@@ -341,7 +343,7 @@ func catchResult(useGlobal bool) {
 	var count int
 	for {
 		result, ok := <-resultChan
-		if result.Cond.Model.ID != 0 {
+		if result.Cond.Model.ID != 0 && result.TradeCount != 0 {
 			save = append(save, result)
 		}
 		if !ok {
@@ -491,8 +493,8 @@ func generateReverseConds(historyCount int) []*simulationcond.AnalyzeCondition {
 				for h := 7; h >= 7; h-- {
 					for i = 50; i >= 49; i -= 0.1 {
 						for k := 0; k <= 6; k++ {
-							for o := 10; o >= 6; o -= 2 {
-								for p := 2; p >= 1; p-- {
+							for o := 10; o >= 10; o -= 2 {
+								for p := 1; p >= 1; p-- {
 									for v := 12; v >= 6; v -= 2 {
 										cond := simulationcond.AnalyzeCondition{
 											TrimHistoryCloseCount: false,

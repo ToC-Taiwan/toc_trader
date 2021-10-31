@@ -58,7 +58,7 @@ func CheckSinopacSRVStatus() error {
 		serverToken = res.ServerToken
 	} else if serverToken != res.ServerToken {
 		logger.GetLogger().Warn("Token expired")
-		global.ExitChannel <- global.ExitSignal
+		RestartService()
 	}
 	return err
 }

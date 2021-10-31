@@ -41,7 +41,7 @@ func IsBuyPoint(analyzeTick *analyzestreamtick.AnalyzeStreamTick, cond simulatio
 	if analyzeTick.OpenChangeRatio > cond.OpenChangeRatio || closeChangeRatio < cond.CloseChangeRatioLow || closeChangeRatio > cond.CloseChangeRatioHigh {
 		return false
 	}
-	if analyzeTick.OutInRatio < cond.OutInRatio || analyzeTick.CloseDiff <= cond.CloseDiff {
+	if analyzeTick.OutInRatio < cond.OutInRatio {
 		return false
 	}
 	if analyzeTick.Rsi > cond.RsiLow {

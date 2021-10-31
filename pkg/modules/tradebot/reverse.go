@@ -41,10 +41,10 @@ func IsSellFirstPoint(analyzeTick *analyzestreamtick.AnalyzeStreamTick, cond sim
 	if analyzeTick.Volume < cond.VolumePerSecond*int64(analyzeTick.TotalTime) {
 		return false
 	}
-	if analyzeTick.OutInRatio > cond.ReverseOutInRatio || analyzeTick.CloseDiff > cond.CloseDiff {
+	if analyzeTick.OutInRatio > cond.ReverseOutInRatio {
 		return false
 	}
-	if analyzeTick.Rsi < cond.ReverseRsiHigh {
+	if analyzeTick.Rsi < cond.ReverseRsiLow || analyzeTick.Rsi > cond.ReverseRsiHigh {
 		return false
 	}
 	return true

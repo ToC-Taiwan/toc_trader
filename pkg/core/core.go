@@ -22,8 +22,6 @@ import (
 
 // TradeProcess TradeProcess
 func TradeProcess() {
-	// Import all stock and update AllStockNameMap
-	importbasic.ImportAllStock()
 	go func() {
 		for range time.Tick(30 * time.Second) {
 			if err := healthcheck.CheckSinopacSRVStatus(); err != nil {
@@ -31,6 +29,8 @@ func TradeProcess() {
 			}
 		}
 	}()
+	// Import all stock and update AllStockNameMap
+	importbasic.ImportAllStock()
 	// Development
 	deployment := os.Getenv("DEPLOYMENT")
 	if deployment != "docker" {
