@@ -10,7 +10,7 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tradeeventprocess"
 )
 
-var lock sync.RWMutex
+var lock sync.Mutex
 
 // Run Run
 func Run() {

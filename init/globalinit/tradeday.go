@@ -50,6 +50,6 @@ func init() {
 		"TradeDayInEndTime": global.TradeDayInEndTime.Format(global.LongTimeLayout),
 	}).Info("Trade In End Time")
 	logger.GetLogger().WithFields(map[string]interface{}{
-		"TradeDayInEndTime": global.TradeDayOutEndTime.Format(global.LongTimeLayout),
+		"TradeDayOutEndTime": global.TradeDayOutEndTime.Format(global.LongTimeLayout),
 	}).Info("Trade Out End Time")
 }

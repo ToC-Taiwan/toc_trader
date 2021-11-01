@@ -181,13 +181,10 @@ func CheckBuyOrderStatus(record traderecord.TradeRecord) {
 			return
 		}
 		if record.TradeTime.Add(tradeInWaitTime).Before(time.Now()) && !cancelAlready {
-			if err := Cancel(record.OrderID); err != nil {
-				if err.Error() == sinopacsrv.StatusAlready {
-					cancelAlready = true
-					continue
-				}
+			if err := Cancel(record.OrderID); err != nil && err.Error() != sinopacsrv.StatusAlready {
 				logger.GetLogger().Error(err)
-				continue
+			} else {
+				cancelAlready = true
 			}
 		}
 	}
@@ -224,13 +221,10 @@ func CheckSellOrderStatus(record traderecord.TradeRecord) {
 			return
 		}
 		if record.TradeTime.Add(tradeOutWaitTime).Before(time.Now()) && !cancelAlready {
-			if err := Cancel(record.OrderID); err != nil {
-				if err.Error() == sinopacsrv.StatusAlready {
-					cancelAlready = true
-					continue
-				}
+			if err := Cancel(record.OrderID); err != nil && err.Error() != sinopacsrv.StatusAlready {
 				logger.GetLogger().Error(err)
-				continue
+			} else {
+				cancelAlready = true
 			}
 		}
 	}

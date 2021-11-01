@@ -7,7 +7,7 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/internal/healthcheck"
 )
 
-var lock sync.RWMutex
+var lock sync.Mutex
 
 // Run Run
 func Run() {

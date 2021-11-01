@@ -29,11 +29,11 @@ func (c *AnalyzeEntireTickMap) GetAllTicks() []*analyzeentiretick.AnalyzeEntireT
 	if c.tickMap == nil {
 		c.tickMap = make(map[string][]*analyzeentiretick.AnalyzeEntireTick)
 	}
-	c.mutex.Lock()
+	c.mutex.RLock()
 	for _, v := range c.tickMap {
 		tmp = append(tmp, v...)
 	}
-	c.mutex.Unlock()
+	c.mutex.RUnlock()
 	return tmp
 }
 

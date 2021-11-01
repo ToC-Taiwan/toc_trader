@@ -241,7 +241,7 @@ func UpdateLastStockVolume() {
 	logger.GetLogger().Info("Volume and close update done")
 }
 
-var fetchSaveLock sync.RWMutex
+var fetchSaveLock sync.Mutex
 
 // UpdateStockCloseMapByDate UpdateStockCloseMapByDate
 func UpdateStockCloseMapByDate(stockNumArr []string, dateArr []time.Time) error {

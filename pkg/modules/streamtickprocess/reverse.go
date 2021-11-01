@@ -28,7 +28,7 @@ func ReverseTickProcess(lastClose float64, cond simulationcond.AnalyzeCondition,
 
 	if global.TradeSwitch.BuyLater {
 		buyLaterChan = make(chan *streamtick.StreamTick)
-		go tradebot.BuyLaterBot(buyLaterChan, global.ReverseCond, &input.Close)
+		go tradebot.BuyLaterBot(buyLaterChan, cond, &input.Close)
 	}
 	for {
 		tick := <-ch

@@ -28,7 +28,7 @@ func ForwardTickProcess(lastClose float64, cond simulationcond.AnalyzeCondition,
 
 	if global.TradeSwitch.Sell {
 		sellChan = make(chan *streamtick.StreamTick)
-		go tradebot.SellBot(sellChan, global.ForwardCond, &input.Close)
+		go tradebot.SellBot(sellChan, cond, &input.Close)
 	}
 	for {
 		tick := <-ch
