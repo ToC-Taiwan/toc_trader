@@ -22,16 +22,78 @@ import (
 
 // TradeProcess TradeProcess
 func TradeProcess() {
-	go func() {
-		for range time.Tick(30 * time.Second) {
-			if err := healthcheck.CheckSinopacSRVStatus(); err != nil {
+	// Check token is expired or not, if expired, restart service
+	go checkSinopacToken()
+	// Import all stock and update AllStockNameMap
+	importbasic.ImportAllStock()
+	// Chekc if is in debug mode and simulation
+	simulatationEntry()
+
+	// Generate global target array and fetch entireTick
+	var savedTarget []targetstock.Target
+	if targets, err := choosetarget.GetTargetByVolumeRankByDate(global.LastTradeDay.Format(global.ShortTimeLayout), 200); err != nil {
+		panic(err)
+	} else {
+		// UnSubscribeAll first
+		choosetarget.UnSubscribeAll()
+		// Subscribe all target
+		global.TargetArr = targets
+		choosetarget.SubscribeTarget(global.TargetArr)
+		for i, v := range targets {
+			logger.GetLogger().Infof("%s volume rank no. %d is %s", global.LastTradeDay.Format(global.ShortTimeLayout), i+1, global.AllStockNameMap.GetName(v))
+		}
+		tmp := []time.Time{global.LastTradeDay}
+		fetchentiretick.FetchEntireTick(targets, tmp, global.CentralCond)
+		if dbTarget, err := targetstock.GetTargetByTime(global.LastTradeDay, db.GetAgent()); err != nil {
+			panic(err)
+		} else if len(dbTarget) == 0 {
+			logger.GetLogger().Info("Saving targets")
+			targetStockArr, err := stock.GetStocksFromNumArr(targets, db.GetAgent())
+			if err != nil {
+				panic(err)
+			}
+			for _, v := range targetStockArr {
+				savedTarget = append(savedTarget, targetstock.Target{
+					LastTradeDay: global.LastTradeDay,
+					Stock:        v,
+				})
+			}
+			if err := targetstock.InsertMultiTarget(savedTarget, db.GetAgent()); err != nil {
 				panic(err)
 			}
 		}
-	}()
-	// Import all stock and update AllStockNameMap
-	importbasic.ImportAllStock()
-	// Development
+	}
+	// Fetch Kbar
+	kbarTradeDayArr, err := importbasic.GetLastNTradeDay(sysparminit.GlobalSettings.GetKbarPeriod())
+	if err != nil {
+		panic(err)
+	}
+	fetchentiretick.FetchKbar(global.TargetArr, kbarTradeDayArr[len(kbarTradeDayArr)-1], kbarTradeDayArr[0])
+	logger.GetLogger().Info("FetchEntireTick and Kbar Done")
+
+	// Check tradeday or target exist
+	if len(global.LastTradeDayArr) == 0 || len(global.TargetArr) == 0 {
+		logger.GetLogger().Warn("no trade day or no target")
+	} else {
+		// Background get trade record
+		logger.GetLogger().Info("Background tasks starts")
+		go tradebot.CheckOrderStatusLoop()
+		// Monitor TSE001 Status
+		go choosetarget.TSEProcess()
+		// Add Top Rank Targets
+		go addRankTarget()
+	}
+}
+
+func checkSinopacToken() {
+	for range time.Tick(10 * time.Second) {
+		if err := healthcheck.CheckSinopacSRVStatus(); err != nil {
+			panic(err)
+		}
+	}
+}
+
+func simulatationEntry() {
 	deployment := os.Getenv("DEPLOYMENT")
 	if deployment != "docker" {
 		// Send ip to sinopac srv
@@ -75,59 +137,5 @@ func TradeProcess() {
 			}
 			simulateprocess.Simulate(balanceTypeAns, discardAns, useGlobalAns, countAns)
 		}
-	}
-	// Generate global target array and fetch entireTick
-	var savedTarget []targetstock.Target
-	if targets, err := choosetarget.GetTargetByVolumeRankByDate(global.LastTradeDay.Format(global.ShortTimeLayout), 200); err != nil {
-		panic(err)
-	} else {
-		// UnSubscribeAll first
-		choosetarget.UnSubscribeAll()
-		// Subscribe all target
-		global.TargetArr = targets
-		choosetarget.SubscribeTarget(global.TargetArr)
-		for i, v := range targets {
-			logger.GetLogger().Infof("%s volume rank no. %d is %s\n", global.LastTradeDay.Format(global.ShortTimeLayout), i+1, global.AllStockNameMap.GetName(v))
-		}
-		tmp := []time.Time{global.LastTradeDay}
-		fetchentiretick.FetchEntireTick(targets, tmp, global.CentralCond)
-		if dbTarget, err := targetstock.GetTargetByTime(global.LastTradeDay, db.GetAgent()); err != nil {
-			panic(err)
-		} else if len(dbTarget) == 0 {
-			logger.GetLogger().Info("Saving targets")
-			targetStockArr, err := stock.GetStocksFromNumArr(targets, db.GetAgent())
-			if err != nil {
-				panic(err)
-			}
-			for _, v := range targetStockArr {
-				savedTarget = append(savedTarget, targetstock.Target{
-					LastTradeDay: global.LastTradeDay,
-					Stock:        v,
-				})
-			}
-			if err := targetstock.InsertMultiTarget(savedTarget, db.GetAgent()); err != nil {
-				panic(err)
-			}
-		}
-	}
-	// Fetch Kbar
-	kbarTradeDayArr, err := importbasic.GetLastNTradeDay(sysparminit.GlobalSettings.GetKbarPeriod())
-	if err != nil {
-		panic(err)
-	}
-	fetchentiretick.FetchKbar(global.TargetArr, kbarTradeDayArr[len(kbarTradeDayArr)-1], kbarTradeDayArr[0])
-	logger.GetLogger().Info("FetchEntireTick and Kbar Done")
-
-	// Check tradeday or target exist
-	if len(global.LastTradeDayArr) == 0 || len(global.TargetArr) == 0 {
-		logger.GetLogger().Warn("no trade day or no target")
-	} else {
-		// Background get trade record
-		logger.GetLogger().Info("Background tasks starts")
-		go tradebot.CheckOrderStatusLoop()
-		// Monitor TSE001 Status
-		go choosetarget.TSEProcess()
-		// Add Top Rank Targets
-		go addRankTarget()
 	}
 }

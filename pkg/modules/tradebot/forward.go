@@ -4,11 +4,9 @@ package tradebot
 import (
 	"time"
 
-	"github.com/markcheno/go-quote"
 	"gitlab.tocraw.com/root/toc_trader/external/sinopacsrv"
 	"gitlab.tocraw.com/root/toc_trader/internal/db"
 	"gitlab.tocraw.com/root/toc_trader/internal/logger"
-	"gitlab.tocraw.com/root/toc_trader/internal/stockutil"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/analyzestreamtick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulationcond"
@@ -38,13 +36,10 @@ func IsBuyPoint(analyzeTick *analyzestreamtick.AnalyzeStreamTick, cond simulatio
 	if analyzeTick.Volume < cond.VolumePerSecond*int64(analyzeTick.TotalTime) {
 		return false
 	}
-	if analyzeTick.OpenChangeRatio > cond.OpenChangeRatio || closeChangeRatio < cond.CloseChangeRatioLow || closeChangeRatio > cond.CloseChangeRatioHigh {
+	if analyzeTick.OpenChangeRatio > cond.OpenChangeRatio || closeChangeRatio > cond.CloseChangeRatioHigh || closeChangeRatio < cond.CloseChangeRatioLow {
 		return false
 	}
 	if analyzeTick.OutInRatio < cond.OutInRatio {
-		return false
-	}
-	if analyzeTick.Rsi > cond.RsiLow {
 		return false
 	}
 	return true
@@ -132,17 +127,11 @@ func GetSellPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyClose
 		return 0
 	}
 	var sellPrice float64
-	var input quote.Quote
-	input.Close = historyClose
-	rsi, err := tickanalyze.GenerateRSI(input)
-	if err != nil {
-		logger.GetLogger().Errorf("GenerateRSI at GetSellPrice Stock: %s, Err: %s", tick.StockNum, err)
-		return 0
-	}
+	rsiHighStatus, rsiLowStatus := tickanalyze.GetRSIStatus(historyClose, cond.RsiHigh, cond.RsiLow)
 	switch {
-	case tick.Close < stockutil.GetNewClose(originalOrderClose, -1) && rsi < cond.RsiLow:
+	case rsiLowStatus:
 		sellPrice = tick.Close
-	case rsi > cond.RsiHigh:
+	case rsiHighStatus:
 		sellPrice = tick.Close
 	case ManualSellMap.CheckStockExist(tick.StockNum):
 		sellPrice = ManualSellMap.GetClose(tick.StockNum)

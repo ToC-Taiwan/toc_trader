@@ -4,11 +4,9 @@ package tradebot
 import (
 	"time"
 
-	"github.com/markcheno/go-quote"
 	"gitlab.tocraw.com/root/toc_trader/external/sinopacsrv"
 	"gitlab.tocraw.com/root/toc_trader/internal/db"
 	"gitlab.tocraw.com/root/toc_trader/internal/logger"
-	"gitlab.tocraw.com/root/toc_trader/internal/stockutil"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/analyzestreamtick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulationcond"
@@ -44,9 +42,9 @@ func IsSellFirstPoint(analyzeTick *analyzestreamtick.AnalyzeStreamTick, cond sim
 	if analyzeTick.OutInRatio > cond.ReverseOutInRatio {
 		return false
 	}
-	if analyzeTick.Rsi < cond.ReverseRsiLow || analyzeTick.Rsi > cond.ReverseRsiHigh {
-		return false
-	}
+	// if analyzeTick.Rsi < cond.ReverseRsiLow || analyzeTick.Rsi > cond.ReverseRsiHigh {
+	// 	return false
+	// }
 	return true
 }
 
@@ -82,7 +80,6 @@ func SellFirstBot(analyzeTick *analyzestreamtick.AnalyzeStreamTick) {
 
 // BuyLaterBot BuyLaterBot
 func BuyLaterBot(ch chan *streamtick.StreamTick, cond simulationcond.AnalyzeCondition, historyClosePrt *[]float64) {
-	// var historyClose []float64
 	var filled bool
 	for {
 		tick := <-ch
@@ -133,17 +130,11 @@ func GetBuyLaterPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyC
 		return 0
 	}
 	var buyPrice float64
-	var input quote.Quote
-	input.Close = historyClose
-	rsi, err := tickanalyze.GenerateRSI(input)
-	if err != nil {
-		logger.GetLogger().Errorf("GenerateRSI at GetBuyLaterPrice Stock: %s, Err: %s", tick.StockNum, err)
-		return 0
-	}
+	rsiHighStatus, rsiLowStatus := tickanalyze.GetRSIStatus(historyClose, cond.RsiHigh, cond.RsiLow)
 	switch {
-	case tick.Close > stockutil.GetNewClose(originalOrderClose, 1) && rsi > cond.ReverseRsiHigh:
+	case rsiLowStatus:
 		buyPrice = tick.Close
-	case rsi < cond.ReverseRsiLow:
+	case rsiHighStatus:
 		buyPrice = tick.Close
 	case ManualBuyLaterMap.CheckStockExist(tick.StockNum):
 		buyPrice = ManualBuyLaterMap.GetClose(tick.StockNum)

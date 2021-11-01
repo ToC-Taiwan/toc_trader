@@ -56,7 +56,7 @@ func SubStreamTick(stockArr []string) {
 		ReverseStreamTickChannelMap.Set(stockNum, reverseCh)
 		go streamtickprocess.ReverseTickProcess(lastClose, global.ReverseCond, reverseCh)
 	}
-
+	// TODO: add close arr, if it had already
 	stocks := subBody{
 		StockNumArr: stockArr,
 	}
