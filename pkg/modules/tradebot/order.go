@@ -57,10 +57,10 @@ func Cancel(orderID string) (err error) {
 	switch res.Status {
 	case sinopacsrv.StatusFail:
 		return errors.New(sinopacsrv.StatusFail)
-	case sinopacsrv.StatusAlready:
-		return errors.New(sinopacsrv.StatusAlready)
-	case sinopacsrv.StatusNotFound:
-		return errors.New(sinopacsrv.StatusNotFound)
+	case sinopacsrv.StatusAlreadyCanceled:
+		return errors.New(sinopacsrv.StatusAlreadyCanceled)
+	case sinopacsrv.StatusCancelOrderNotFound:
+		return errors.New(sinopacsrv.StatusCancelOrderNotFound)
 	}
 	return err
 }

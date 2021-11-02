@@ -4,7 +4,6 @@ package traderecordhandler
 import (
 	"io/ioutil"
 	"net/http"
-	"sync"
 
 	"github.com/gin-gonic/gin"
 	"gitlab.tocraw.com/root/toc_trader/internal/db"
@@ -20,9 +19,6 @@ func AddHandlers(group *gin.RouterGroup) {
 	group.POST("/trade-record", UpdateTradeRecord)
 }
 
-// UpdateTradeRecordLock UpdateTradeRecordLock
-var UpdateTradeRecordLock sync.Mutex
-
 // UpdateTradeRecord UpdateTradeRecord
 // @Summary UpdateTradeRecord
 // @tags traderecord
@@ -33,7 +29,6 @@ var UpdateTradeRecordLock sync.Mutex
 // @failure 500 {object} handlers.ErrorResponse
 // @Router /trade-record [post]
 func UpdateTradeRecord(c *gin.Context) {
-	UpdateTradeRecordLock.Lock()
 	var res handlers.ErrorResponse
 	body := traderecord.TradeRecordArrProto{}
 	if byteArr, err := ioutil.ReadAll(c.Request.Body); err != nil {
@@ -64,5 +59,4 @@ func UpdateTradeRecord(c *gin.Context) {
 		tradebot.StatusFirstBack = true
 	}
 	c.JSON(http.StatusOK, nil)
-	UpdateTradeRecordLock.Unlock()
 }

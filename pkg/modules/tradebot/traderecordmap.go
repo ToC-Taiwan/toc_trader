@@ -64,6 +64,18 @@ func (c *tradeRecordMutexMap) GetCount() int {
 	return tmp
 }
 
+// GetCount GetCount
+func (c *tradeRecordMutexMap) GetRecordByStockNum(stockNum string) traderecord.TradeRecord {
+	var tmp traderecord.TradeRecord
+	if c.tMap == nil {
+		c.tMap = make(map[string]traderecord.TradeRecord)
+	}
+	c.mutex.RLock()
+	tmp = c.tMap[stockNum]
+	c.mutex.RUnlock()
+	return tmp
+}
+
 // GetOrderIDByStockNum GetOrderIDByStockNum
 func (c *tradeRecordMutexMap) GetOrderIDByStockNum(stockNum string) string {
 	var tmp string

@@ -11,10 +11,12 @@ const (
 	StatusSuccuss string = "success"
 	// StatusFail StatusFail
 	StatusFail string = "fail"
-	// StatusNotFound StatusNotFound
-	StatusNotFound string = "cancel order not found"
-	// StatusAlready StatusAlready
-	StatusAlready string = "order already be canceled"
+	// StatusHistoryNotFound StatusHistoryNotFound
+	StatusHistoryNotFound string = "history not found"
+	// StatusCancelOrderNotFound StatusCancelOrderNotFound
+	StatusCancelOrderNotFound string = "cancel order not found"
+	// StatusAlreadyCanceled StatusAlreadyCanceled
+	StatusAlreadyCanceled string = "order already be canceled"
 )
 
 // OrderResponse OrderResponse

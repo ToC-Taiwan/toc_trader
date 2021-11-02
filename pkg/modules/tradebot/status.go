@@ -86,7 +86,7 @@ func isCurrentOrderAllFinished() bool {
 }
 
 func initBalance(orders []traderecord.TradeRecord) {
-	var tmpBuyOrder, tmpSellOrder []traderecord.TradeRecord
+	var tmp []string
 	for _, val := range orders {
 		record := traderecord.TradeRecord{
 			StockNum:  val.StockNum,
@@ -100,26 +100,25 @@ func initBalance(orders []traderecord.TradeRecord) {
 		}
 		if val.Action == 1 && val.Status == 6 && !FilledBuyOrderMap.CheckStockExist(val.StockNum) {
 			FilledBuyOrderMap.Set(record)
-			tmpBuyOrder = append(tmpBuyOrder, record)
+			tmp = append(tmp, val.StockNum)
 		} else if val.Action == 2 && val.Status == 6 && !FilledSellOrderMap.CheckStockExist(val.StockNum) {
 			FilledSellOrderMap.Set(record)
-			tmpSellOrder = append(tmpSellOrder, record)
 		}
 	}
-	for _, v := range tmpBuyOrder {
+	for _, v := range tmp {
+		buyOrder := FilledBuyOrderMap.GetRecordByStockNum(v)
 		logger.GetLogger().WithFields(map[string]interface{}{
-			"StockNum": v.StockNum,
-			"Name":     v.StockName,
-			"Quantity": v.Quantity,
-			"Price":    v.Price,
+			"StockNum": buyOrder.StockNum,
+			"Name":     buyOrder.StockName,
+			"Quantity": buyOrder.Quantity,
+			"Price":    buyOrder.Price,
 		}).Warn("Filled Buy Order")
-	}
-	for _, v := range tmpSellOrder {
+		sellOrder := FilledSellOrderMap.GetRecordByStockNum(v)
 		logger.GetLogger().WithFields(map[string]interface{}{
-			"StockNum": v.StockNum,
-			"Name":     v.StockName,
-			"Quantity": v.Quantity,
-			"Price":    v.Price,
+			"StockNum": sellOrder.StockNum,
+			"Name":     sellOrder.StockName,
+			"Quantity": sellOrder.Quantity,
+			"Price":    sellOrder.Price,
 		}).Warn("Filled Sell Order")
 	}
 }
