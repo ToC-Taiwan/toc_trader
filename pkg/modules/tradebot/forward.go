@@ -4,7 +4,6 @@ package tradebot
 import (
 	"time"
 
-	"gitlab.tocraw.com/root/toc_trader/external/sinopacsrv"
 	"gitlab.tocraw.com/root/toc_trader/internal/db"
 	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
@@ -29,21 +28,6 @@ var FilledSellOrderMap tradeRecordMutexMap
 
 // ManualSellMap ManualSellMap
 var ManualSellMap tradeRecordMutexMap
-
-// IsBuyPoint IsBuyPoint
-func IsBuyPoint(analyzeTick *analyzestreamtick.AnalyzeStreamTick, cond simulationcond.AnalyzeCondition) bool {
-	closeChangeRatio := analyzeTick.CloseChangeRatio
-	if analyzeTick.Volume < cond.VolumePerSecond*int64(analyzeTick.TotalTime) {
-		return false
-	}
-	if analyzeTick.OpenChangeRatio > cond.OpenChangeRatio || closeChangeRatio > cond.CloseChangeRatioHigh || closeChangeRatio < cond.CloseChangeRatioLow {
-		return false
-	}
-	if analyzeTick.OutInRatio < cond.OutInRatio {
-		return false
-	}
-	return true
-}
 
 // BuyBot BuyBot
 func BuyBot(analyzeTick *analyzestreamtick.AnalyzeStreamTick) {
@@ -116,6 +100,21 @@ func SellBot(ch chan *streamtick.StreamTick, cond simulationcond.AnalyzeConditio
 	}
 }
 
+// IsBuyPoint IsBuyPoint
+func IsBuyPoint(analyzeTick *analyzestreamtick.AnalyzeStreamTick, cond simulationcond.AnalyzeCondition) bool {
+	closeChangeRatio := analyzeTick.CloseChangeRatio
+	if analyzeTick.Volume < cond.VolumePerSecond*int64(analyzeTick.TotalTime) {
+		return false
+	}
+	if analyzeTick.OpenChangeRatio > cond.OpenChangeRatio || closeChangeRatio > cond.CloseChangeRatioHigh || closeChangeRatio < cond.CloseChangeRatioLow {
+		return false
+	}
+	if analyzeTick.OutInRatio < cond.OutInRatio {
+		return false
+	}
+	return true
+}
+
 // GetSellPrice GetSellPrice
 func GetSellPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyClose []float64, originalOrderClose float64, cond simulationcond.AnalyzeCondition) float64 {
 	if tick.PctChg > 9.9 {
@@ -146,7 +145,6 @@ func GetSellPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyClose
 
 // CheckBuyOrderStatus CheckBuyOrderStatus
 func CheckBuyOrderStatus(record traderecord.TradeRecord) {
-	var cancelAlready bool
 	for {
 		time.Sleep(time.Second)
 		order, err := traderecord.GetOrderByOrderID(record.OrderID, db.GetAgent())
@@ -169,11 +167,9 @@ func CheckBuyOrderStatus(record traderecord.TradeRecord) {
 			}).Info("Buy Stock Success")
 			return
 		}
-		if record.TradeTime.Add(tradeInWaitTime).Before(time.Now()) && !cancelAlready {
-			if err := Cancel(record.OrderID); err != nil && err.Error() != sinopacsrv.StatusAlready {
+		if record.TradeTime.Add(tradeInWaitTime).Before(time.Now()) {
+			if err := Cancel(record.OrderID); err != nil {
 				logger.GetLogger().Error(err)
-			} else {
-				cancelAlready = true
 			}
 		}
 	}
@@ -181,7 +177,6 @@ func CheckBuyOrderStatus(record traderecord.TradeRecord) {
 
 // CheckSellOrderStatus CheckSellOrderStatus
 func CheckSellOrderStatus(record traderecord.TradeRecord) {
-	var cancelAlready bool
 	for {
 		time.Sleep(time.Second)
 		order, err := traderecord.GetOrderByOrderID(record.OrderID, db.GetAgent())
@@ -209,11 +204,9 @@ func CheckSellOrderStatus(record traderecord.TradeRecord) {
 			}).Info("Sell Stock Success")
 			return
 		}
-		if record.TradeTime.Add(tradeOutWaitTime).Before(time.Now()) && !cancelAlready {
-			if err := Cancel(record.OrderID); err != nil && err.Error() != sinopacsrv.StatusAlready {
+		if record.TradeTime.Add(tradeOutWaitTime).Before(time.Now()) {
+			if err := Cancel(record.OrderID); err != nil {
 				logger.GetLogger().Error(err)
-			} else {
-				cancelAlready = true
 			}
 		}
 	}

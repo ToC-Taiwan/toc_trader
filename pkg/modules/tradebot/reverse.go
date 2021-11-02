@@ -4,7 +4,6 @@ package tradebot
 import (
 	"time"
 
-	"gitlab.tocraw.com/root/toc_trader/external/sinopacsrv"
 	"gitlab.tocraw.com/root/toc_trader/internal/db"
 	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
@@ -29,24 +28,6 @@ var FilledBuyLaterOrderMap tradeRecordMutexMap
 
 // ManualBuyLaterMap ManualBuyLaterMap
 var ManualBuyLaterMap tradeRecordMutexMap
-
-// IsSellFirstPoint IsSellFirstPoint
-func IsSellFirstPoint(analyzeTick *analyzestreamtick.AnalyzeStreamTick, cond simulationcond.AnalyzeCondition) bool {
-	// closeChangeRatio := analyzeTick.CloseChangeRatio
-	// if analyzeTick.OpenChangeRatio > cond.OpenChangeRatio || closeChangeRatio < cond.CloseChangeRatioLow || closeChangeRatio > cond.CloseChangeRatioHigh {
-	// 	return false
-	// }
-	if analyzeTick.Volume < cond.VolumePerSecond*int64(analyzeTick.TotalTime) {
-		return false
-	}
-	if analyzeTick.OutInRatio > cond.ReverseOutInRatio {
-		return false
-	}
-	// if analyzeTick.Rsi < cond.ReverseRsiLow || analyzeTick.Rsi > cond.ReverseRsiHigh {
-	// 	return false
-	// }
-	return true
-}
 
 // SellFirstBot SellFirstBot
 func SellFirstBot(analyzeTick *analyzestreamtick.AnalyzeStreamTick) {
@@ -119,6 +100,24 @@ func BuyLaterBot(ch chan *streamtick.StreamTick, cond simulationcond.AnalyzeCond
 	}
 }
 
+// IsSellFirstPoint IsSellFirstPoint
+func IsSellFirstPoint(analyzeTick *analyzestreamtick.AnalyzeStreamTick, cond simulationcond.AnalyzeCondition) bool {
+	// closeChangeRatio := analyzeTick.CloseChangeRatio
+	// if analyzeTick.OpenChangeRatio > cond.OpenChangeRatio || closeChangeRatio < cond.CloseChangeRatioLow || closeChangeRatio > cond.CloseChangeRatioHigh {
+	// 	return false
+	// }
+	if analyzeTick.Volume < cond.VolumePerSecond*int64(analyzeTick.TotalTime) {
+		return false
+	}
+	if analyzeTick.OutInRatio > cond.ReverseOutInRatio {
+		return false
+	}
+	// if analyzeTick.Rsi < cond.ReverseRsiLow || analyzeTick.Rsi > cond.ReverseRsiHigh {
+	// 	return false
+	// }
+	return true
+}
+
 // GetBuyLaterPrice GetBuyLaterPrice
 func GetBuyLaterPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyClose []float64, originalOrderClose float64, cond simulationcond.AnalyzeCondition) float64 {
 	if tick.PctChg < -9.9 {
@@ -149,7 +148,6 @@ func GetBuyLaterPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyC
 
 // CheckSellFirstOrderStatus CheckSellFirstOrderStatus
 func CheckSellFirstOrderStatus(record traderecord.TradeRecord) {
-	var cancelAlready bool
 	for {
 		time.Sleep(time.Second)
 		order, err := traderecord.GetOrderByOrderID(record.OrderID, db.GetAgent())
@@ -172,11 +170,9 @@ func CheckSellFirstOrderStatus(record traderecord.TradeRecord) {
 			}).Info("Sell First Stock Success")
 			return
 		}
-		if record.TradeTime.Add(tradeInWaitTime).Before(time.Now()) && !cancelAlready {
-			if err := Cancel(record.OrderID); err != nil && err.Error() != sinopacsrv.StatusAlready {
+		if record.TradeTime.Add(tradeInWaitTime).Before(time.Now()) {
+			if err := Cancel(record.OrderID); err != nil {
 				logger.GetLogger().Error(err)
-			} else {
-				cancelAlready = true
 			}
 		}
 	}
@@ -184,7 +180,6 @@ func CheckSellFirstOrderStatus(record traderecord.TradeRecord) {
 
 // CheckBuyLaterOrderStatus CheckBuyLaterOrderStatus
 func CheckBuyLaterOrderStatus(record traderecord.TradeRecord) {
-	var cancelAlready bool
 	for {
 		time.Sleep(time.Second)
 		order, err := traderecord.GetOrderByOrderID(record.OrderID, db.GetAgent())
@@ -212,11 +207,9 @@ func CheckBuyLaterOrderStatus(record traderecord.TradeRecord) {
 			}).Info("Buy Later Stock Success")
 			return
 		}
-		if record.TradeTime.Add(tradeOutWaitTime).Before(time.Now()) && !cancelAlready {
-			if err := Cancel(record.OrderID); err != nil && err.Error() != sinopacsrv.StatusAlready {
+		if record.TradeTime.Add(tradeOutWaitTime).Before(time.Now()) {
+			if err := Cancel(record.OrderID); err != nil {
 				logger.GetLogger().Error(err)
-			} else {
-				cancelAlready = true
 			}
 		}
 	}

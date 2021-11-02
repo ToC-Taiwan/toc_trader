@@ -12,9 +12,9 @@ const (
 	// StatusFail StatusFail
 	StatusFail string = "fail"
 	// StatusNotFound StatusNotFound
-	StatusNotFound string = "not found"
+	StatusNotFound string = "cancel order not found"
 	// StatusAlready StatusAlready
-	StatusAlready string = "already"
+	StatusAlready string = "order already be canceled"
 )
 
 // OrderResponse OrderResponse

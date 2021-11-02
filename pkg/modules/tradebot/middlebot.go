@@ -25,7 +25,7 @@ func BuyAgent(ch chan *analyzestreamtick.AnalyzeStreamTick) {
 		if IsBuyPoint(analyzeTick, global.ForwardCond) {
 			logger.GetLogger().Infof("%s %s is on buy point, Close: %.2f", analyzeTick.StockNum, global.AllStockNameMap.GetName(analyzeTick.StockNum), analyzeTick.Close)
 			if global.TradeSwitch.Buy {
-				go BuyBot(analyzeTick)
+				BuyBot(analyzeTick)
 			}
 		}
 	}
@@ -42,7 +42,7 @@ func SellFirstAgent(ch chan *analyzestreamtick.AnalyzeStreamTick) {
 		if IsSellFirstPoint(analyzeTick, global.ReverseCond) {
 			logger.GetLogger().Infof("%s %s is on sell first point, Close: %.2f", analyzeTick.StockNum, global.AllStockNameMap.GetName(analyzeTick.StockNum), analyzeTick.Close)
 			if global.TradeSwitch.SellFirst {
-				go SellFirstBot(analyzeTick)
+				SellFirstBot(analyzeTick)
 			}
 		}
 	}
