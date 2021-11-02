@@ -18,7 +18,7 @@ var (
 func BuyAgent(ch chan *analyzestreamtick.AnalyzeStreamTick) {
 	for {
 		analyzeTick := <-ch
-		if checkInBuyMap(analyzeTick.StockNum) || checkInSellFirstMap(analyzeTick.StockNum) {
+		if checkInBuyMap(analyzeTick.StockNum) {
 			logger.GetLogger().Infof("%s already buy", analyzeTick.StockNum)
 			continue
 		}
@@ -35,7 +35,7 @@ func BuyAgent(ch chan *analyzestreamtick.AnalyzeStreamTick) {
 func SellFirstAgent(ch chan *analyzestreamtick.AnalyzeStreamTick) {
 	for {
 		analyzeTick := <-ch
-		if checkInSellFirstMap(analyzeTick.StockNum) || checkInBuyMap(analyzeTick.StockNum) {
+		if checkInSellFirstMap(analyzeTick.StockNum) {
 			logger.GetLogger().Infof("%s already sell first", analyzeTick.StockNum)
 			continue
 		}

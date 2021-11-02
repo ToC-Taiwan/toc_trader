@@ -219,12 +219,13 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 	var forwardBalance, reverseBalance int64
 	var tradeCount, positiveCount int64
 	for date, analyzeMap := range analyzeMapMap {
-		var dateForwardBalance, dateReverseBalance int64
 		if balanceType == simTypeCentral && (len(analyzeMap[0]) == 0 || len(analyzeMap[1]) == 0) && training {
 			totalTimesChan <- -1
 			return
 		}
+
 		sellTimeStamp := make(map[string]int64)
+		var dateForwardBalance, dateReverseBalance int64
 		for stockNum, v := range analyzeMap[0] {
 			ticks := allTickMap.getAllTicksByStockNumAndDate(stockNum, date)
 			endTradeInTime := getLastTradeInTimeByEntireTickTimeStamp(ticks[0].TimeStamp)
@@ -445,11 +446,11 @@ func generateForwardConds(historyCount int) []*simulationcond.AnalyzeCondition {
 		for u := 3; u <= 3; u += 3 {
 			for g := 0; g <= 0; g++ {
 				for h := 3; h >= 3; h-- {
-					for i = 0.9; i >= 0.8; i -= 0.1 {
-						for k = 0.1; k <= 0.2; k += 0.1 {
-							for o := 4; o >= 4; o -= 4 {
-								for p := 2; p >= 2; p-- {
-									for v := 20; v >= 10; v -= 10 {
+					for i = 0.9; i >= 0.6; i -= 0.1 {
+						for k = 0.1; k <= 0.4; k += 0.1 {
+							for o := 8; o >= 4; o -= 4 {
+								for p := 2; p >= 1; p-- {
+									for v := 30; v >= 10; v -= 10 {
 										cond := simulationcond.AnalyzeCondition{
 											TrimHistoryCloseCount: true,
 											HistoryCloseCount:     int64(historyCount),
@@ -488,11 +489,11 @@ func generateReverseConds(historyCount int) []*simulationcond.AnalyzeCondition {
 		for u := 3; u <= 3; u += 3 {
 			for g := 0; g <= 0; g++ {
 				for h := 3; h >= 3; h-- {
-					for i = 0.9; i >= 0.8; i -= 0.1 {
-						for k = 0.1; k <= 0.2; k += 0.1 {
-							for o := 4; o >= 4; o -= 4 {
-								for p := 2; p >= 2; p-- {
-									for v := 20; v >= 10; v -= 10 {
+					for i = 0.9; i >= 0.6; i -= 0.1 {
+						for k = 0.1; k <= 0.4; k += 0.1 {
+							for o := 8; o >= 4; o -= 4 {
+								for p := 2; p >= 1; p-- {
+									for v := 30; v >= 10; v -= 10 {
 										cond := simulationcond.AnalyzeCondition{
 											TrimHistoryCloseCount: true,
 											HistoryCloseCount:     int64(historyCount),
