@@ -152,7 +152,7 @@ func CheckBuyOrderStatus(record traderecord.TradeRecord) {
 			logger.GetLogger().Error(err)
 			continue
 		}
-		if order.Status == 4 || order.Status == 5 {
+		if order.Status == 5 {
 			TradeQuota += record.BuyCost
 			BuyOrderMap.DeleteByStockNum(record.StockNum)
 			logger.GetLogger().WithFields(map[string]interface{}{
@@ -184,7 +184,7 @@ func CheckSellOrderStatus(record traderecord.TradeRecord) {
 			logger.GetLogger().Error(err)
 			continue
 		}
-		if order.Status == 4 || order.Status == 5 {
+		if order.Status == 5 {
 			TradeQuota += record.BuyCost
 			SellOrderMap.DeleteByStockNum(record.StockNum)
 			logger.GetLogger().WithFields(map[string]interface{}{
