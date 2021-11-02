@@ -42,7 +42,7 @@ func Simulate(simType, discardOT, useDefault, dayCount string) {
 	case "b":
 		balanceType = simTypeReverse
 	case "c":
-		balanceType = simTypeCentral
+		balanceType = simTypeBase
 	}
 	if discardOT == "y" {
 		discardOverTime = true
@@ -81,7 +81,7 @@ func Simulate(simType, discardOT, useDefault, dayCount string) {
 				}
 			}
 			tmp := []time.Time{tradeDayArr[i-1]}
-			fetchentiretick.FetchEntireTick(targets, tmp, global.CentralCond)
+			fetchentiretick.FetchEntireTick(targets, tmp, global.BaseCond)
 			storeAllEntireTick(targets, tmp)
 		}
 	}
@@ -101,8 +101,8 @@ func Simulate(simType, discardOT, useDefault, dayCount string) {
 			historyCount = global.ForwardCond.HistoryCloseCount
 		case simTypeReverse:
 			historyCount = global.ForwardCond.HistoryCloseCount
-		case simTypeCentral:
-			historyCount = global.CentralCond.HistoryCloseCount
+		case simTypeBase:
+			historyCount = global.BaseCond.HistoryCloseCount
 		}
 		getBestCond(int(historyCount), useGlobal)
 	} else {
@@ -131,8 +131,8 @@ func getBestCond(historyCount int, useGlobal bool) {
 			conds = append(conds, &global.ForwardCond)
 		case simTypeReverse:
 			conds = append(conds, &global.ReverseCond)
-		case simTypeCentral:
-			conds = append(conds, &global.CentralCond)
+		case simTypeBase:
+			conds = append(conds, &global.BaseCond)
 		}
 	} else {
 		switch balanceType {
@@ -140,8 +140,8 @@ func getBestCond(historyCount int, useGlobal bool) {
 			conds = generateForwardConds(historyCount)
 		case simTypeReverse:
 			conds = generateReverseConds(historyCount)
-		case simTypeCentral:
-			conds = generateCentralConds(historyCount)
+		case simTypeBase:
+			conds = generateBaseConds(historyCount)
 		}
 	}
 	if err := simulationcond.InsertMultiRecord(conds, db.GetAgent()); err != nil {
@@ -200,11 +200,11 @@ func SearchTradePoint(tradeDayArr []time.Time, cond simulationcond.AnalyzeCondit
 			if tickTimeUnix.After(lastTime) || buyPointMap[v.StockNum] != nil || sellFirstPointMap[v.StockNum] != nil {
 				continue
 			}
-			if tradebot.IsBuyPoint(tmp, cond) && (balanceType == simTypeForward || balanceType == simTypeCentral) {
+			if tradebot.IsBuyPoint(tmp, cond) && (balanceType == simTypeForward || balanceType == simTypeBase) {
 				buyPointMap[v.StockNum] = v
 				continue
 			}
-			if tradebot.IsSellFirstPoint(tmp, cond) && (balanceType == simTypeReverse || balanceType == simTypeCentral) {
+			if tradebot.IsSellFirstPoint(tmp, cond) && (balanceType == simTypeReverse || balanceType == simTypeBase) {
 				sellFirstPointMap[v.StockNum] = v
 			}
 		}
@@ -219,7 +219,7 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 	var forwardBalance, reverseBalance int64
 	var tradeCount, positiveCount int64
 	for date, analyzeMap := range analyzeMapMap {
-		if balanceType == simTypeCentral && (len(analyzeMap[0]) == 0 || len(analyzeMap[1]) == 0) && training {
+		if balanceType == simTypeBase && (len(analyzeMap[0]) == 0 || len(analyzeMap[1]) == 0) && training {
 			totalTimesChan <- -1
 			return
 		}
@@ -525,7 +525,7 @@ func generateReverseConds(historyCount int) []*simulationcond.AnalyzeCondition {
 	return conds
 }
 
-func generateCentralConds(historyCount int) []*simulationcond.AnalyzeCondition {
+func generateBaseConds(historyCount int) []*simulationcond.AnalyzeCondition {
 	var conds []*simulationcond.AnalyzeCondition
 	var i, t float64
 	for m := 90; m >= 80; m -= 5 {

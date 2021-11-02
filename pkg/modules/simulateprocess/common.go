@@ -24,5 +24,5 @@ type simulateType int
 const (
 	simTypeForward simulateType = iota + 1
 	simTypeReverse
-	simTypeCentral
+	simTypeBase
 )

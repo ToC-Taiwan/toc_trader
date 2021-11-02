@@ -70,8 +70,8 @@ var AllStockNameMap stringStringMutex
 // StockCloseByDateMap StockCloseByDateMap
 var StockCloseByDateMap stringStringFloat64Mutex
 
-// CentralCond CentralCond
-var CentralCond simulationcond.AnalyzeCondition
+// BaseCond BaseCond
+var BaseCond simulationcond.AnalyzeCondition
 
 // ForwardCond ForwardCond
 var ForwardCond simulationcond.AnalyzeCondition

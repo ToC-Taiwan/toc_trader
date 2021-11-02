@@ -54,7 +54,7 @@ if grep FAIL go_test_result
 then
     exit 1
 fi
-if ! ./scripts/update_basic.sh
+if ! ./scripts/update_callvis.sh
 then
     exit 1
 fi

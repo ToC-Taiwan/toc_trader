@@ -43,7 +43,7 @@ func TradeProcess() {
 			logger.GetLogger().Infof("%s volume rank no. %d is %s", global.LastTradeDay.Format(global.ShortTimeLayout), i+1, global.AllStockNameMap.GetName(v))
 		}
 		tmp := []time.Time{global.LastTradeDay}
-		fetchentiretick.FetchEntireTick(targets, tmp, global.CentralCond)
+		fetchentiretick.FetchEntireTick(targets, tmp, global.BaseCond)
 		if dbTarget, err := targetstock.GetTargetByTime(global.LastTradeDay, db.GetAgent()); err != nil {
 			panic(err)
 		} else if len(dbTarget) == 0 {

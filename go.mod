@@ -6,7 +6,7 @@ require (
 	github.com/gin-gonic/gin v1.7.4
 	github.com/go-resty/resty/v2 v2.6.0
 	github.com/lib/pq v1.10.3
-	github.com/manifoldco/promptui v0.8.0
+	github.com/manifoldco/promptui v0.9.0
 	github.com/markcheno/go-quote v0.0.0-20210728005305-f6d452d96e34
 	github.com/markcheno/go-talib v0.0.0-20190307022042-cd53a9264d70
 	github.com/rifflock/lfshook v0.0.0-20180920164130-b9218ef580f5
@@ -19,7 +19,7 @@ require (
 	google.golang.org/protobuf v1.27.1
 	gorm.io/driver/postgres v1.2.1
 	gorm.io/driver/sqlite v1.2.3
-	gorm.io/gorm v1.22.1
+	gorm.io/gorm v1.22.2
 )
 
 require (
@@ -50,11 +50,8 @@ require (
 	github.com/jinzhu/now v1.1.2 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.9 // indirect
-	github.com/juju/ansiterm v0.0.0-20180109212912-720a0952cc2a // indirect
 	github.com/leodido/go-urn v1.2.0 // indirect
-	github.com/lunixbochs/vtclean v0.0.0-20180621232353-2d01aacdc34a // indirect
 	github.com/mailru/easyjson v0.7.6 // indirect
-	github.com/mattn/go-colorable v0.1.6 // indirect
 	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/mattn/go-sqlite3 v1.14.9 // indirect
