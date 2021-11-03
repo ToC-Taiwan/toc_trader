@@ -4,7 +4,6 @@ package tradebot
 import (
 	"time"
 
-	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/analyzestreamtick"
 )
@@ -18,12 +17,10 @@ var (
 func BuyAgent(ch chan *analyzestreamtick.AnalyzeStreamTick) {
 	for {
 		analyzeTick := <-ch
-		if checkInBuyMap(analyzeTick.StockNum) || checkInSellFirstMap(analyzeTick.StockNum) {
-			logger.GetLogger().Infof("%s already buy", analyzeTick.StockNum)
+		if BuyOrderMap.CheckStockExist(analyzeTick.StockNum) || FilledBuyOrderMap.CheckStockExist(analyzeTick.StockNum) || SellFirstOrderMap.CheckStockExist(analyzeTick.StockNum) {
 			continue
 		}
 		if IsBuyPoint(analyzeTick, global.ForwardCond) {
-			logger.GetLogger().Infof("%s %s is on buy point, Close: %.2f", analyzeTick.StockNum, global.AllStockNameMap.GetName(analyzeTick.StockNum), analyzeTick.Close)
 			if global.TradeSwitch.Buy {
 				BuyBot(analyzeTick)
 			}
@@ -35,23 +32,13 @@ func BuyAgent(ch chan *analyzestreamtick.AnalyzeStreamTick) {
 func SellFirstAgent(ch chan *analyzestreamtick.AnalyzeStreamTick) {
 	for {
 		analyzeTick := <-ch
-		if checkInSellFirstMap(analyzeTick.StockNum) || checkInBuyMap(analyzeTick.StockNum) {
-			logger.GetLogger().Infof("%s already sell first", analyzeTick.StockNum)
+		if SellFirstOrderMap.CheckStockExist(analyzeTick.StockNum) || FilledSellFirstOrderMap.CheckStockExist(analyzeTick.StockNum) || BuyOrderMap.CheckStockExist(analyzeTick.StockNum) {
 			continue
 		}
 		if IsSellFirstPoint(analyzeTick, global.ReverseCond) {
-			logger.GetLogger().Infof("%s %s is on sell first point, Close: %.2f", analyzeTick.StockNum, global.AllStockNameMap.GetName(analyzeTick.StockNum), analyzeTick.Close)
 			if global.TradeSwitch.SellFirst {
 				SellFirstBot(analyzeTick)
 			}
 		}
 	}
-}
-
-func checkInBuyMap(stockNum string) bool {
-	return BuyOrderMap.CheckStockExist(stockNum) || FilledBuyOrderMap.CheckStockExist(stockNum)
-}
-
-func checkInSellFirstMap(stockNum string) bool {
-	return SellFirstOrderMap.CheckStockExist(stockNum) || FilledSellFirstOrderMap.CheckStockExist(stockNum)
 }
