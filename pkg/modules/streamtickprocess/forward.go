@@ -36,7 +36,7 @@ func ForwardTickProcess(lastClose float64, cond simulationcond.AnalyzeCondition,
 			openChangeRatio = common.Round((tick.Open - lastClose), 2)
 		}
 		tmpArr = append(tmpArr, tick)
-		if tradebot.BuyOrderMap.CheckStockExist(tick.StockNum) {
+		if tradebot.BuyOrderMap.CheckStockExist(tick.StockNum) && tradebot.FilledBuyOrderMap.CheckStockExist(tick.StockNum) {
 			sellChan <- tick
 		}
 

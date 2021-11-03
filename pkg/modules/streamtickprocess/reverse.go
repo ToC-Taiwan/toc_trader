@@ -36,7 +36,7 @@ func ReverseTickProcess(lastClose float64, cond simulationcond.AnalyzeCondition,
 			openChangeRatio = common.Round((tick.Open - lastClose), 2)
 		}
 		tmpArr = append(tmpArr, tick)
-		if tradebot.SellFirstOrderMap.CheckStockExist(tick.StockNum) {
+		if tradebot.SellFirstOrderMap.CheckStockExist(tick.StockNum) && tradebot.FilledSellFirstOrderMap.CheckStockExist(tick.StockNum) {
 			buyLaterChan <- tick
 		}
 
