@@ -1,9 +1,28 @@
 # CHANGELOG
 
-## Unreleased (2021-10-28)
+## Unreleased (2021-11-03)
 
 ### New feature
 
+- **middlebot**: :children_crossing: let stock can be buy and sell first at one day([`10abb48`](https://gitlab.tocraw.com/root/toc_trader/commit/10abb48dce06a300d3303bf151ed55b08060ec37)) (@TimHsu@M1BP-20210907)
+- **tradebot**: :monocle_face: InitStartUpQuota separate buy and sell first, save unfinished stock to current map([`1ed17c3`](https://gitlab.tocraw.com/root/toc_trader/commit/1ed17c38df060492c51592e7a6cbff7c22b69c60)) (@TimHsu@M1BP-20210907)
+- **tradebot**: :speech_balloon: stock can be buy and sell first at one day, modifiy cond, simulation([`75dae10`](https://gitlab.tocraw.com/root/toc_trader/commit/75dae1048de0f9d5a5bc93cb0e10a2b6d4d47642)) (@TimHsu@M1BP-20210907)
+
+### Bugs fixed
+
+- **quota**: :recycle: fix 100% cpu rate, change quota to buy and sell first([`033e349`](https://gitlab.tocraw.com/root/toc_trader/commit/033e3499c47dec2d453eb097921ff728a85baac1)) (@TimHsu@M1BP-20210907)
+- **tradebot**: :globe_with_meridians: fix wrong check sell or buylater map again([`59a6274`](https://gitlab.tocraw.com/root/toc_trader/commit/59a6274cd3c366dbb50d82c8f00a012b3c367bab)) (@TimHsu@M1BP-20210907)
+- **tradebot**: :boom: fix wrong check sell or buylater map([`c07b7b2`](https://gitlab.tocraw.com/root/toc_trader/commit/c07b7b21d33737ad6ca7746613b99b90046781ba)) (@TimHsu@M1BP-20210907)
+- **tradebot**: :globe_with_meridians: recover one day buy sell first one time([`aa2b192`](https://gitlab.tocraw.com/root/toc_trader/commit/aa2b192f3209d8b5fcddb6939577de4e320761a8)) (@TimHsu@M1BP-20210907)
+- **cond**: :bento: fix wrong cond([`900b6f3`](https://gitlab.tocraw.com/root/toc_trader/commit/900b6f3a1b7389653598b70204d74734842082ff)) (@TimHsu@M1BP-20210907)
+
+## v1.2.0 (2021-11-02)
+
+### New feature
+
+- **tradebot**: :necktie: GetRSIStatus to decide buy sell([`fdc7e58`](https://gitlab.tocraw.com/root/toc_trader/commit/fdc7e58e5dd0e8bfb400913b60a3c2d933ac0671)) (@TimHsu@M1BP-20210907)
+- **tradebot**: :fire: remove closediff, change reverse rsi method, change total volume limit([`21293cb`](https://gitlab.tocraw.com/root/toc_trader/commit/21293cb1de1bd7a1268643ad20e343354d14bff3)) (@TimHsu@M1BP-20210907)
+- **healthcheck**: :beers: add server token check([`eb7e808`](https://gitlab.tocraw.com/root/toc_trader/commit/eb7e8085dfdbc78361c5130cc1a38e585d37c051)) (@TimHsu@M1BP-20210907)
 - **tradebot**: :fire: separate forward, reverse cond, fix status, add trim historyClose switch([`83bd6ec`](https://gitlab.tocraw.com/root/toc_trader/commit/83bd6ec6562e58bec03706ab0f52d6bc9ee59523)) (@TimHsu@M1BP-20210907)
 - **tradebot**: :fire: count positive days, shrink trade in time([`7bb62e6`](https://gitlab.tocraw.com/root/toc_trader/commit/7bb62e611de002f295e9d8219b331ce1036846a8)) (@TimHsu@M1BP-20210907)
 - **md**: :card_file_box: add changelog and contributing([`2409dcf`](https://gitlab.tocraw.com/root/toc_trader/commit/2409dcfda00e2d1851f85f9070afaca76cb85f18)) (@TimHsu@M1BP-20210907)
@@ -17,6 +36,12 @@
 
 ### Bugs fixed
 
+- **tradebot**: :wastebasket: modify simtrade volume filter, remove check order status == 4([`051f9c7`](https://gitlab.tocraw.com/root/toc_trader/commit/051f9c72fca3b9a1bd25dff95be8e4bb34e14b65)) (@TimHsu@M1BP-20210907)
+- **tradebot**: :card_file_box: fix continue cancel same order, no goroutine in middle bot([`2e6a90e`](https://gitlab.tocraw.com/root/toc_trader/commit/2e6a90e1bc9ea1d1bc27945435d1e283a8c5b48e)) (@TimHsu@M1BP-20210907)
+- **tradebot**: :globe_with_meridians: fix cancel order flow, modify mutex map lock([`99e9a0e`](https://gitlab.tocraw.com/root/toc_trader/commit/99e9a0e8601361b4ae47d44537516613585220ee)) (@TimHsu@M1BP-20210907)
+- **healthcheck**: :tada: remove token logger([`4060a74`](https://gitlab.tocraw.com/root/toc_trader/commit/4060a740221cba4383a8dc33427656d58e88f792)) (@TimHsu@M1BP-20210907)
+- **tradebot**: :boom: fix critical wrong delete tradein map, change simulation prompt position([`1d57145`](https://gitlab.tocraw.com/root/toc_trader/commit/1d57145eac8d510a22869d10015b52ae3198f019)) (@TimHsu@M1BP-20210907)
+- **tradebot**: :see_no_evil: add closechange in get sell, buylater price, modify cond([`af5f54d`](https://gitlab.tocraw.com/root/toc_trader/commit/af5f54d5f56918452bc53b4dac782577a4d3b7c2)) (@TimHsu@M1BP-20210907)
 - **tradebot**: :page_facing_up: fix cancel, add already, none cancel from sinopac_srv([`8727aea`](https://gitlab.tocraw.com/root/toc_trader/commit/8727aead78a477c850c1f025a56ab314c4e0302f)) (@TimHsu@M1BP-20210907)
 - **tradebot**: :sparkles: separate tickprocess to forward, reverse, try fix cancel fail but sucess([`8beb028`](https://gitlab.tocraw.com/root/toc_trader/commit/8beb0284e7a708d1c04ea8f497143c67ebfc307c)) (@TimHsu@M1BP-20210907)
 - **docker**: :pushpin: fix wrong config path again([`bcf9683`](https://gitlab.tocraw.com/root/toc_trader/commit/bcf9683f574aa3e58210a6a7e5ea0cbe437e900e)) (@TimHsu@M1BP-20210907)

@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"gitlab.tocraw.com/root/toc_trader/external/sinopacsrv"
-	"gitlab.tocraw.com/root/toc_trader/internal/db"
+	"gitlab.tocraw.com/root/toc_trader/internal/database"
 	"gitlab.tocraw.com/root/toc_trader/internal/logger"
-	"gitlab.tocraw.com/root/toc_trader/internal/rest"
+	"gitlab.tocraw.com/root/toc_trader/internal/restful"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/holiday"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/stock"
@@ -40,7 +40,7 @@ func ImportAllStock() {
 	if err != nil {
 		panic(err)
 	}
-	allStockNumInDB, err := stock.GetAllStockNum(db.GetAgent())
+	allStockNumInDB, err := stock.GetAllStockNum(database.GetAgent())
 	if err != nil {
 		panic(err)
 	}
@@ -49,7 +49,7 @@ func ImportAllStock() {
 		existMap[v] = true
 	}
 	// Get stock detail from Sinopac SRV
-	resp, err := rest.GetClient().R().
+	resp, err := restful.GetClient().R().
 		SetResult(&[]sinopacsrv.FetchStockBody{}).
 		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/basic/importstock")
 	if err != nil {
@@ -71,7 +71,7 @@ func ImportAllStock() {
 			importStock++
 		}
 	}
-	if err := stock.InsertMultiRecord(insertArr, db.GetAgent()); err != nil {
+	if err := stock.InsertMultiRecord(insertArr, database.GetAgent()); err != nil {
 		panic(err)
 	}
 	logger.GetLogger().WithFields(map[string]interface{}{
@@ -109,7 +109,7 @@ func ImportHoliday() (err error) {
 	}
 	holidayUTCArr = append(holidayUTCArr, weekendArr...)
 
-	allHolidayInDB, err := holiday.GetAllHoliday(db.GetAgent())
+	allHolidayInDB, err := holiday.GetAllHoliday(database.GetAgent())
 	if err != nil {
 		return err
 	}
@@ -128,7 +128,7 @@ func ImportHoliday() (err error) {
 			insertArr = append(insertArr, tmp)
 		}
 	}
-	if err = holiday.InsertMultiRecord(insertArr, db.GetAgent()); err != nil {
+	if err = holiday.InsertMultiRecord(insertArr, database.GetAgent()); err != nil {
 		return err
 	}
 	return err
@@ -188,7 +188,7 @@ func GetLastNTradeDay(n int64) (lastTradeDayArr []time.Time, err error) {
 // GetNextTradeDayTime GetNextTradeDayTime
 func GetNextTradeDayTime(nowTime time.Time) (tradeDay time.Time, err error) {
 	tmp := time.Date(nowTime.Year(), nowTime.Month(), nowTime.Day(), 0, 0, 0, 0, time.UTC)
-	exist, err := holiday.CheckIsHolidayByTimeStamp(tmp.Unix(), db.GetAgent())
+	exist, err := holiday.CheckIsHolidayByTimeStamp(tmp.Unix(), database.GetAgent())
 	if err != nil {
 		return tradeDay, err
 	}
@@ -202,7 +202,7 @@ func GetNextTradeDayTime(nowTime time.Time) (tradeDay time.Time, err error) {
 // GetLastTradeDayTime GetLastTradeDayTime
 func GetLastTradeDayTime(tradeDay time.Time) (lastTradeDay time.Time, err error) {
 	tmp := time.Date(tradeDay.Year(), tradeDay.Month(), tradeDay.Day(), 0, 0, 0, 0, time.UTC)
-	exist, err := holiday.CheckIsHolidayByTimeStamp(tmp.AddDate(0, 0, -1).Unix(), db.GetAgent())
+	exist, err := holiday.CheckIsHolidayByTimeStamp(tmp.AddDate(0, 0, -1).Unix(), database.GetAgent())
 	if err != nil {
 		return lastTradeDay, err
 	}
@@ -219,7 +219,7 @@ func GetLastTradeDayByDate(tradeDay string) (lastTradeDay time.Time, err error) 
 		return lastTradeDay, err
 	}
 	tmp := time.Date(dateUnix.Year(), dateUnix.Month(), dateUnix.Day(), 0, 0, 0, 0, time.UTC)
-	exist, err := holiday.CheckIsHolidayByTimeStamp(tmp.AddDate(0, 0, -1).Unix(), db.GetAgent())
+	exist, err := holiday.CheckIsHolidayByTimeStamp(tmp.AddDate(0, 0, -1).Unix(), database.GetAgent())
 	if err != nil {
 		return lastTradeDay, err
 	}
@@ -231,7 +231,7 @@ func GetLastTradeDayByDate(tradeDay string) (lastTradeDay time.Time, err error) 
 
 // AskSinoPyUpdateBasic AskSinoPyUpdateBasic
 func AskSinoSRVUpdateBasic() (err error) {
-	resp, err := rest.GetClient().R().
+	resp, err := restful.GetClient().R().
 		SetResult(&sinopacsrv.OrderResponse{}).
 		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/basic/update-basic")
 	if err != nil {

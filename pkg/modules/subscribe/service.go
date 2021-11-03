@@ -8,11 +8,14 @@ import (
 
 	"gitlab.tocraw.com/root/toc_trader/external/sinopacsrv"
 	"gitlab.tocraw.com/root/toc_trader/internal/logger"
-	"gitlab.tocraw.com/root/toc_trader/internal/rest"
+	"gitlab.tocraw.com/root/toc_trader/internal/restful"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
+	"gitlab.tocraw.com/root/toc_trader/pkg/models/entiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/streamtick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/bidaskprocess"
+	"gitlab.tocraw.com/root/toc_trader/pkg/modules/fetchentiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/streamtickprocess"
+	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot"
 )
 
 // ForwardStreamTickChannelMap ForwardStreamTickChannelMap
@@ -40,7 +43,6 @@ func SubStreamTick(stockArr []string) {
 
 	saveCh := make(chan []*streamtick.StreamTick, len(stockArr)*3)
 	go streamtickprocess.SaveStreamTicks(saveCh)
-
 	for _, stockNum := range stockArr {
 		lastClose := global.StockCloseByDateMap.GetClose(stockNum, global.LastTradeDay.Format(global.ShortTimeLayout))
 		if lastClose == 0 {
@@ -56,11 +58,31 @@ func SubStreamTick(stockArr []string) {
 		ReverseStreamTickChannelMap.Set(stockNum, reverseCh)
 		go streamtickprocess.ReverseTickProcess(lastClose, global.ReverseCond, reverseCh)
 	}
-	// TODO: add close arr, if it had already
+	// fill missing ticks
+	if tradebot.CheckIsOpenTime() {
+		for _, stock := range stockArr {
+			var ticks []*entiretick.EntireTick
+			if ticks, err = fetchentiretick.FetchByDate(stock, global.TradeDay.Format(global.ShortTimeLayout)); err != nil {
+				logger.GetLogger().Error(err)
+				return
+			}
+			for _, tick := range ticks {
+				*ForwardStreamTickChannelMap.GetChannelByStockNum(stock) <- tick.ToStreamTick()
+				*ReverseStreamTickChannelMap.GetChannelByStockNum(stock) <- tick.ToStreamTick()
+			}
+			logger.GetLogger().WithFields(map[string]interface{}{
+				"StockNum": stock,
+				"Count":    len(ticks),
+			}).Info("Fill Missing Ticks Done")
+		}
+	}
+	for _, v := range stockArr {
+		streamtickprocess.MissingTicksStatus.SetDone(v)
+	}
 	stocks := subBody{
 		StockNumArr: stockArr,
 	}
-	resp, err := rest.GetClient().R().
+	resp, err := restful.GetClient().R().
 		SetBody(stocks).
 		SetResult(&sinopacsrv.OrderResponse{}).
 		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/subscribe/streamtick")
@@ -98,7 +120,7 @@ func SubBidAsk(stockArr []string) {
 	stocks := subBody{
 		StockNumArr: stockArr,
 	}
-	resp, err := rest.GetClient().R().
+	resp, err := restful.GetClient().R().
 		SetBody(stocks).
 		SetResult(&sinopacsrv.OrderResponse{}).
 		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/subscribe/bid-ask")
@@ -136,7 +158,7 @@ func UnSubscribeAll(dataType TickType) {
 	case dataType == BidAsk:
 		url = "/pyapi/unsubscribeall/bid-ask"
 	}
-	resp, err := rest.GetClient().R().
+	resp, err := restful.GetClient().R().
 		SetResult(&sinopacsrv.OrderResponse{}).
 		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + url)
 	if err != nil {

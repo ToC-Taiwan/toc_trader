@@ -4,7 +4,7 @@ package tradebot
 import (
 	"time"
 
-	"gitlab.tocraw.com/root/toc_trader/internal/db"
+	"gitlab.tocraw.com/root/toc_trader/internal/database"
 	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/analyzestreamtick"
@@ -93,19 +93,15 @@ func BuyLaterBot(ch chan *streamtick.StreamTick, cond simulationcond.AnalyzeCond
 
 // IsSellFirstPoint IsSellFirstPoint
 func IsSellFirstPoint(analyzeTick *analyzestreamtick.AnalyzeStreamTick, cond simulationcond.AnalyzeCondition) bool {
-	// closeChangeRatio := analyzeTick.CloseChangeRatio
-	// if analyzeTick.OpenChangeRatio > cond.OpenChangeRatio || closeChangeRatio < cond.CloseChangeRatioLow || closeChangeRatio > cond.CloseChangeRatioHigh {
-	// 	return false
-	// }
+	if analyzeTick.OpenChangeRatio > cond.OpenChangeRatio {
+		return false
+	}
 	if analyzeTick.Volume < cond.VolumePerSecond*int64(analyzeTick.TotalTime) {
 		return false
 	}
 	if analyzeTick.OutInRatio > cond.ReverseOutInRatio {
 		return false
 	}
-	// if analyzeTick.Rsi < cond.ReverseRsiLow || analyzeTick.Rsi > cond.ReverseRsiHigh {
-	// 	return false
-	// }
 	return true
 }
 
@@ -141,7 +137,7 @@ func GetBuyLaterPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyC
 func CheckSellFirstOrderStatus(record traderecord.TradeRecord) {
 	for {
 		time.Sleep(time.Second)
-		order, err := traderecord.GetOrderByOrderID(record.OrderID, db.GetAgent())
+		order, err := traderecord.GetOrderByOrderID(record.OrderID, database.GetAgent())
 		if err != nil {
 			logger.GetLogger().Error(err)
 			continue
@@ -173,7 +169,7 @@ func CheckSellFirstOrderStatus(record traderecord.TradeRecord) {
 func CheckBuyLaterOrderStatus(record traderecord.TradeRecord) {
 	for {
 		time.Sleep(time.Second)
-		order, err := traderecord.GetOrderByOrderID(record.OrderID, db.GetAgent())
+		order, err := traderecord.GetOrderByOrderID(record.OrderID, database.GetAgent())
 		if err != nil {
 			logger.GetLogger().Error(err)
 			continue

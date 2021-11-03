@@ -15,6 +15,7 @@ import (
 
 // ReverseTickProcess ReverseTickProcess
 func ReverseTickProcess(lastClose float64, cond simulationcond.AnalyzeCondition, ch chan *streamtick.StreamTick) {
+	var tradeSwitch bool
 	var input quote.Quote
 	var unSavedTicks streamtick.PtrArrArr
 	var tmpArr streamtick.PtrArr
@@ -25,7 +26,6 @@ func ReverseTickProcess(lastClose float64, cond simulationcond.AnalyzeCondition,
 	}
 	analyzeTickChan := make(chan *analyzestreamtick.AnalyzeStreamTick)
 	go tradebot.SellFirstAgent(analyzeTickChan)
-
 	if global.TradeSwitch.BuyLater {
 		buyLaterChan = make(chan *streamtick.StreamTick)
 		go tradebot.BuyLaterBot(buyLaterChan, cond, &input.Close)
@@ -95,7 +95,9 @@ func ReverseTickProcess(lastClose float64, cond simulationcond.AnalyzeCondition,
 				Rsi:              rsi,
 				Volume:           outSum + inSum,
 			}
-			analyzeTickChan <- &analyze
+			if tradeSwitch {
+				analyzeTickChan <- &analyze
+			}
 			unSavedTicks.ClearAll()
 		}
 	}

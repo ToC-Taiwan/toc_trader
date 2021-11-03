@@ -8,9 +8,9 @@ import (
 	"sync"
 	"time"
 
-	"gitlab.tocraw.com/root/toc_trader/internal/db"
+	"gitlab.tocraw.com/root/toc_trader/internal/database"
 	"gitlab.tocraw.com/root/toc_trader/internal/logger"
-	"gitlab.tocraw.com/root/toc_trader/internal/rest"
+	"gitlab.tocraw.com/root/toc_trader/internal/restful"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/entiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulationcond"
@@ -41,7 +41,7 @@ func FetchEntireTick(stockNumArr []string, dateArr []time.Time, cond simulationc
 	go entiretickprocess.SaveEntireTicks(saveCh)
 	for _, d := range dateArr {
 		for _, s := range stockNumArr {
-			rows, err := entiretick.GetCntByStockAndDate(s, d.Format(global.ShortTimeLayout), db.GetAgent())
+			rows, err := entiretick.GetCntByStockAndDate(s, d.Format(global.ShortTimeLayout), database.GetAgent())
 			if err != nil {
 				panic(err)
 			} else {
@@ -83,7 +83,7 @@ func GetAndSaveEntireTick(stockNum, date string, cond simulationcond.AnalyzeCond
 		StockNum: stockNum,
 		Date:     date,
 	}
-	resp, err := rest.GetClient().R().
+	resp, err := restful.GetClient().R().
 		SetBody(stockAndDate).
 		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/history/entiretick")
 	if err != nil {
@@ -124,7 +124,7 @@ func FetchByDate(stockNum, date string) (data []*entiretick.EntireTick, err erro
 		StockNum: stockNum,
 		Date:     date,
 	}
-	resp, err := rest.GetClient().R().
+	resp, err := restful.GetClient().R().
 		SetBody(stockAndDateArr).
 		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/history/entiretick")
 	if err != nil {

@@ -4,7 +4,7 @@ package tradebot
 import (
 	"time"
 
-	"gitlab.tocraw.com/root/toc_trader/internal/db"
+	"gitlab.tocraw.com/root/toc_trader/internal/database"
 	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/analyzestreamtick"
@@ -97,7 +97,7 @@ func IsBuyPoint(analyzeTick *analyzestreamtick.AnalyzeStreamTick, cond simulatio
 	if analyzeTick.Volume < cond.VolumePerSecond*int64(analyzeTick.TotalTime) {
 		return false
 	}
-	if analyzeTick.OpenChangeRatio > cond.OpenChangeRatio || closeChangeRatio > cond.CloseChangeRatioHigh || closeChangeRatio < cond.CloseChangeRatioLow {
+	if analyzeTick.OpenChangeRatio < cond.OpenChangeRatio || closeChangeRatio > cond.CloseChangeRatioHigh || closeChangeRatio < cond.CloseChangeRatioLow {
 		return false
 	}
 	if analyzeTick.OutInRatio < cond.OutInRatio {
@@ -138,7 +138,7 @@ func GetSellPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyClose
 func CheckBuyOrderStatus(record traderecord.TradeRecord) {
 	for {
 		time.Sleep(time.Second)
-		order, err := traderecord.GetOrderByOrderID(record.OrderID, db.GetAgent())
+		order, err := traderecord.GetOrderByOrderID(record.OrderID, database.GetAgent())
 		if err != nil {
 			logger.GetLogger().Error(err)
 			continue
@@ -170,7 +170,7 @@ func CheckBuyOrderStatus(record traderecord.TradeRecord) {
 func CheckSellOrderStatus(record traderecord.TradeRecord) {
 	for {
 		time.Sleep(time.Second)
-		order, err := traderecord.GetOrderByOrderID(record.OrderID, db.GetAgent())
+		order, err := traderecord.GetOrderByOrderID(record.OrderID, database.GetAgent())
 		if err != nil {
 			logger.GetLogger().Error(err)
 			continue

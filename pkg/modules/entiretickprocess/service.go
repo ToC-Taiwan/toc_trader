@@ -8,7 +8,7 @@ import (
 
 	"github.com/markcheno/go-quote"
 	"gitlab.tocraw.com/root/toc_trader/internal/common"
-	"gitlab.tocraw.com/root/toc_trader/internal/db"
+	"gitlab.tocraw.com/root/toc_trader/internal/database"
 	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/analyzeentiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/entiretick"
@@ -123,7 +123,7 @@ func SaveEntireTicks(saveCh chan []*entiretick.EntireTick) {
 			return
 		}
 		if len(saveData) != 0 {
-			if err := entiretick.InsertMultiRecord(saveData, db.GetAgent()); err != nil {
+			if err := entiretick.InsertMultiRecord(saveData, database.GetAgent()); err != nil {
 				logger.GetLogger().Error(err)
 			}
 		}
@@ -153,7 +153,7 @@ func AnalyzeEntireTickSaver(ch chan *analyzeentiretick.AnalyzeEntireTick, wg *sy
 		if !ok {
 			if !sim {
 				if len(tmpArr) != 0 {
-					if err := analyzeentiretick.InsertMultiRecord(tmpArr, db.GetAgent()); err != nil {
+					if err := analyzeentiretick.InsertMultiRecord(tmpArr, database.GetAgent()); err != nil {
 						panic(err)
 					}
 				}

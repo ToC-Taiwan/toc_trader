@@ -12,10 +12,10 @@ import (
 
 	"gitlab.tocraw.com/root/toc_trader/external/sinopacsrv"
 	"gitlab.tocraw.com/root/toc_trader/init/sysparminit"
-	"gitlab.tocraw.com/root/toc_trader/internal/db"
+	"gitlab.tocraw.com/root/toc_trader/internal/database"
 	"gitlab.tocraw.com/root/toc_trader/internal/healthcheck"
 	"gitlab.tocraw.com/root/toc_trader/internal/logger"
-	"gitlab.tocraw.com/root/toc_trader/internal/rest"
+	"gitlab.tocraw.com/root/toc_trader/internal/restful"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/entiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/snapshot"
@@ -69,7 +69,7 @@ func UnSubscribeAll() {
 
 // GetTopTarget GetTopTarget
 func GetTopTarget(count int) (targetArr []string, err error) {
-	resp, err := rest.GetClient().R().
+	resp, err := restful.GetClient().R().
 		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/basic/update/snapshot")
 	if err != nil {
 		return targetArr, err
@@ -148,7 +148,7 @@ func GetTargetFromStockList(conditionArr []sysparm.TargetCondArr) {
 		}
 	}()
 	var savedTarget []targetstock.Target
-	if dbTarget, err := targetstock.GetTargetByTime(global.LastTradeDay, db.GetAgent()); err != nil {
+	if dbTarget, err := targetstock.GetTargetByTime(global.LastTradeDay, database.GetAgent()); err != nil {
 		panic(err)
 	} else if len(dbTarget) != 0 {
 		for i, v := range dbTarget {
@@ -162,7 +162,7 @@ func GetTargetFromStockList(conditionArr []sysparm.TargetCondArr) {
 	}
 	blackStockMap := sysparminit.GlobalSettings.GetBlackStockMap()
 	blackCategoryMap := sysparminit.GlobalSettings.GetBlackCategoryMap()
-	if targets, err := stock.GetTargetByMultiLowHighVolume(conditionArr, db.GetAgent()); err != nil {
+	if targets, err := stock.GetTargetByMultiLowHighVolume(conditionArr, database.GetAgent()); err != nil {
 		panic(err)
 	} else {
 		for i, v := range targets {
@@ -183,7 +183,7 @@ func GetTargetFromStockList(conditionArr []sysparm.TargetCondArr) {
 			})
 		}
 	}
-	if err := targetstock.InsertMultiTarget(savedTarget, db.GetAgent()); err != nil {
+	if err := targetstock.InsertMultiTarget(savedTarget, database.GetAgent()); err != nil {
 		panic(err)
 	}
 }
@@ -205,13 +205,13 @@ func UpdateLastStockVolume() {
 		}
 	}()
 	var lastUpdateTime time.Time
-	if lastUpdateTime, err = stock.GetLastUpdatedTime(db.GetAgent()); err != nil {
+	if lastUpdateTime, err = stock.GetLastUpdatedTime(database.GetAgent()); err != nil {
 		panic(err)
 	} else if lastUpdateTime.After(global.LastTradeDay.Local().Add(7 * time.Hour)) {
 		logger.GetLogger().Info("Volume and close is no need to update")
 		return
 	}
-	resp, err := rest.GetClient().R().
+	resp, err := restful.GetClient().R().
 		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/basic/update/snapshot")
 	if err != nil {
 		panic(err)
@@ -235,7 +235,7 @@ func UpdateLastStockVolume() {
 			Volume int64
 		}{Close: v.GetClose(), Volume: v.GetTotalVolume()}
 	}
-	if err := stock.UpdateVolumeByStockNum(tmpMap, db.GetAgent()); err != nil {
+	if err := stock.UpdateVolumeByStockNum(tmpMap, database.GetAgent()); err != nil {
 		panic(err)
 	}
 	logger.GetLogger().Info("Volume and close update done")
@@ -250,7 +250,7 @@ func UpdateStockCloseMapByDate(stockNumArr []string, dateArr []time.Time) error 
 	}
 	for _, date := range dateArr {
 		logger.GetLogger().Infof("Update Stock Close on %s", date.Format(global.ShortTimeLayout))
-		resp, err := rest.GetClient().R().
+		resp, err := restful.GetClient().R().
 			SetHeader("X-Date", date.Format(global.ShortTimeLayout)).
 			SetBody(stockArr).
 			SetResult(&[]sinopacsrv.StockLastCount{}).
@@ -265,7 +265,7 @@ func UpdateStockCloseMapByDate(stockNumArr []string, dateArr []time.Time) error 
 			if len(val.Close) != 0 {
 				global.StockCloseByDateMap.Set(val.Date, val.Code, val.Close[0])
 			} else {
-				tmpClose, err := entiretick.GetLastCloseByDate(val.Code, val.Date, db.GetAgent())
+				tmpClose, err := entiretick.GetLastCloseByDate(val.Code, val.Date, database.GetAgent())
 				if err != nil {
 					return err
 				}
@@ -279,7 +279,7 @@ func UpdateStockCloseMapByDate(stockNumArr []string, dateArr []time.Time) error 
 						continue
 					} else {
 						fetchSaveLock.Lock()
-						if err := entiretick.InsertMultiRecord(res, db.GetAgent()); err != nil {
+						if err := entiretick.InsertMultiRecord(res, database.GetAgent()); err != nil {
 							return err
 						}
 						fetchSaveLock.Unlock()
@@ -308,7 +308,7 @@ func TSEProcess() {
 // GetTargetByVolumeRankByDate GetTargetByVolumeRankByDate
 func GetTargetByVolumeRankByDate(date string, count int64) (rankArr []string, err error) {
 	countStr := strconv.FormatInt(count, 10)
-	resp, err := rest.GetClient().R().
+	resp, err := restful.GetClient().R().
 		SetHeader("X-Count", countStr).
 		SetHeader("X-Date", date).
 		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/trade/volumerank")

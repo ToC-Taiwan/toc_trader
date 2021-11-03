@@ -15,6 +15,7 @@ import (
 
 // ForwardTickProcess ForwardTickProcess
 func ForwardTickProcess(lastClose float64, cond simulationcond.AnalyzeCondition, ch chan *streamtick.StreamTick, saveCh chan []*streamtick.StreamTick) {
+	var tradeSwitch bool
 	var input quote.Quote
 	var unSavedTicks streamtick.PtrArrArr
 	var tmpArr streamtick.PtrArr
@@ -25,13 +26,17 @@ func ForwardTickProcess(lastClose float64, cond simulationcond.AnalyzeCondition,
 	}
 	analyzeTickChan := make(chan *analyzestreamtick.AnalyzeStreamTick)
 	go tradebot.BuyAgent(analyzeTickChan)
-
 	if global.TradeSwitch.Sell {
 		sellChan = make(chan *streamtick.StreamTick)
 		go tradebot.SellBot(sellChan, cond, &input.Close)
 	}
 	for {
 		tick := <-ch
+		if !tradeSwitch {
+			if tradeSwitch = MissingTicksStatus.CheckByStockNum(tick.StockNum); tradeSwitch {
+				logger.GetLogger().Infof("%s Missing Ticks Filled, Switch ON", tick.StockNum)
+			}
+		}
 		if openChangeRatio == 0 {
 			openChangeRatio = common.Round((tick.Open - lastClose), 2)
 		}
@@ -96,7 +101,9 @@ func ForwardTickProcess(lastClose float64, cond simulationcond.AnalyzeCondition,
 				Rsi:              rsi,
 				Volume:           outSum + inSum,
 			}
-			analyzeTickChan <- &analyze
+			if tradeSwitch {
+				analyzeTickChan <- &analyze
+			}
 			unSavedTicks.ClearAll()
 		}
 	}

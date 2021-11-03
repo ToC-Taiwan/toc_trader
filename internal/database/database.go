@@ -1,5 +1,5 @@
-// Package db package db
-package db
+// Package database package database
+package database
 
 import (
 	"time"

@@ -64,3 +64,12 @@ func isCurrentOrderAllFinished() bool {
 	}
 	return FilledBuyOrderMap.GetCount() == FilledSellOrderMap.GetCount() && FilledSellFirstOrderMap.GetCount() == FilledBuyLaterOrderMap.GetCount()
 }
+
+// CheckIsOpenTime CheckIsOpenTime
+func CheckIsOpenTime() bool {
+	starTime := global.TradeDay.Add(1 * time.Hour)
+	if time.Now().After(starTime) && time.Now().Before(global.TradeDayInEndTime) {
+		return true
+	}
+	return false
+}

@@ -4,7 +4,7 @@ package bidaskprocess
 import (
 	"time"
 
-	"gitlab.tocraw.com/root/toc_trader/internal/db"
+	"gitlab.tocraw.com/root/toc_trader/internal/database"
 	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/bidask"
 )
@@ -20,7 +20,7 @@ func SaveBidAsk(stockNum string) {
 			continue
 		}
 		tmpArr := TmpBidAskMap.GetArrByStockNum(stockNum)
-		if err := bidask.InsertMultiRecord(tmpArr[:len(tmpArr)-1], db.GetAgent()); err != nil {
+		if err := bidask.InsertMultiRecord(tmpArr[:len(tmpArr)-1], database.GetAgent()); err != nil {
 			logger.GetLogger().Error(err)
 			continue
 		}

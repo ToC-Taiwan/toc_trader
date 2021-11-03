@@ -1,5 +1,5 @@
-// Package rest package rest
-package rest
+// Package restful package restful
+package restful
 
 import (
 	"github.com/go-resty/resty/v2"

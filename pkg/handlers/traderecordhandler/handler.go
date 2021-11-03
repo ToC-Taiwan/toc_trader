@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"gitlab.tocraw.com/root/toc_trader/internal/db"
+	"gitlab.tocraw.com/root/toc_trader/internal/database"
 	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/handlers"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/traderecord"
@@ -49,7 +49,7 @@ func UpdateTradeRecord(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, res)
 		return
 	}
-	if err := traderecord.UpdateByStockNumAndClose(records, db.GetAgent()); err != nil {
+	if err := traderecord.UpdateByStockNumAndClose(records, database.GetAgent()); err != nil {
 		logger.GetLogger().Error(err)
 		res.Response = err.Error()
 		c.JSON(http.StatusInternalServerError, res)

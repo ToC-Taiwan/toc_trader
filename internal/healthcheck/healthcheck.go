@@ -7,7 +7,7 @@ import (
 
 	"gitlab.tocraw.com/root/toc_trader/external/sinopacsrv"
 	"gitlab.tocraw.com/root/toc_trader/internal/logger"
-	"gitlab.tocraw.com/root/toc_trader/internal/rest"
+	"gitlab.tocraw.com/root/toc_trader/internal/restful"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 )
 
@@ -23,7 +23,7 @@ func FullRestart() (err error) {
 }
 
 func askSinopacSRVRestart() error {
-	resp, err := rest.GetClient().R().
+	resp, err := restful.GetClient().R().
 		SetResult(&sinopacsrv.OrderResponse{}).
 		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/system/restart")
 	if err != nil {
@@ -45,7 +45,7 @@ func RestartService() {
 
 // CheckSinopacSRVStatus CheckSinopacSRVStatus
 func CheckSinopacSRVStatus() error {
-	resp, err := rest.GetClient().R().
+	resp, err := restful.GetClient().R().
 		SetResult(&sinopacsrv.SinopacHealthStatus{}).
 		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/system/healthcheck")
 	if err != nil {

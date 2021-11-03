@@ -5,7 +5,7 @@ import (
 	"math"
 	"time"
 
-	"gitlab.tocraw.com/root/toc_trader/internal/db"
+	"gitlab.tocraw.com/root/toc_trader/internal/database"
 	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/traderecord"
@@ -30,7 +30,7 @@ const (
 func InitStartUpQuota() {
 	for {
 		if StatusFirstBack {
-			realOrderArr, err := traderecord.GetAllorderByDayTime(global.TradeDay, db.GetAgent())
+			realOrderArr, err := traderecord.GetAllorderByDayTime(global.TradeDay, database.GetAgent())
 			if err != nil {
 				panic(err)
 			}

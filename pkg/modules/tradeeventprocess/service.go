@@ -2,14 +2,14 @@
 package tradeeventprocess
 
 import (
-	"gitlab.tocraw.com/root/toc_trader/internal/db"
+	"gitlab.tocraw.com/root/toc_trader/internal/database"
 	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/tradeevent"
 )
 
 // TradeEventSaver TradeEventSaver
 func TradeEventSaver(record tradeevent.EventResponse) (err error) {
-	if err = tradeevent.Insert(record, db.GetAgent()); err != nil {
+	if err = tradeevent.Insert(record, database.GetAgent()); err != nil {
 		logger.GetLogger().Error(err)
 		return err
 	}
@@ -18,6 +18,6 @@ func TradeEventSaver(record tradeevent.EventResponse) (err error) {
 
 // CleanEvent CleanEvent
 func CleanEvent() error {
-	err := tradeevent.DeleteAll(db.GetAgent())
+	err := tradeevent.DeleteAll(database.GetAgent())
 	return err
 }

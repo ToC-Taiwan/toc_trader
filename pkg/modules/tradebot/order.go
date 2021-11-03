@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"gitlab.tocraw.com/root/toc_trader/external/sinopacsrv"
-	"gitlab.tocraw.com/root/toc_trader/internal/rest"
+	"gitlab.tocraw.com/root/toc_trader/internal/restful"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 )
 
@@ -26,7 +26,7 @@ func PlaceOrder(action OrderAction, stockNum string, stockQuantity int64, stockP
 		Price:    stockPrice,
 		Quantity: stockQuantity,
 	}
-	resp, err := rest.GetClient().R().
+	resp, err := restful.GetClient().R().
 		SetBody(order).
 		SetResult(&sinopacsrv.OrderResponse{}).
 		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + url)
@@ -44,7 +44,7 @@ func Cancel(orderID string) (err error) {
 	order := CancelBody{
 		OrderID: orderID,
 	}
-	resp, err := rest.GetClient().R().
+	resp, err := restful.GetClient().R().
 		SetBody(order).
 		SetResult(&sinopacsrv.OrderResponse{}).
 		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/trade/cancel")
@@ -67,7 +67,7 @@ func Cancel(orderID string) (err error) {
 
 // FetchOrderStatus FetchOrderStatus
 func FetchOrderStatus() (err error) {
-	resp, err := rest.GetClient().R().
+	resp, err := restful.GetClient().R().
 		SetResult(&sinopacsrv.SinoStatusResponse{}).
 		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/trade/status")
 	if err != nil {

@@ -2,14 +2,13 @@
 package simulateprocess
 
 import (
-	"net/http"
 	"sync"
 	"time"
 
 	"github.com/vbauerster/mpb/v7"
 	"github.com/vbauerster/mpb/v7/decor"
 	"gitlab.tocraw.com/root/toc_trader/internal/common"
-	"gitlab.tocraw.com/root/toc_trader/internal/db"
+	"gitlab.tocraw.com/root/toc_trader/internal/database"
 	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/analyzeentiretick"
@@ -64,7 +63,7 @@ func Simulate(simType, discardOT, useDefault, dayCount string) {
 		if i == 0 {
 			continue
 		}
-		if targets, err := choosetarget.GetTargetByVolumeRankByDate(date.Format(global.ShortTimeLayout), http.StatusOK); err != nil {
+		if targets, err := choosetarget.GetTargetByVolumeRankByDate(date.Format(global.ShortTimeLayout), 200); err != nil {
 			panic(err)
 		} else {
 			for i, v := range targets {
@@ -144,7 +143,7 @@ func getBestCond(historyCount int, useGlobal bool) {
 			conds = generateBaseConds(historyCount)
 		}
 	}
-	if err := simulationcond.InsertMultiRecord(conds, db.GetAgent()); err != nil {
+	if err := simulationcond.InsertMultiRecord(conds, database.GetAgent()); err != nil {
 		panic(err)
 	}
 	totalTimesChan <- len(conds)
@@ -345,7 +344,7 @@ func catchResult(useGlobal bool) {
 			save = append(save, result)
 		}
 		if !ok {
-			if err := simulate.InsertMultiRecord(save, db.GetAgent()); err != nil {
+			if err := simulate.InsertMultiRecord(save, database.GetAgent()); err != nil {
 				logger.GetLogger().Error(err)
 			}
 			var wg sync.WaitGroup
@@ -373,7 +372,7 @@ func catchResult(useGlobal bool) {
 			tmp = append(tmp, result)
 		}
 		if count%10 == 0 {
-			if err := simulate.InsertMultiRecord(save, db.GetAgent()); err != nil {
+			if err := simulate.InsertMultiRecord(save, database.GetAgent()); err != nil {
 				logger.GetLogger().Error(err)
 			}
 			save = []simulate.Result{}
@@ -420,7 +419,7 @@ func progressBar(total int) {
 func storeAllEntireTick(stockArr []string, tradeDayArr []time.Time) {
 	for _, stockNum := range stockArr {
 		for _, date := range tradeDayArr {
-			ticks, err := entiretick.GetAllEntiretickByStockByDate(stockNum, date.Format(global.ShortTimeLayout), db.GetAgent())
+			ticks, err := entiretick.GetAllEntiretickByStockByDate(stockNum, date.Format(global.ShortTimeLayout), database.GetAgent())
 			if err != nil {
 				logger.GetLogger().Error(err)
 				continue
@@ -431,10 +430,10 @@ func storeAllEntireTick(stockArr []string, tradeDayArr []time.Time) {
 }
 
 func clearAllSimulation() {
-	if err := simulate.DeleteAll(db.GetAgent()); err != nil {
+	if err := simulate.DeleteAll(database.GetAgent()); err != nil {
 		panic(err)
 	}
-	if err := simulationcond.DeleteAll(db.GetAgent()); err != nil {
+	if err := simulationcond.DeleteAll(database.GetAgent()); err != nil {
 		panic(err)
 	}
 }
@@ -444,7 +443,7 @@ func generateForwardConds(historyCount int) []*simulationcond.AnalyzeCondition {
 	var i, k float64
 	for m := 85; m >= 85; m -= 5 {
 		for u := 3; u <= 3; u += 3 {
-			for g := 0; g <= 0; g++ {
+			for g := -1; g <= -1; g++ {
 				for h := 3; h >= 3; h-- {
 					for i = 0.9; i >= 0.6; i -= 0.1 {
 						for k = 0.1; k <= 0.4; k += 0.1 {
@@ -459,7 +458,7 @@ func generateForwardConds(historyCount int) []*simulationcond.AnalyzeCondition {
 											CloseDiff:             0,
 											CloseChangeRatioLow:   float64(g),
 											CloseChangeRatioHigh:  float64(h),
-											OpenChangeRatio:       float64(h),
+											OpenChangeRatio:       float64(g),
 											RsiHigh:               i,
 											RsiLow:                k,
 											ReverseRsiHigh:        i,

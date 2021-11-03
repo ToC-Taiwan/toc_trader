@@ -7,9 +7,9 @@ import (
 	"sync"
 	"time"
 
-	"gitlab.tocraw.com/root/toc_trader/internal/db"
+	"gitlab.tocraw.com/root/toc_trader/internal/database"
 	"gitlab.tocraw.com/root/toc_trader/internal/logger"
-	"gitlab.tocraw.com/root/toc_trader/internal/rest"
+	"gitlab.tocraw.com/root/toc_trader/internal/restful"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/kbar"
 	"google.golang.org/protobuf/proto"
@@ -25,12 +25,12 @@ func FetchKbar(stockNumArr []string, start, end time.Time) {
 		stock := v
 		go func(stockNum string) {
 			defer wg.Done()
-			exist, err := kbar.CheckExistByStockAndDateRange(stockNum, start, end, db.GetAgent())
+			exist, err := kbar.CheckExistByStockAndDateRange(stockNum, start, end, database.GetAgent())
 			if err != nil {
 				panic(err)
 			}
 			if !exist {
-				if err := kbar.DeleteByStockNum(stockNum, db.GetAgent()); err != nil {
+				if err := kbar.DeleteByStockNum(stockNum, database.GetAgent()); err != nil {
 					panic(err)
 				}
 				logger.GetLogger().Infof("Fetching %s's kbar from %s to %s", stockNum, start.Format(global.ShortTimeLayout), end.Format(global.ShortTimeLayout))
@@ -51,14 +51,14 @@ func kbarSaver(saveCh chan *kbar.Kbar) {
 	for {
 		kbarData, ok := <-saveCh
 		if !ok {
-			if err := kbar.InsertMultiRecord(tmp, db.GetAgent()); err != nil {
+			if err := kbar.InsertMultiRecord(tmp, database.GetAgent()); err != nil {
 				logger.GetLogger().Error(err)
 			}
 			return
 		}
 		tmp = append(tmp, kbarData)
 		if len(tmp) >= 2000 {
-			if err := kbar.InsertMultiRecord(tmp, db.GetAgent()); err != nil {
+			if err := kbar.InsertMultiRecord(tmp, database.GetAgent()); err != nil {
 				logger.GetLogger().Error(err)
 				continue
 			}
@@ -74,7 +74,7 @@ func FetchKbarByDateRange(stockNum string, start, end time.Time, saveCh chan *kb
 		StartDate: start.Format(global.ShortTimeLayout),
 		EndDate:   end.Format(global.ShortTimeLayout),
 	}
-	resp, err := rest.GetClient().R().
+	resp, err := restful.GetClient().R().
 		SetBody(stockAndDateArr).
 		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/history/kbar")
 	if err != nil {

@@ -9,7 +9,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"gitlab.tocraw.com/root/toc_trader/init/sysparminit"
-	"gitlab.tocraw.com/root/toc_trader/pkg/core"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/routers"
 )
@@ -34,7 +33,7 @@ func main() {
 		}
 	}
 	// Main service
-	go core.TradeProcess()
+	go TradeProcess()
 	// Keep thread running
 	for {
 		exit := <-global.ExitChannel

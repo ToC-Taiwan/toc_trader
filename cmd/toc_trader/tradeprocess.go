@@ -1,15 +1,20 @@
-// Package core package core
-package core
+// Package main package main
+package main
 
 import (
+	"errors"
+	"net"
+	"net/http"
 	"os"
 	"time"
 
 	"github.com/manifoldco/promptui"
+	"gitlab.tocraw.com/root/toc_trader/external/sinopacsrv"
 	"gitlab.tocraw.com/root/toc_trader/init/sysparminit"
-	"gitlab.tocraw.com/root/toc_trader/internal/db"
+	"gitlab.tocraw.com/root/toc_trader/internal/database"
 	"gitlab.tocraw.com/root/toc_trader/internal/healthcheck"
 	"gitlab.tocraw.com/root/toc_trader/internal/logger"
+	"gitlab.tocraw.com/root/toc_trader/internal/restful"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/stock"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/targetstock"
@@ -44,11 +49,11 @@ func TradeProcess() {
 		}
 		tmp := []time.Time{global.LastTradeDay}
 		fetchentiretick.FetchEntireTick(targets, tmp, global.BaseCond)
-		if dbTarget, err := targetstock.GetTargetByTime(global.LastTradeDay, db.GetAgent()); err != nil {
+		if dbTarget, err := targetstock.GetTargetByTime(global.LastTradeDay, database.GetAgent()); err != nil {
 			panic(err)
 		} else if len(dbTarget) == 0 {
 			logger.GetLogger().Info("Saving targets")
-			targetStockArr, err := stock.GetStocksFromNumArr(targets, db.GetAgent())
+			targetStockArr, err := stock.GetStocksFromNumArr(targets, database.GetAgent())
 			if err != nil {
 				panic(err)
 			}
@@ -58,7 +63,7 @@ func TradeProcess() {
 					Stock:        v,
 				})
 			}
-			if err := targetstock.InsertMultiTarget(savedTarget, db.GetAgent()); err != nil {
+			if err := targetstock.InsertMultiTarget(savedTarget, database.GetAgent()); err != nil {
 				panic(err)
 			}
 		}
@@ -66,14 +71,14 @@ func TradeProcess() {
 	// Fetch Kbar
 	kbarTradeDayArr, err := importbasic.GetLastNTradeDay(sysparminit.GlobalSettings.GetKbarPeriod())
 	if err != nil {
-		panic(err)
+		logger.GetLogger().Error(err)
 	}
 	fetchentiretick.FetchKbar(global.TargetArr, kbarTradeDayArr[len(kbarTradeDayArr)-1], kbarTradeDayArr[0])
 	logger.GetLogger().Info("FetchEntireTick and Kbar Done")
 
 	// Check tradeday or target exist
 	if len(global.LastTradeDayArr) == 0 || len(global.TargetArr) == 0 {
-		logger.GetLogger().Warn("no trade day or no target")
+		panic("no trade day or no target")
 	} else {
 		// Background get trade record
 		logger.GetLogger().Info("Background tasks starts")
@@ -137,6 +142,75 @@ func simulatationEntry() {
 				panic(err)
 			}
 			simulateprocess.Simulate(balanceTypeAns, discardAns, useGlobalAns, countAns)
+		}
+	}
+}
+
+func sendCurrentIP() {
+	var err error
+	results := findMachineIP()
+	resp, err := restful.GetClient().R().
+		SetHeader("X-Trade-Bot-Host", results[len(results)-1]).
+		SetResult(&sinopacsrv.OrderResponse{}).
+		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/system/tradebothost")
+	if err != nil {
+		logger.GetLogger().Error(err)
+		return
+	} else if resp.StatusCode() != http.StatusOK {
+		logger.GetLogger().Error("SendCurrentIP api fail")
+		return
+	}
+	res := *resp.Result().(*sinopacsrv.OrderResponse)
+	if res.Status != sinopacsrv.StatusSuccuss {
+		logger.GetLogger().Error(errors.New("sendCurrentIP fail"))
+	}
+}
+
+func findMachineIP() []string {
+	var results []string
+	ifaces, err := net.Interfaces()
+	if err != nil {
+		logger.GetLogger().Error(err)
+	}
+	var addrs []net.Addr
+	for _, i := range ifaces {
+		if i.HardwareAddr.String() == "" {
+			continue
+		}
+		addrs, err = i.Addrs()
+		if err != nil {
+			logger.GetLogger().Error(err)
+		}
+		for _, addr := range addrs {
+			if ip := addr.(*net.IPNet).IP.To4(); ip != nil {
+				if ip[0] != 127 && ip[0] != 169 {
+					results = append(results, ip.String())
+				}
+			}
+		}
+	}
+	return results
+}
+
+func addRankTarget() {
+	tick := time.Tick(15 * time.Second)
+	for range tick {
+		if !tradebot.CheckIsOpenTime() {
+			continue
+		}
+		var count int
+		if newTargetArr, err := choosetarget.GetTopTarget(10); err != nil {
+			logger.GetLogger().Error(err)
+			continue
+		} else if time.Now().After(global.TradeDay.Add(1*time.Hour + 5*time.Minute)) {
+			count = len(newTargetArr)
+			if count != 0 {
+				choosetarget.SubscribeTarget(newTargetArr)
+				global.TargetArr = append(global.TargetArr, newTargetArr...)
+			}
+		}
+		if count != 0 {
+			logger.GetLogger().Infof("GetTopTarget %d", count)
 		}
 	}
 }
