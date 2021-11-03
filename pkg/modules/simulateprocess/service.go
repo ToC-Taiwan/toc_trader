@@ -16,9 +16,9 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulate"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulationcond"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/choosetarget"
-	"gitlab.tocraw.com/root/toc_trader/pkg/modules/entiretickprocess"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/fetchentiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/importbasic"
+	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tickprocess"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot"
 )
 
@@ -67,7 +67,11 @@ func Simulate(simType, discardOT, useDefault, dayCount string) {
 			panic(err)
 		} else {
 			for i, v := range targets {
-				logger.GetLogger().Infof("%s volume rank no. %d is %s", date.Format(global.ShortTimeLayout), i+1, global.AllStockNameMap.GetName(v))
+				logger.GetLogger().WithFields(map[string]interface{}{
+					"Date": date.Format(global.ShortTimeLayout),
+					"Rank": i + 1,
+					"Name": global.AllStockNameMap.GetName(v),
+				}).Infof("Volume Rank")
 			}
 			targetArrMap.saveByDate(tradeDayArr[i-1].Format(global.ShortTimeLayout), targets)
 			for {
@@ -85,7 +89,7 @@ func Simulate(simType, discardOT, useDefault, dayCount string) {
 		}
 	}
 	simulateDayArr = tradeDayArr
-	logger.GetLogger().Info("Fetch done")
+	logger.GetLogger().Info("Fetch Done")
 
 	resultChan = make(chan simulate.Result)
 	totalTimesChan = make(chan int)
@@ -161,7 +165,7 @@ func getBestCond(historyCount int, useGlobal bool) {
 // SearchTradePoint SearchTradePoint
 func SearchTradePoint(tradeDayArr []time.Time, cond simulationcond.AnalyzeCondition) (pointMapArr map[string][]map[string]*analyzeentiretick.AnalyzeEntireTick) {
 	pointMapArr = make(map[string][]map[string]*analyzeentiretick.AnalyzeEntireTick)
-	var simulateAnalyzeEntireMap entiretickprocess.AnalyzeEntireTickMap
+	var simulateAnalyzeEntireMap tickprocess.AnalyzeEntireTickMap
 	for i, date := range tradeDayArr {
 		simulateAnalyzeEntireMap.ClearAll()
 		if i == len(tradeDayArr)-1 {
@@ -176,7 +180,7 @@ func SearchTradePoint(tradeDayArr []time.Time, cond simulationcond.AnalyzeCondit
 			saveCh := make(chan []*entiretick.EntireTick)
 			lastClose := global.StockCloseByDateMap.GetClose(stockNum, tradeDayArr[i+1].Format(global.ShortTimeLayout))
 			if lastClose != 0 {
-				go entiretickprocess.TickProcess(stockNum, lastClose, cond, ch, &wg, saveCh, true, &simulateAnalyzeEntireMap)
+				go tickprocess.TickProcess(stockNum, lastClose, cond, ch, &wg, saveCh, true, &simulateAnalyzeEntireMap)
 			} else {
 				logger.GetLogger().Warnf("%s has no %s's close", stockNum, global.LastLastTradeDay.Format(global.ShortTimeLayout))
 				continue

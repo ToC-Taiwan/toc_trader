@@ -1,5 +1,5 @@
-// Package entiretickprocess package entiretickprocess
-package entiretickprocess
+// Package tickprocess package tickprocess
+package tickprocess
 
 import (
 	"sync"

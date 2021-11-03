@@ -33,12 +33,18 @@ func FetchKbar(stockNumArr []string, start, end time.Time) {
 				if err := kbar.DeleteByStockNum(stockNum, database.GetAgent()); err != nil {
 					panic(err)
 				}
-				logger.GetLogger().Infof("Fetching %s's kbar from %s to %s", stockNum, start.Format(global.ShortTimeLayout), end.Format(global.ShortTimeLayout))
+				logger.GetLogger().WithFields(map[string]interface{}{
+					"StockNum": stockNum,
+					"From":     start.Format(global.ShortTimeLayout),
+					"To":       end.Format(global.ShortTimeLayout),
+				}).Info("Fetching Kbar")
 				if err := FetchKbarByDateRange(stockNum, start, end, saveCh); err != nil {
 					panic(err)
 				}
 			} else {
-				logger.GetLogger().Infof("%s Kbar from %s to %s already exist", stockNum, start.Format(global.ShortTimeLayout), end.Format(global.ShortTimeLayout))
+				logger.GetLogger().WithFields(map[string]interface{}{
+					"StockNum": stockNum,
+				}).Info("Kbar Already Exist")
 			}
 		}(stock)
 	}

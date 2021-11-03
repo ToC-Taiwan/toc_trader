@@ -45,7 +45,11 @@ func TradeProcess() {
 		global.TargetArr = targets
 		choosetarget.SubscribeTarget(global.TargetArr)
 		for i, v := range targets {
-			logger.GetLogger().Infof("%s volume rank no. %d is %s", global.LastTradeDay.Format(global.ShortTimeLayout), i+1, global.AllStockNameMap.GetName(v))
+			logger.GetLogger().WithFields(map[string]interface{}{
+				"Date": global.LastTradeDay.Format(global.ShortTimeLayout),
+				"Rank": i + 1,
+				"Name": global.AllStockNameMap.GetName(v),
+			}).Infof("Volume Rank")
 		}
 		tmp := []time.Time{global.LastTradeDay}
 		fetchentiretick.FetchEntireTick(targets, tmp, global.BaseCond)
@@ -81,7 +85,7 @@ func TradeProcess() {
 		panic("no trade day or no target")
 	} else {
 		// Background get trade record
-		logger.GetLogger().Info("Background tasks starts")
+		logger.GetLogger().Info("Background Tasks Start")
 		go tradebot.CheckOrderStatusLoop()
 		go tradebot.InitStartUpQuota()
 		// Monitor TSE001 Status

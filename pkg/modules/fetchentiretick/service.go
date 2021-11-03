@@ -14,8 +14,8 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/entiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulationcond"
-	"gitlab.tocraw.com/root/toc_trader/pkg/modules/entiretickprocess"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/importbasic"
+	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tickprocess"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -38,7 +38,7 @@ func FetchEntireTick(stockNumArr []string, dateArr []time.Time, cond simulationc
 		}
 	}()
 	saveCh := make(chan []*entiretick.EntireTick, len(stockNumArr))
-	go entiretickprocess.SaveEntireTicks(saveCh)
+	go tickprocess.SaveEntireTicks(saveCh)
 	for _, d := range dateArr {
 		for _, s := range stockNumArr {
 			rows, err := entiretick.GetCntByStockAndDate(s, d.Format(global.ShortTimeLayout), database.GetAgent())
@@ -49,7 +49,7 @@ func FetchEntireTick(stockNumArr []string, dateArr []time.Time, cond simulationc
 					logger.GetLogger().WithFields(map[string]interface{}{
 						"Stock": s,
 						"Date":  d.Format(global.ShortTimeLayout),
-					}).Info("Already exist")
+					}).Info("EntireTick Already Exist")
 					continue
 				} else {
 					wg.Add(1)
@@ -78,7 +78,10 @@ func GetAndSaveEntireTick(stockNum, date string, cond simulationcond.AnalyzeCond
 			logger.GetLogger().Error(err.Error() + "\n" + string(debug.Stack()))
 		}
 	}()
-	logger.GetLogger().Infof("Fetching %s on %s", stockNum, date)
+	logger.GetLogger().WithFields(map[string]interface{}{
+		"StockNum": stockNum,
+		"Date":     date,
+	}).Info("Fetching Entiretick")
 	stockAndDate := FetchBody{
 		StockNum: stockNum,
 		Date:     date,
@@ -100,10 +103,10 @@ func GetAndSaveEntireTick(stockNum, date string, cond simulationcond.AnalyzeCond
 	if err != nil {
 		panic(err)
 	}
-	var simulateMap entiretickprocess.AnalyzeEntireTickMap
+	var simulateMap tickprocess.AnalyzeEntireTickMap
 	lastClose := global.StockCloseByDateMap.GetClose(stockNum, lastTradeDay.Format(global.ShortTimeLayout))
 	if lastClose != 0 {
-		go entiretickprocess.TickProcess(stockNum, lastClose, cond, ch, &wg, saveCh, false, &simulateMap)
+		go tickprocess.TickProcess(stockNum, lastClose, cond, ch, &wg, saveCh, false, &simulateMap)
 	} else {
 		logger.GetLogger().Warnf("%s has no %s's close", stockNum, date)
 	}

@@ -1,5 +1,5 @@
-// Package streamtickprocess package streamtickprocess
-package streamtickprocess
+// Package tickprocess package tickprocess
+package tickprocess
 
 import (
 	"gitlab.tocraw.com/root/toc_trader/internal/database"

@@ -1,5 +1,5 @@
-// Package streamtickprocess package streamtickprocess
-package streamtickprocess
+// Package tickprocess package tickprocess
+package tickprocess
 
 import (
 	"github.com/markcheno/go-quote"
@@ -13,36 +13,31 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot"
 )
 
-// ForwardTickProcess ForwardTickProcess
-func ForwardTickProcess(lastClose float64, cond simulationcond.AnalyzeCondition, ch chan *streamtick.StreamTick, saveCh chan []*streamtick.StreamTick) {
+// ReverseTickProcess ReverseTickProcess
+func ReverseTickProcess(lastClose float64, cond simulationcond.AnalyzeCondition, ch chan *streamtick.StreamTick) {
 	var tradeSwitch bool
 	var input quote.Quote
 	var unSavedTicks streamtick.PtrArrArr
 	var tmpArr streamtick.PtrArr
 	var lastSaveLastClose, openChangeRatio float64
-	var sellChan chan *streamtick.StreamTick
+	var buyLaterChan chan *streamtick.StreamTick
 	if lastClose == 0 {
 		return
 	}
 	analyzeTickChan := make(chan *analyzestreamtick.AnalyzeStreamTick)
-	go tradebot.BuyAgent(analyzeTickChan)
-	if global.TradeSwitch.Sell {
-		sellChan = make(chan *streamtick.StreamTick)
-		go tradebot.SellBot(sellChan, cond, &input.Close)
+	go tradebot.SellFirstAgent(analyzeTickChan)
+	if global.TradeSwitch.BuyLater {
+		buyLaterChan = make(chan *streamtick.StreamTick)
+		go tradebot.BuyLaterBot(buyLaterChan, cond, &input.Close)
 	}
 	for {
 		tick := <-ch
-		if !tradeSwitch {
-			if tradeSwitch = MissingTicksStatus.CheckByStockNum(tick.StockNum); tradeSwitch {
-				logger.GetLogger().Infof("%s Missing Ticks Filled, Switch ON", tick.StockNum)
-			}
-		}
 		if openChangeRatio == 0 {
 			openChangeRatio = common.Round((tick.Open - lastClose), 2)
 		}
 		tmpArr = append(tmpArr, tick)
-		if tradebot.BuyOrderMap.CheckStockExist(tick.StockNum) && tradebot.FilledBuyOrderMap.CheckStockExist(tick.StockNum) {
-			sellChan <- tick
+		if tradebot.SellFirstOrderMap.CheckStockExist(tick.StockNum) && tradebot.FilledSellFirstOrderMap.CheckStockExist(tick.StockNum) {
+			buyLaterChan <- tick
 		}
 
 		if tmpArr.GetTotalTime() < cond.TicksPeriodThreshold {
@@ -52,7 +47,6 @@ func ForwardTickProcess(lastClose float64, cond simulationcond.AnalyzeCondition,
 			unSavedTicks.ClearAll()
 		}
 		unSavedTicks.Append(tmpArr)
-		saveCh <- tmpArr
 		tmpArr = []*streamtick.StreamTick{}
 
 		if unSavedTicks.GetCount() >= cond.TicksPeriodCount {

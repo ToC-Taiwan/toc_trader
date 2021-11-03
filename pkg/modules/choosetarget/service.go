@@ -249,7 +249,9 @@ func UpdateStockCloseMapByDate(stockNumArr []string, dateArr []time.Time) error 
 		StockNumArr: stockNumArr,
 	}
 	for _, date := range dateArr {
-		logger.GetLogger().Infof("Update Stock Close on %s", date.Format(global.ShortTimeLayout))
+		logger.GetLogger().WithFields(map[string]interface{}{
+			"Date": date.Format(global.ShortTimeLayout),
+		}).Infof("Update Stock Close")
 		resp, err := restful.GetClient().R().
 			SetHeader("X-Date", date.Format(global.ShortTimeLayout)).
 			SetBody(stockArr).

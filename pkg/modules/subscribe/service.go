@@ -14,7 +14,7 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/streamtick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/bidaskprocess"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/fetchentiretick"
-	"gitlab.tocraw.com/root/toc_trader/pkg/modules/streamtickprocess"
+	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tickprocess"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot"
 )
 
@@ -42,7 +42,7 @@ func SubStreamTick(stockArr []string) {
 	}()
 
 	saveCh := make(chan []*streamtick.StreamTick, len(stockArr)*3)
-	go streamtickprocess.SaveStreamTicks(saveCh)
+	go tickprocess.SaveStreamTicks(saveCh)
 	for _, stockNum := range stockArr {
 		lastClose := global.StockCloseByDateMap.GetClose(stockNum, global.LastTradeDay.Format(global.ShortTimeLayout))
 		if lastClose == 0 {
@@ -52,11 +52,11 @@ func SubStreamTick(stockArr []string) {
 
 		forwardCh := make(chan *streamtick.StreamTick)
 		ForwardStreamTickChannelMap.Set(stockNum, forwardCh)
-		go streamtickprocess.ForwardTickProcess(lastClose, global.ForwardCond, forwardCh, saveCh)
+		go tickprocess.ForwardTickProcess(lastClose, global.ForwardCond, forwardCh, saveCh)
 
 		reverseCh := make(chan *streamtick.StreamTick)
 		ReverseStreamTickChannelMap.Set(stockNum, reverseCh)
-		go streamtickprocess.ReverseTickProcess(lastClose, global.ReverseCond, reverseCh)
+		go tickprocess.ReverseTickProcess(lastClose, global.ReverseCond, reverseCh)
 	}
 	// fill missing ticks
 	if tradebot.CheckIsOpenTime() {
@@ -77,7 +77,7 @@ func SubStreamTick(stockArr []string) {
 		}
 	}
 	for _, v := range stockArr {
-		streamtickprocess.MissingTicksStatus.SetDone(v)
+		tickprocess.MissingTicksStatus.SetDone(v)
 	}
 	stocks := subBody{
 		StockNumArr: stockArr,
