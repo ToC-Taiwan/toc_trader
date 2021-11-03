@@ -56,6 +56,7 @@ func InitStartUpQuota() {
 							logger.GetLogger().Warnf("Filled Buy Later: %s", record.StockNum)
 						} else {
 							FilledBuyOrderMap.Set(record)
+							TradeQuota -= GetStockBuyCost(v.Price, v.Quantity)
 							logger.GetLogger().Warnf("Filled Buy: %s", record.StockNum)
 						}
 					case !FilledBuyLaterOrderMap.CheckStockExist(v.StockNum) && FilledBuyOrderMap.CheckStockExist(v.StockNum):
@@ -63,9 +64,9 @@ func InitStartUpQuota() {
 						logger.GetLogger().Warnf("Filled Buy Later: %s", record.StockNum)
 					case FilledBuyLaterOrderMap.CheckStockExist(v.StockNum) && !FilledBuyOrderMap.CheckStockExist(v.StockNum):
 						FilledBuyOrderMap.Set(record)
+						TradeQuota -= GetStockBuyCost(v.Price, v.Quantity)
 						logger.GetLogger().Warnf("Filled Buy: %s", record.StockNum)
 					}
-					TradeQuota -= GetStockBuyCost(v.Price, v.Quantity)
 				} else if v.Action == 2 {
 					switch {
 					case !FilledSellOrderMap.CheckStockExist(v.StockNum) && !FilledSellFirstOrderMap.CheckStockExist(v.StockNum):
@@ -74,6 +75,7 @@ func InitStartUpQuota() {
 							logger.GetLogger().Warnf("Filled Sell: %s", record.StockNum)
 						} else {
 							FilledSellFirstOrderMap.Set(record)
+							TradeQuota -= GetStockBuyCost(v.Price, v.Quantity)
 							logger.GetLogger().Warnf("Filled Sell First %s", record.StockNum)
 						}
 					case !FilledSellOrderMap.CheckStockExist(v.StockNum) && FilledSellFirstOrderMap.CheckStockExist(v.StockNum):
@@ -81,6 +83,7 @@ func InitStartUpQuota() {
 						logger.GetLogger().Warnf("Filled Sell: %s", record.StockNum)
 					case FilledSellOrderMap.CheckStockExist(v.StockNum) && !FilledSellFirstOrderMap.CheckStockExist(v.StockNum):
 						FilledSellFirstOrderMap.Set(record)
+						TradeQuota -= GetStockBuyCost(v.Price, v.Quantity)
 						logger.GetLogger().Warnf("Filled Sell First %s", record.StockNum)
 					}
 				}
@@ -89,6 +92,7 @@ func InitStartUpQuota() {
 			findUnfinishedStock()
 			break
 		}
+		time.Sleep(5 * time.Second)
 	}
 }
 
