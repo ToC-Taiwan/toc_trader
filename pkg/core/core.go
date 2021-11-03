@@ -78,6 +78,7 @@ func TradeProcess() {
 		// Background get trade record
 		logger.GetLogger().Info("Background tasks starts")
 		go tradebot.CheckOrderStatusLoop()
+		go tradebot.InitStartUpQuota()
 		// Monitor TSE001 Status
 		go choosetarget.TSEProcess()
 		// Add Top Rank Targets

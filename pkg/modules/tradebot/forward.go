@@ -61,20 +61,11 @@ func BuyBot(analyzeTick *analyzestreamtick.AnalyzeStreamTick) {
 
 // SellBot SellBot
 func SellBot(ch chan *streamtick.StreamTick, cond simulationcond.AnalyzeCondition, historyClosePtr *[]float64) {
-	var filled bool
 	for {
 		tick := <-ch
-		historyClose := *historyClosePtr
-		if !filled {
-			if tmpFilled, err := traderecord.CheckIsFilledByOrderID(BuyOrderMap.GetOrderIDByStockNum(tick.StockNum), db.GetAgent()); err != nil {
-				logger.GetLogger().Error(err)
-				continue
-			} else if tmpFilled {
-				filled = true
-			}
-		} else if !SellOrderMap.CheckStockExist(tick.StockNum) {
+		if !SellOrderMap.CheckStockExist(tick.StockNum) {
 			originalOrderClose := BuyOrderMap.GetClose(tick.StockNum)
-			sellPrice := GetSellPrice(tick, BuyOrderMap.GetTradeTime(tick.StockNum), historyClose, originalOrderClose, cond)
+			sellPrice := GetSellPrice(tick, BuyOrderMap.GetTradeTime(tick.StockNum), *historyClosePtr, originalOrderClose, cond)
 			if sellPrice == 0 {
 				continue
 			} else if order, err := PlaceOrder(SellAction, tick.StockNum, global.OneTimeQuantity, sellPrice); err != nil {

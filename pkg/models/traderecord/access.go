@@ -132,7 +132,7 @@ func GetAllOrder(db *gorm.DB) (orderArr []TradeRecord, err error) {
 // GetAllorderByDayTime GetAllorderByDayTime
 func GetAllorderByDayTime(dayTime time.Time, db *gorm.DB) (orderArr []TradeRecord, err error) {
 	var tmp []TradeRecord
-	result := db.Model(&TradeRecord{}).Find(&tmp)
+	result := db.Model(&TradeRecord{}).Order("order_time asc").Find(&tmp)
 	if result.Error != nil {
 		return orderArr, err
 	}
