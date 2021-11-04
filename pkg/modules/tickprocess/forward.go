@@ -34,7 +34,7 @@ func ForwardTickProcess(lastClose float64, cond simulationcond.AnalyzeCondition,
 		tick := <-ch
 		if !tradeSwitch {
 			if tradeSwitch = MissingTicksStatus.CheckByStockNum(tick.StockNum); tradeSwitch {
-				logger.GetLogger().Infof("%s Missing Ticks Filled, Switch ON", tick.StockNum)
+				logger.GetLogger().Infof("%s Missing Ticks Filled, Forward Switch ON", tick.StockNum)
 			}
 		}
 		if openChangeRatio == 0 {
