@@ -22,6 +22,7 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/fetchentiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/importbasic"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/simulateprocess"
+	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tickprocess"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot"
 )
 
@@ -41,6 +42,10 @@ func TradeProcess() {
 	} else {
 		// UnSubscribeAll first
 		choosetarget.UnSubscribeAll()
+		// Clear stram tick in database
+		if err := tickprocess.DeleteAllStreamTicks(); err != nil {
+			panic(err)
+		}
 		// Subscribe all target
 		global.TargetArr = targets
 		choosetarget.SubscribeTarget(global.TargetArr)
@@ -87,6 +92,7 @@ func TradeProcess() {
 		// Background get trade record
 		logger.GetLogger().Info("Background Tasks Start")
 		go tradebot.CheckOrderStatusLoop()
+		// Init quota and tradeday order map
 		go tradebot.InitStartUpQuota()
 		// Monitor TSE001 Status
 		go choosetarget.TSEProcess()
@@ -203,10 +209,11 @@ func addRankTarget() {
 			continue
 		}
 		var count int
-		if newTargetArr, err := choosetarget.GetTopTarget(10); err != nil {
+		if newTargetArr, err := choosetarget.GetTopTarget(20); err != nil {
 			logger.GetLogger().Error(err)
 			continue
-		} else if time.Now().After(global.TradeDay.Add(1*time.Hour + 5*time.Minute)) {
+			// Start from 9:10
+		} else if time.Now().After(global.TradeDay.Add(1*time.Hour + 10*time.Minute)) {
 			count = len(newTargetArr)
 			if count != 0 {
 				choosetarget.SubscribeTarget(newTargetArr)

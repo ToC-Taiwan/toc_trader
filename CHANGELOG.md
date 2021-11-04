@@ -1,15 +1,18 @@
 # CHANGELOG
 
-## Unreleased (2021-11-03)
+## Unreleased (2021-11-04)
 
 ### New feature
 
+- **tradebot**: :page_facing_up: fill missing ticks when subscribe, rename some package([`48868ed`](https://gitlab.tocraw.com/root/toc_trader/commit/48868edff2febc20047a22b440856d3cfd3cf2e0)) (@TimHsu@M1BP-20210907)
 - **middlebot**: :children_crossing: let stock can be buy and sell first at one day([`10abb48`](https://gitlab.tocraw.com/root/toc_trader/commit/10abb48dce06a300d3303bf151ed55b08060ec37)) (@TimHsu@M1BP-20210907)
 - **tradebot**: :monocle_face: InitStartUpQuota separate buy and sell first, save unfinished stock to current map([`1ed17c3`](https://gitlab.tocraw.com/root/toc_trader/commit/1ed17c38df060492c51592e7a6cbff7c22b69c60)) (@TimHsu@M1BP-20210907)
 - **tradebot**: :speech_balloon: stock can be buy and sell first at one day, modifiy cond, simulation([`75dae10`](https://gitlab.tocraw.com/root/toc_trader/commit/75dae1048de0f9d5a5bc93cb0e10a2b6d4d47642)) (@TimHsu@M1BP-20210907)
 
 ### Bugs fixed
 
+- **ticks**: :twisted_rightwards_arrows: fix missing ticks switch off in reverse([`8d2df95`](https://gitlab.tocraw.com/root/toc_trader/commit/8d2df9582b629424df41751bacde82c769162f92)) (@TimHsu@M1BP-20210907)
+- **ci**: :truck: fix ci build error([`22662a5`](https://gitlab.tocraw.com/root/toc_trader/commit/22662a5bfd5b97f389abd674514287ea0cad3b03)) (@TimHsu@M1BP-20210907)
 - **quota**: :recycle: fix 100% cpu rate, change quota to buy and sell first([`033e349`](https://gitlab.tocraw.com/root/toc_trader/commit/033e3499c47dec2d453eb097921ff728a85baac1)) (@TimHsu@M1BP-20210907)
 - **tradebot**: :globe_with_meridians: fix wrong check sell or buylater map again([`59a6274`](https://gitlab.tocraw.com/root/toc_trader/commit/59a6274cd3c366dbb50d82c8f00a012b3c367bab)) (@TimHsu@M1BP-20210907)
 - **tradebot**: :boom: fix wrong check sell or buylater map([`c07b7b2`](https://gitlab.tocraw.com/root/toc_trader/commit/c07b7b21d33737ad6ca7746613b99b90046781ba)) (@TimHsu@M1BP-20210907)

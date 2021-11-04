@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"runtime/debug"
+	"sync"
 
 	"gitlab.tocraw.com/root/toc_trader/external/sinopacsrv"
 	"gitlab.tocraw.com/root/toc_trader/internal/logger"
@@ -49,7 +50,6 @@ func SubStreamTick(stockArr []string) {
 			logger.GetLogger().Warnf("Stock %s has no lastClose", stockNum)
 			continue
 		}
-
 		forwardCh := make(chan *streamtick.StreamTick)
 		ForwardStreamTickChannelMap.Set(stockNum, forwardCh)
 		go tickprocess.ForwardTickProcess(lastClose, global.ForwardCond, forwardCh, saveCh)
@@ -59,22 +59,31 @@ func SubStreamTick(stockArr []string) {
 		go tickprocess.ReverseTickProcess(lastClose, global.ReverseCond, reverseCh)
 	}
 	// fill missing ticks
+	var wg sync.WaitGroup
 	if tradebot.CheckIsOpenTime() {
-		for _, stock := range stockArr {
-			var ticks []*entiretick.EntireTick
-			if ticks, err = fetchentiretick.FetchByDate(stock, global.TradeDay.Format(global.ShortTimeLayout)); err != nil {
-				logger.GetLogger().Error(err)
-				return
-			}
-			for _, tick := range ticks {
-				*ForwardStreamTickChannelMap.GetChannelByStockNum(stock) <- tick.ToStreamTick()
-				*ReverseStreamTickChannelMap.GetChannelByStockNum(stock) <- tick.ToStreamTick()
-			}
-			logger.GetLogger().WithFields(map[string]interface{}{
-				"StockNum": stock,
-				"Count":    len(ticks),
-			}).Info("Fill Missing Ticks Done")
+		for _, v := range stockArr {
+			wg.Add(1)
+			go func(stock string) {
+				defer wg.Done()
+				var ticks []*entiretick.EntireTick
+				if ticks, err = fetchentiretick.FetchByDate(stock, global.TradeDay.Format(global.ShortTimeLayout)); err != nil {
+					logger.GetLogger().Error(err)
+					return
+				}
+				forwardCh := *ForwardStreamTickChannelMap.GetChannelByStockNum(stock)
+				reverseCh := *ReverseStreamTickChannelMap.GetChannelByStockNum(stock)
+				for _, tick := range ticks {
+					streamTick := tick.ToStreamTick()
+					forwardCh <- streamTick
+					reverseCh <- streamTick
+				}
+				logger.GetLogger().WithFields(map[string]interface{}{
+					"StockNum": stock,
+					"Count":    len(ticks),
+				}).Info("Fill Missing Ticks Done")
+			}(v)
 		}
+		wg.Wait()
 	}
 	for _, v := range stockArr {
 		tickprocess.MissingTicksStatus.SetDone(v)
@@ -113,7 +122,6 @@ func SubBidAsk(stockArr []string) {
 			logger.GetLogger().Error(err.Error() + "\n" + string(debug.Stack()))
 		}
 	}()
-
 	for _, stock := range stockArr {
 		go bidaskprocess.SaveBidAsk(stock)
 	}

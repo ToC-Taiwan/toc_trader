@@ -19,3 +19,11 @@ func SaveStreamTicks(saveCh chan []*streamtick.StreamTick) {
 		}
 	}
 }
+
+// DeleteAllStreamTicks DeleteAllStreamTicks
+func DeleteAllStreamTicks() (err error) {
+	if err = streamtick.DeleteAll(database.GetAgent()); err != nil {
+		return err
+	}
+	return err
+}

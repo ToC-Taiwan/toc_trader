@@ -160,8 +160,15 @@ func CheckBuyOrderStatus(record traderecord.TradeRecord) {
 		}
 		if record.TradeTime.Add(tradeInWaitTime).Before(time.Now()) {
 			if err := Cancel(record.OrderID); err != nil {
-				logger.GetLogger().Error(err)
+				logger.GetLogger().WithFields(map[string]interface{}{
+					"StockNum": order.StockNum,
+					"Name":     order.StockName,
+					"Quantity": order.Quantity,
+					"Price":    order.Price,
+					"Error":    err,
+				}).Error("Cancel Fail")
 			}
+			time.Sleep(5 * time.Second)
 		}
 	}
 }
@@ -197,8 +204,15 @@ func CheckSellOrderStatus(record traderecord.TradeRecord) {
 		}
 		if record.TradeTime.Add(tradeOutWaitTime).Before(time.Now()) {
 			if err := Cancel(record.OrderID); err != nil {
-				logger.GetLogger().Error(err)
+				logger.GetLogger().WithFields(map[string]interface{}{
+					"StockNum": order.StockNum,
+					"Name":     order.StockName,
+					"Quantity": order.Quantity,
+					"Price":    order.Price,
+					"Error":    err,
+				}).Error("Cancel Fail")
 			}
+			time.Sleep(5 * time.Second)
 		}
 	}
 }

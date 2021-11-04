@@ -10,7 +10,6 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/handlers"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/traderecord"
-	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -54,9 +53,6 @@ func UpdateTradeRecord(c *gin.Context) {
 		res.Response = err.Error()
 		c.JSON(http.StatusInternalServerError, res)
 		return
-	}
-	if !tradebot.StatusFirstBack {
-		tradebot.StatusFirstBack = true
 	}
 	c.JSON(http.StatusOK, nil)
 }

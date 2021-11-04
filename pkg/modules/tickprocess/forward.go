@@ -33,9 +33,7 @@ func ForwardTickProcess(lastClose float64, cond simulationcond.AnalyzeCondition,
 	for {
 		tick := <-ch
 		if !tradeSwitch {
-			if tradeSwitch = MissingTicksStatus.CheckByStockNum(tick.StockNum); tradeSwitch {
-				logger.GetLogger().Infof("%s Missing Ticks Filled, Forward Switch ON", tick.StockNum)
-			}
+			tradeSwitch = MissingTicksStatus.CheckByStockNum(tick.StockNum)
 		}
 		if openChangeRatio == 0 {
 			openChangeRatio = common.Round((tick.Open - lastClose), 2)
@@ -44,7 +42,6 @@ func ForwardTickProcess(lastClose float64, cond simulationcond.AnalyzeCondition,
 		if tradebot.BuyOrderMap.CheckStockExist(tick.StockNum) && tradebot.FilledBuyOrderMap.CheckStockExist(tick.StockNum) {
 			sellChan <- tick
 		}
-
 		if tmpArr.GetTotalTime() < cond.TicksPeriodThreshold {
 			continue
 		}

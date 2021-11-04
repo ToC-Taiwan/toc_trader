@@ -33,9 +33,7 @@ func ReverseTickProcess(lastClose float64, cond simulationcond.AnalyzeCondition,
 	for {
 		tick := <-ch
 		if !tradeSwitch {
-			if tradeSwitch = MissingTicksStatus.CheckByStockNum(tick.StockNum); tradeSwitch {
-				logger.GetLogger().Infof("%s Missing Ticks Filled, Reverse Switch ON", tick.StockNum)
-			}
+			tradeSwitch = MissingTicksStatus.CheckByStockNum(tick.StockNum)
 		}
 		if openChangeRatio == 0 {
 			openChangeRatio = common.Round((tick.Open - lastClose), 2)
@@ -44,7 +42,6 @@ func ReverseTickProcess(lastClose float64, cond simulationcond.AnalyzeCondition,
 		if tradebot.SellFirstOrderMap.CheckStockExist(tick.StockNum) && tradebot.FilledSellFirstOrderMap.CheckStockExist(tick.StockNum) {
 			buyLaterChan <- tick
 		}
-
 		if tmpArr.GetTotalTime() < cond.TicksPeriodThreshold {
 			continue
 		}

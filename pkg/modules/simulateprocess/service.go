@@ -267,7 +267,14 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 				if !training && (sellCost-buyCost+back) != 0 {
 					buyTime := time.Unix(0, v.TimeStamp).Add(-8 * time.Hour)
 					sellTime := time.Unix(0, sellTimeStamp[v.StockNum]).Add(-8 * time.Hour)
-					logger.GetLogger().Warnf("%s Forward Balance: %d, Stock: %s, Name: %s, Buy at %s, Sell at %s", date, sellCost-buyCost+back, v.StockNum, global.AllStockNameMap.GetName(v.StockNum), buyTime.Format(global.LongTimeLayout), sellTime.Format(global.LongTimeLayout))
+					logger.GetLogger().WithFields(map[string]interface{}{
+						"Date":            date,
+						"OriginalBalance": sellCost - buyCost,
+						"Back":            back,
+						"Name":            global.AllStockNameMap.GetName(v.StockNum),
+						"BuyAt":           buyTime.Format(global.LongTimeLayout),
+						"SellAt":          sellTime.Format(global.LongTimeLayout),
+					}).Warn("Forward Balance")
 				}
 			}
 		}
@@ -310,12 +317,23 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 				if !training && (sellCost-buyCost+back) != 0 {
 					sellFirstTime := time.Unix(0, v.TimeStamp).Add(-8 * time.Hour)
 					buyLaterTime := time.Unix(0, sellTimeStamp[v.StockNum]).Add(-8 * time.Hour)
-					logger.GetLogger().Warnf("%s Reverse Balance: %d, Stock: %s, Name: %s, Sell first at %s, Buy later at %s", date, sellCost-buyCost+back, v.StockNum, global.AllStockNameMap.GetName(v.StockNum), sellFirstTime.Format(global.LongTimeLayout), buyLaterTime.Format(global.LongTimeLayout))
+					logger.GetLogger().WithFields(map[string]interface{}{
+						"Date":            date,
+						"OriginalBalance": sellCost - buyCost,
+						"Back":            back,
+						"Name":            global.AllStockNameMap.GetName(v.StockNum),
+						"SellFirstAt":     sellFirstTime.Format(global.LongTimeLayout),
+						"BuyLaterAt":      buyLaterTime.Format(global.LongTimeLayout),
+					}).Warn("Reverse Balance")
 				}
 			}
 		}
 		if !training {
-			logger.GetLogger().Warnf("%s Forward: %d, Reverse: %d", date, dateForwardBalance, dateReverseBalance)
+			logger.GetLogger().WithFields(map[string]interface{}{
+				"ForwardBalance": dateForwardBalance,
+				"ReverseBalance": dateReverseBalance,
+				"Date":           date,
+			}).Warn("Date Summary")
 		}
 		if dateForwardBalance+dateReverseBalance > 0 {
 			positiveCount++
@@ -333,8 +351,29 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 	if training {
 		resultChan <- tmp
 	} else if tmp.Balance != 0 {
-		logger.GetLogger().Warnf("Total Balance: %d, TradeCount: %d, PositiveCount: %d", tmp.Balance, tradeCount, positiveCount)
-		logger.GetLogger().Warnf("Cond: %+v", cond)
+		logger.GetLogger().WithFields(map[string]interface{}{
+			"TradeCount":    tradeCount,
+			"Balance":       tmp.Balance,
+			"PositiveCount": positiveCount,
+		}).Warn("Total Balance")
+		logger.GetLogger().WithFields(map[string]interface{}{
+			"TrimHistoryCloseCount": cond.TrimHistoryCloseCount,
+			"HistoryCloseCount":     cond.HistoryCloseCount,
+			"OutInRatio":            cond.OutInRatio,
+			"ReverseOutInRatio":     cond.ReverseOutInRatio,
+			"CloseDiff":             cond.CloseDiff,
+			"CloseChangeRatioLow":   cond.CloseChangeRatioLow,
+			"CloseChangeRatioHigh":  cond.CloseChangeRatioHigh,
+			"OpenChangeRatio":       cond.OpenChangeRatio,
+			"RsiHigh":               cond.RsiHigh,
+			"RsiLow":                cond.RsiLow,
+			"ReverseRsiHigh":        cond.ReverseRsiHigh,
+			"ReverseRsiLow":         cond.ReverseRsiLow,
+			"TicksPeriodThreshold":  cond.TicksPeriodThreshold,
+			"TicksPeriodLimit":      cond.TicksPeriodLimit,
+			"TicksPeriodCount":      cond.TicksPeriodCount,
+			"VolumePerSecond":       cond.VolumePerSecond,
+		}).Warn("Cond")
 	}
 }
 
