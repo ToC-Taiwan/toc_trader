@@ -1,9 +1,10 @@
 # CHANGELOG
 
-## Unreleased (2021-11-04)
+## Unreleased (2021-11-05)
 
 ### New feature
 
+- **missingtick**: :iphone: finish tradeswitch for missing ticks, remove all streamticks in start([`f4796cd`](https://gitlab.tocraw.com/root/toc_trader/commit/f4796cd61c7d892aa3388aa08c39c78f82ab285e)) (@TimHsu@M1BP-20210907)
 - **tradebot**: :page_facing_up: fill missing ticks when subscribe, rename some package([`48868ed`](https://gitlab.tocraw.com/root/toc_trader/commit/48868edff2febc20047a22b440856d3cfd3cf2e0)) (@TimHsu@M1BP-20210907)
 - **middlebot**: :children_crossing: let stock can be buy and sell first at one day([`10abb48`](https://gitlab.tocraw.com/root/toc_trader/commit/10abb48dce06a300d3303bf151ed55b08060ec37)) (@TimHsu@M1BP-20210907)
 - **tradebot**: :monocle_face: InitStartUpQuota separate buy and sell first, save unfinished stock to current map([`1ed17c3`](https://gitlab.tocraw.com/root/toc_trader/commit/1ed17c38df060492c51592e7a6cbff7c22b69c60)) (@TimHsu@M1BP-20210907)

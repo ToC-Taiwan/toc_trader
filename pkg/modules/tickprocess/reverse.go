@@ -35,7 +35,7 @@ func ReverseTickProcess(lastClose float64, cond simulationcond.AnalyzeCondition,
 		if !tradeSwitch {
 			tradeSwitch = MissingTicksStatus.CheckByStockNum(tick.StockNum)
 		}
-		if openChangeRatio == 0 {
+		if openChangeRatio == 0 && tick.Open != 0 {
 			openChangeRatio = common.Round((tick.Open - lastClose), 2)
 		}
 		tmpArr = append(tmpArr, tick)

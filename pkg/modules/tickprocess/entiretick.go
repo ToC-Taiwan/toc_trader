@@ -32,6 +32,7 @@ func TickProcess(stockNum string, lastClose float64, cond simulationcond.Analyze
 			close(analyzeChan)
 			break
 		}
+		// process tick
 		if high == 0 && low == 0 && open == 0 {
 			openChangeRatio = common.Round(100*(tick.Close-lastClose)/lastClose, 2)
 			high = tick.Close
@@ -52,6 +53,7 @@ func TickProcess(stockNum string, lastClose float64, cond simulationcond.Analyze
 			tick.High = high
 		}
 		tick.Open = open
+		// process dond, append
 		tmpArr = append(tmpArr, tick)
 		if tmpArr.GetTotalTime() < cond.TicksPeriodThreshold {
 			continue
@@ -64,6 +66,7 @@ func TickProcess(stockNum string, lastClose float64, cond simulationcond.Analyze
 			saveCh <- tmpArr
 		}
 		tmpArr = []*entiretick.EntireTick{}
+
 		if unSavedTicks.GetCount() >= cond.TicksPeriodCount {
 			var outSum, inSum int64
 			var totalTime float64
@@ -81,17 +84,17 @@ func TickProcess(stockNum string, lastClose float64, cond simulationcond.Analyze
 			} else if cond.TrimHistoryCloseCount {
 				input.Close = input.Close[len(input.Close)-int(cond.HistoryCloseCount):]
 			}
+			rsi, err := tickanalyze.GenerateRSI(input)
+			if err != nil {
+				logger.GetLogger().Errorf("GenerateRSI at EntireTickProcess Stock: %s, Err: %s", stockNum, err)
+				continue
+			}
 			closeDiff := common.Round((unSavedTicks.GetLastClose() - lastSaveLastClose), 2)
 			if lastSaveLastClose == 0 {
 				closeDiff = 0
 			}
 			lastSaveLastClose = unSavedTicks.GetLastClose()
 			unSavedTicksInOutRatio := common.Round(100*(float64(outSum)/float64(outSum+inSum)), 2)
-			rsi, err := tickanalyze.GenerateRSI(input)
-			if err != nil {
-				logger.GetLogger().Errorf("GenerateRSI at EntireTickProcess Stock: %s, Err: %s", stockNum, err)
-				continue
-			}
 			analyze := analyzeentiretick.AnalyzeEntireTick{
 				TimeStamp:        tick.TimeStamp,
 				StockNum:         stockNum,
@@ -103,10 +106,11 @@ func TickProcess(stockNum string, lastClose float64, cond simulationcond.Analyze
 				OutInRatio:       unSavedTicksInOutRatio,
 				TotalTime:        totalTime,
 				CloseDiff:        closeDiff,
-				Rsi:              rsi,
 				Open:             open,
+				AvgPrice:         0,
 				High:             high,
 				Low:              low,
+				Rsi:              rsi,
 				Volume:           outSum + inSum,
 			}
 			analyzeChan <- &analyze

@@ -37,6 +37,7 @@ func GetLogger() *logrus.Logger {
 			QuoteEmptyFields: true,
 			PadLevelText:     false,
 			ForceColors:      true,
+			ForceQuote:       true,
 			// CallerPrettyfier: func(frame *runtime.Frame) (function string, file string) {
 			// 	fileName := path.Base(frame.File)
 			// 	return frame.Function, fileName

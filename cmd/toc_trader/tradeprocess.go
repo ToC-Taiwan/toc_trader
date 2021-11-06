@@ -22,6 +22,7 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/fetchentiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/importbasic"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/simulateprocess"
+	"gitlab.tocraw.com/root/toc_trader/pkg/modules/subscribe"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tickprocess"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot"
 )
@@ -46,6 +47,8 @@ func TradeProcess() {
 		if err := tickprocess.DeleteAllStreamTicks(); err != nil {
 			panic(err)
 		}
+		// Simtrade collect
+		go subscribe.SimTradeCollector(len(targets) * 2)
 		// Subscribe all target
 		global.TargetArr = targets
 		choosetarget.SubscribeTarget(global.TargetArr)

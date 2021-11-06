@@ -53,19 +53,15 @@ func ReceiveStreamTick(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, res)
 		return
 	}
-	if req.Tick.Simtrade == 1 && req.Tick.Volume > 500 {
-		logger.GetLogger().WithFields(map[string]interface{}{
-			"TickType": req.Tick.TickType,
-			"Volume":   req.Tick.Volume,
-			"Close":    req.Tick.Close,
-		}).Infof("SimTrade %s", req.Tick.Code)
-		return
-	}
 	tmp, err := req.ProtoToStreamTick()
 	if err != nil {
 		logger.GetLogger().Error(err)
 		res.Response = err.Error()
 		c.JSON(http.StatusInternalServerError, res)
+		return
+	}
+	if tmp.Simtrade == 1 {
+		subscribe.SimTradeChannel <- 1
 		return
 	}
 	if tmp.TimeStamp != 0 {

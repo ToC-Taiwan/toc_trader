@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"runtime/debug"
 	"sync"
+	"time"
 
 	"gitlab.tocraw.com/root/toc_trader/external/sinopacsrv"
 	"gitlab.tocraw.com/root/toc_trader/internal/logger"
@@ -25,6 +26,9 @@ var ForwardStreamTickChannelMap streamTickChannelMapMutexStruct
 // ReverseStreamTickChannelMap ReverseStreamTickChannelMap
 var ReverseStreamTickChannelMap streamTickChannelMapMutexStruct
 
+// SimTradeChannel SimTradeChannel
+var SimTradeChannel chan int
+
 // SubStreamTick SubStreamTick
 func SubStreamTick(stockArr []string) {
 	var err error
@@ -41,7 +45,6 @@ func SubStreamTick(stockArr []string) {
 			logger.GetLogger().Error(err.Error() + "\n" + string(debug.Stack()))
 		}
 	}()
-
 	saveCh := make(chan []*streamtick.StreamTick, len(stockArr)*3)
 	go tickprocess.SaveStreamTicks(saveCh)
 	for _, stockNum := range stockArr {
@@ -177,5 +180,22 @@ func UnSubscribeAll(dataType TickType) {
 	res := *resp.Result().(*sinopacsrv.OrderResponse)
 	if res.Status != sinopacsrv.StatusSuccuss {
 		panic("Unsubscribe fail")
+	}
+}
+
+// SimTradeCollector SimTradeCollector
+func SimTradeCollector(buffer int) {
+	SimTradeChannel = make(chan int, buffer)
+	printMinute := time.Now().Minute()
+	var count int
+	for {
+		simTrade := <-SimTradeChannel
+		count += simTrade
+		if time.Now().Minute() != printMinute {
+			printMinute = time.Now().Minute()
+			logger.GetLogger().WithFields(map[string]interface{}{
+				"Count": count,
+			}).Info("SimTrade")
+		}
 	}
 }

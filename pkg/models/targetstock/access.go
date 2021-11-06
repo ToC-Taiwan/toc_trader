@@ -35,7 +35,7 @@ func InsertMultiTarget(targetArr []Target, db *gorm.DB) error {
 
 // GetTargetByTime GetTargetByTime
 func GetTargetByTime(tradeDayTime time.Time, db *gorm.DB) (data []Target, err error) {
-	db.Preload("Stock").Where("last_trade_day = ?", tradeDayTime).Find(&data)
+	err = db.Preload("Stock").Where("last_trade_day = ?", tradeDayTime).Find(&data).Error
 	if err != nil {
 		return data, err
 	}
