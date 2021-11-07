@@ -1,5 +1,7 @@
 #!/bin/bash
 
+rm -rf ./configs/global.db
+
 pg_ctl -D ./data/toc_trader -l ./data/toc_trader/logfile stop
 rm -rf ./data
 mkdir -p ./data/toc_trader

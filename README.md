@@ -14,7 +14,7 @@
 ## Query Best Condition
 
 ```sql
-select * from simulate_result as a LEFT JOIN simulate_cond as b ON a.cond_id=b.id WHERE a.positive_days=a.total_days order by balance DESC, rsi_high-rsi_low DESC, rsi_low ASC;
+select * from simulate_result as a LEFT JOIN simulate_cond as b ON a.cond_id=b.id WHERE a.positive_days=a.total_days order by balance/trade_count DESC, rsi_high-rsi_low DESC, rsi_low ASC;
 ```
 
 ### Git

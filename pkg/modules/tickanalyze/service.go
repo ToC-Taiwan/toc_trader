@@ -23,7 +23,7 @@ func GenerateRSI(input quote.Quote) (rsi float64, err error) {
 func GetRSIStatus(input []float64, rsiHighLimit, rsiLowLimit float64) (highStatus, lowStatus bool) {
 	var result int
 	var resultArr, tmp []float64
-	part := 10
+	part := 11
 	divide := len(input) / part
 	for i := 1; i <= part; i++ {
 		tmp = input[len(input)-i*divide : len(input)-(i-1)*divide]

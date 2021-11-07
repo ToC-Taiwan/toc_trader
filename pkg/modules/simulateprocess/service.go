@@ -354,8 +354,33 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 			"TradeCount":    tradeCount,
 			"Balance":       tmp.Balance,
 			"PositiveCount": positiveCount,
-			"CondID":        cond.Model.ID,
 		}).Warn("Total Balance")
+		logger.GetLogger().WithFields(map[string]interface{}{
+			"TrimHistoryCloseCount": cond.TrimHistoryCloseCount,
+			"HistoryCloseCount":     cond.HistoryCloseCount,
+		}).Warn("Cond")
+		logger.GetLogger().WithFields(map[string]interface{}{
+			"OutInRatio":        cond.OutInRatio,
+			"ReverseOutInRatio": cond.ReverseOutInRatio,
+		}).Warn("Cond")
+		logger.GetLogger().WithFields(map[string]interface{}{
+			"CloseDiff":            cond.CloseDiff,
+			"CloseChangeRatioLow":  cond.CloseChangeRatioLow,
+			"CloseChangeRatioHigh": cond.CloseChangeRatioHigh,
+			"OpenChangeRatio":      cond.OpenChangeRatio,
+		}).Warn("Cond")
+		logger.GetLogger().WithFields(map[string]interface{}{
+			"RsiHigh":        cond.RsiHigh,
+			"RsiLow":         cond.RsiLow,
+			"ReverseRsiHigh": cond.ReverseRsiHigh,
+			"ReverseRsiLow":  cond.ReverseRsiLow,
+		}).Warn("Cond")
+		logger.GetLogger().WithFields(map[string]interface{}{
+			"TicksPeriodThreshold": cond.TicksPeriodThreshold,
+			"TicksPeriodLimit":     cond.TicksPeriodLimit,
+			"TicksPeriodCount":     cond.TicksPeriodCount,
+			"VolumePerSecond":      cond.VolumePerSecond,
+		}).Warn("Cond")
 	}
 }
 
