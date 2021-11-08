@@ -25,7 +25,7 @@ const (
 
 // InitStartUpQuota InitStartUpQuota
 func InitStartUpQuota() {
-	if CheckIsOpenTime() {
+	if time.Now().Day() == global.TradeDay.Day() {
 		realOrderArr, err := traderecord.GetAllorderByDayTime(global.TradeDay, database.GetAgent())
 		if err != nil {
 			panic(err)

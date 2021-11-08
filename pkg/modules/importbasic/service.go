@@ -35,11 +35,6 @@ func ImportAllStock() {
 			logger.GetLogger().Error(err.Error() + "\n" + string(debug.Stack()))
 		}
 	}()
-	// Update basic first
-	err = AskSinoSRVUpdateBasic()
-	if err != nil {
-		panic(err)
-	}
 	allStockNumInDB, err := stock.GetAllStockNum(database.GetAgent())
 	if err != nil {
 		panic(err)
@@ -227,21 +222,4 @@ func GetLastTradeDayByDate(tradeDay string) (lastTradeDay time.Time, err error) 
 		return GetLastTradeDayTime(tmp.AddDate(0, 0, -1))
 	}
 	return tmp.AddDate(0, 0, -1), err
-}
-
-// AskSinoPyUpdateBasic AskSinoPyUpdateBasic
-func AskSinoSRVUpdateBasic() (err error) {
-	resp, err := restful.GetClient().R().
-		SetResult(&sinopacsrv.OrderResponse{}).
-		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/basic/update-basic")
-	if err != nil {
-		return err
-	} else if resp.StatusCode() != http.StatusOK {
-		return errors.New("AskSinoPyUpdateBasic api fail")
-	}
-	res := *resp.Result().(*sinopacsrv.OrderResponse)
-	if res.Status != sinopacsrv.StatusSuccuss {
-		err = errors.New("sinopac srv update basic fail")
-	}
-	return err
 }

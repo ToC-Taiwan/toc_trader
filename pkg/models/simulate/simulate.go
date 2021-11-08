@@ -12,6 +12,7 @@ type Result struct {
 	Balance        int64 `gorm:"column:balance;"`
 	ForwardBalance int64 `gorm:"column:forward_balance;"`
 	ReverseBalance int64 `gorm:"column:reverse_balance;"`
+	TotalLoss      int64 `gorm:"column:total_loss;"`
 	TradeCount     int64 `gorm:"column:trade_count;"`
 	PositiveDays   int64 `gorm:"column:positive_days;"`
 	TotalDays      int64 `gorm:"column:total_days;"`

@@ -219,7 +219,7 @@ func SearchTradePoint(tradeDayArr []time.Time, cond simulationcond.AnalyzeCondit
 // GetBalance GetBalance
 func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.AnalyzeEntireTick, cond simulationcond.AnalyzeCondition, training bool, wg *sync.WaitGroup) {
 	defer wg.Done()
-	var forwardBalance, reverseBalance int64
+	var forwardBalance, reverseBalance, totalLoss int64
 	var tradeCount, positiveCount int64
 	for date, analyzeMap := range analyzeMapMap {
 		if balanceType == simTypeBase && (len(analyzeMap[0]) == 0 || len(analyzeMap[1]) == 0) && training {
@@ -257,8 +257,12 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 				buyCost := tradebot.GetStockBuyCost(buyPrice, global.OneTimeQuantity)
 				sellCost := tradebot.GetStockSellCost(sellPrice, global.OneTimeQuantity)
 				back := tradebot.GetStockTradeFeeDiscount(buyPrice, global.OneTimeQuantity) + tradebot.GetStockTradeFeeDiscount(sellPrice, global.OneTimeQuantity)
-				forwardBalance += (sellCost - buyCost + back)
-				dateForwardBalance += (sellCost - buyCost + back)
+				tmpBalance := (sellCost - buyCost + back)
+				forwardBalance += tmpBalance
+				if tmpBalance < 0 {
+					totalLoss += tmpBalance
+				}
+				dateForwardBalance += tmpBalance
 				if sellTimeStamp[v.StockNum] > endTradeOutTime && training && discardOverTime {
 					totalTimesChan <- -1
 					return
@@ -311,8 +315,12 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 					totalTimesChan <- -1
 					return
 				}
-				reverseBalance += (sellCost - buyCost + back)
-				dateReverseBalance += (sellCost - buyCost + back)
+				tmpBalance := (sellCost - buyCost + back)
+				if tmpBalance < 0 {
+					totalLoss += tmpBalance
+				}
+				reverseBalance += tmpBalance
+				dateReverseBalance += tmpBalance
 				if !training && (sellCost-buyCost+back) != 0 {
 					sellFirstTime := time.Unix(0, v.TimeStamp).Add(-8 * time.Hour)
 					buyLaterTime := time.Unix(0, sellTimeStamp[v.StockNum]).Add(-8 * time.Hour)
@@ -342,6 +350,7 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 		Balance:        forwardBalance + reverseBalance,
 		ForwardBalance: forwardBalance,
 		ReverseBalance: reverseBalance,
+		TotalLoss:      totalLoss * -1,
 		TradeCount:     tradeCount,
 		Cond:           cond,
 		PositiveDays:   positiveCount,
