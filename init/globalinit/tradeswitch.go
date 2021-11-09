@@ -11,7 +11,7 @@ func init() {
 	global.TradeSwitch = global.SystemSwitch{
 		Buy:                          true,
 		Sell:                         true,
-		SellFirst:                    true,
+		SellFirst:                    false,
 		BuyLater:                     true,
 		UseBidAsk:                    false,
 		MeanTimeTradeStockNum:        25,

@@ -28,18 +28,18 @@ func init() {
 	}
 	// Reverse Condition
 	global.ReverseCond = simulationcond.AnalyzeCondition{
-		HistoryCloseCount:     2300,
+		HistoryCloseCount:     500,
 		TrimHistoryCloseCount: true,
 		OutInRatio:            100,
-		ReverseOutInRatio:     9,
+		ReverseOutInRatio:     6,
 		CloseChangeRatioHigh:  3,
 		CloseChangeRatioLow:   0,
 		CloseDiff:             0,
 		OpenChangeRatio:       3,
 		ReverseRsiHigh:        0.9,
-		ReverseRsiLow:         0.2,
+		ReverseRsiLow:         0.1,
 		RsiHigh:               0.9,
-		RsiLow:                0.2,
+		RsiLow:                0.1,
 		TicksPeriodCount:      1,
 		TicksPeriodLimit:      8 * 1.3,
 		TicksPeriodThreshold:  8,

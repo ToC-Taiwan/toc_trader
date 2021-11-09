@@ -117,9 +117,9 @@ func GetSellPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyClose
 		return 0
 	}
 	var sellPrice float64
-	rsiHighStatus, rsiLowStatus := tickanalyze.GetRSIStatus(historyClose, cond.RsiHigh, cond.RsiLow)
+	rsiHighStatus, _ := tickanalyze.GetRSIStatus(historyClose, cond.RsiHigh, cond.RsiLow)
 	switch {
-	case rsiLowStatus:
+	case tick.Close/originalOrderClose < 0.985:
 		sellPrice = tick.Close
 	case rsiHighStatus:
 		sellPrice = tick.Close
