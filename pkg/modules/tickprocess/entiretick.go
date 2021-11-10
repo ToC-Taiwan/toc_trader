@@ -71,8 +71,7 @@ func TickProcess(stockNum string, lastClose float64, cond simulationcond.Analyze
 			var outSum, inSum int64
 			var totalTime float64
 			closeChangeRatio := common.Round(100*(tick.Close-lastClose)/lastClose, 2)
-			data := unSavedTicks.Get()
-			for _, v := range data {
+			for _, v := range unSavedTicks.Get() {
 				input.Close = append(input.Close, v.GetAllCloseArr()...)
 				outSum += v.GetOutSum()
 				inSum += v.GetInSum()

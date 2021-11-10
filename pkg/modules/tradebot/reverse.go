@@ -94,6 +94,9 @@ func BuyLaterBot(ch chan *streamtick.StreamTick, cond simulationcond.AnalyzeCond
 // IsSellFirstPoint IsSellFirstPoint
 func IsSellFirstPoint(analyzeTick *analyzestreamtick.AnalyzeStreamTick, cond simulationcond.AnalyzeCondition) bool {
 	closeChangeRatio := analyzeTick.CloseChangeRatio
+	if analyzeTick.Rsi < 50 {
+		return false
+	}
 	if analyzeTick.OpenChangeRatio > cond.OpenChangeRatio || closeChangeRatio > cond.CloseChangeRatioHigh {
 		return false
 	}
@@ -117,9 +120,9 @@ func GetBuyLaterPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyC
 		return 0
 	}
 	var buyPrice float64
-	_, rsiLowStatus := tickanalyze.GetRSIStatus(historyClose, cond.RsiHigh, cond.RsiLow)
+	rsiHighStatus, rsiLowStatus := tickanalyze.GetRSIStatus(historyClose, cond.RsiHigh, cond.RsiLow)
 	switch {
-	case rsiLowStatus:
+	case rsiLowStatus || rsiHighStatus:
 		buyPrice = tick.Close
 	case tick.Close/originalOrderClose > 1.01:
 		buyPrice = tick.Close
