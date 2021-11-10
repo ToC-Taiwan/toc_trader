@@ -120,11 +120,11 @@ func GetBuyLaterPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyC
 		return 0
 	}
 	var buyPrice float64
-	rsiHighStatus, rsiLowStatus := tickanalyze.GetRSIStatus(historyClose, cond.RsiHigh, cond.RsiLow)
+	_, rsiLowStatus := tickanalyze.GetRSIStatus(historyClose, cond.RsiHigh, cond.RsiLow)
 	switch {
-	case rsiLowStatus || rsiHighStatus:
-		buyPrice = tick.Close
 	case tick.Close/originalOrderClose > 1.01:
+		buyPrice = tick.Close
+	case rsiLowStatus:
 		buyPrice = tick.Close
 	case ManualBuyLaterMap.CheckStockExist(tick.StockNum):
 		buyPrice = ManualBuyLaterMap.GetClose(tick.StockNum)
@@ -133,6 +133,15 @@ func GetBuyLaterPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyC
 		}
 	case tickTimeUnix.After(lastTime):
 		buyPrice = tick.Close
+	}
+	holdTime := cond.MaxHoldTime * 15 * int64(time.Minute)
+	if buyPrice == 0 && tradeTime.Add(time.Duration(holdTime)).Before(tickTimeUnix) {
+		for i := cond.RsiLow; i <= 0.4; i += 0.1 {
+			_, rsiLowStatus := tickanalyze.GetRSIStatus(historyClose, cond.RsiHigh, i)
+			if rsiLowStatus {
+				buyPrice = tick.Close
+			}
+		}
 	}
 	return buyPrice
 }

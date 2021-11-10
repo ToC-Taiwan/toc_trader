@@ -500,25 +500,28 @@ func generateForwardConds(historyCount int) []*simulationcond.AnalyzeCondition {
 						for o := 12; o >= 4; o -= 4 {
 							for p := 3; p >= 1; p-- {
 								for v := 30; v >= 10; v -= 10 {
-									cond := simulationcond.AnalyzeCondition{
-										TrimHistoryCloseCount: true,
-										HistoryCloseCount:     int64(historyCount),
-										OutInRatio:            float64(m),
-										ReverseOutInRatio:     0,
-										CloseDiff:             0,
-										CloseChangeRatioLow:   float64(g),
-										CloseChangeRatioHigh:  float64(h),
-										OpenChangeRatio:       float64(g),
-										RsiHigh:               i,
-										RsiLow:                k,
-										ReverseRsiHigh:        i,
-										ReverseRsiLow:         k,
-										TicksPeriodThreshold:  float64(o),
-										TicksPeriodLimit:      float64(o) * 1.3,
-										TicksPeriodCount:      p,
-										VolumePerSecond:       int64(v),
+									for r := 1; r <= 1; r++ {
+										cond := simulationcond.AnalyzeCondition{
+											TrimHistoryCloseCount: true,
+											HistoryCloseCount:     int64(historyCount),
+											OutInRatio:            float64(m),
+											ReverseOutInRatio:     0,
+											CloseDiff:             0,
+											CloseChangeRatioLow:   float64(g),
+											CloseChangeRatioHigh:  float64(h),
+											OpenChangeRatio:       float64(g),
+											RsiHigh:               i,
+											RsiLow:                k,
+											ReverseRsiHigh:        i,
+											ReverseRsiLow:         k,
+											TicksPeriodThreshold:  float64(o),
+											TicksPeriodLimit:      float64(o) * 1.3,
+											TicksPeriodCount:      p,
+											VolumePerSecond:       int64(v),
+											MaxHoldTime:           int64(r),
+										}
+										conds = append(conds, &cond)
 									}
-									conds = append(conds, &cond)
 								}
 							}
 						}
@@ -536,30 +539,33 @@ func generateReverseConds(historyCount int) []*simulationcond.AnalyzeCondition {
 	for u := 3; u <= 9; u += 3 {
 		for g := 0; g <= 0; g++ {
 			for h := 3; h >= 3; h-- {
-				for i = 0.7; i >= 0.5; i -= 0.1 {
+				for i = 0.7; i >= 0.7; i -= 0.1 {
 					for k = 0.1; k <= 0.4; k += 0.1 {
 						for o := 12; o >= 4; o -= 4 {
 							for p := 3; p >= 1; p-- {
 								for v := 30; v >= 10; v -= 10 {
-									cond := simulationcond.AnalyzeCondition{
-										TrimHistoryCloseCount: true,
-										HistoryCloseCount:     int64(historyCount),
-										OutInRatio:            100,
-										ReverseOutInRatio:     float64(u),
-										CloseDiff:             0,
-										CloseChangeRatioLow:   float64(g),
-										CloseChangeRatioHigh:  float64(h),
-										OpenChangeRatio:       float64(h),
-										RsiHigh:               i,
-										RsiLow:                k,
-										ReverseRsiHigh:        i,
-										ReverseRsiLow:         k,
-										TicksPeriodThreshold:  float64(o),
-										TicksPeriodLimit:      float64(o) * 1.3,
-										TicksPeriodCount:      p,
-										VolumePerSecond:       int64(v),
+									for r := 1; r <= 1; r++ {
+										cond := simulationcond.AnalyzeCondition{
+											TrimHistoryCloseCount: true,
+											HistoryCloseCount:     int64(historyCount),
+											OutInRatio:            100,
+											ReverseOutInRatio:     float64(u),
+											CloseDiff:             0,
+											CloseChangeRatioLow:   float64(g),
+											CloseChangeRatioHigh:  float64(h),
+											OpenChangeRatio:       float64(h),
+											RsiHigh:               i,
+											RsiLow:                k,
+											ReverseRsiHigh:        i,
+											ReverseRsiLow:         k,
+											TicksPeriodThreshold:  float64(o),
+											TicksPeriodLimit:      float64(o) * 1.3,
+											TicksPeriodCount:      p,
+											VolumePerSecond:       int64(v),
+											MaxHoldTime:           int64(r),
+										}
+										conds = append(conds, &cond)
 									}
-									conds = append(conds, &cond)
 								}
 							}
 						}
