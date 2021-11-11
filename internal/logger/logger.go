@@ -4,6 +4,7 @@ package logger
 import (
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/rifflock/lfshook"
 	"github.com/sirupsen/logrus"
@@ -45,16 +46,17 @@ func GetLogger() *logrus.Logger {
 		})
 	}
 	// Log.SetReportCaller(true)
+	fileNamePrefix := time.Now().Format(global.LongTimeLayout) + "-"
 	Log.SetLevel(logrus.TraceLevel)
 	Log.SetOutput(os.Stdout)
 	pathMap := lfshook.PathMap{
-		logrus.PanicLevel: basePath + "/logs/panic.json",
-		logrus.FatalLevel: basePath + "/logs/fetal.json",
-		logrus.ErrorLevel: basePath + "/logs/error.json",
-		logrus.WarnLevel:  basePath + "/logs/warn.json",
-		logrus.InfoLevel:  basePath + "/logs/info.json",
-		logrus.DebugLevel: basePath + "/logs/debug.json",
-		logrus.TraceLevel: basePath + "/logs/error.json",
+		logrus.PanicLevel: basePath + "/logs/" + fileNamePrefix + "panic.json",
+		logrus.FatalLevel: basePath + "/logs/" + fileNamePrefix + "fetal.json",
+		logrus.ErrorLevel: basePath + "/logs/" + fileNamePrefix + "error.json",
+		logrus.WarnLevel:  basePath + "/logs/" + fileNamePrefix + "warn.json",
+		logrus.InfoLevel:  basePath + "/logs/" + fileNamePrefix + "info.json",
+		logrus.DebugLevel: basePath + "/logs/" + fileNamePrefix + "debug.json",
+		logrus.TraceLevel: basePath + "/logs/" + fileNamePrefix + "error.json",
 	}
 	Log.Hooks.Add(lfshook.NewHook(
 		pathMap,

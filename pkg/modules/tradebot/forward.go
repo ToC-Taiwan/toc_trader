@@ -100,7 +100,7 @@ func IsBuyPoint(analyzeTick *analyzestreamtick.AnalyzeStreamTick, cond simulatio
 	if analyzeTick.OpenChangeRatio < cond.OpenChangeRatio || closeChangeRatio > cond.CloseChangeRatioHigh || closeChangeRatio < cond.CloseChangeRatioLow {
 		return false
 	}
-	if analyzeTick.OutInRatio < cond.OutInRatio {
+	if analyzeTick.OutInRatio < cond.ForwardOutInRatio {
 		return false
 	}
 	return true
@@ -117,9 +117,9 @@ func GetSellPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyClose
 		return 0
 	}
 	var sellPrice float64
-	rsiHighStatus, _ := tickanalyze.GetRSIStatus(historyClose, cond.RsiHigh, cond.RsiLow)
+	rsiHighStatus := tickanalyze.GetForwardRSIStatus(historyClose, cond.RsiHigh)
 	switch {
-	case tick.Close/originalOrderClose < 0.985:
+	case tick.Close/originalOrderClose < 0.99:
 		sellPrice = tick.Close
 	case rsiHighStatus:
 		sellPrice = tick.Close
@@ -131,10 +131,10 @@ func GetSellPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyClose
 	case tickTimeUnix.After(lastTime):
 		sellPrice = tick.Close
 	}
-	holdTime := cond.MaxHoldTime * 15 * int64(time.Minute)
+	holdTime := cond.MaxHoldTime * 20 * int64(time.Minute)
 	if sellPrice == 0 && tradeTime.Add(time.Duration(holdTime)).Before(tickTimeUnix) {
-		for i := cond.RsiHigh; i >= 0.6; i -= 0.1 {
-			rsiHighStatus, _ := tickanalyze.GetRSIStatus(historyClose, i, cond.RsiLow)
+		for i := cond.RsiHigh - 0.1; i >= 0.7; i -= 0.1 {
+			rsiHighStatus := tickanalyze.GetForwardRSIStatus(historyClose, i)
 			if rsiHighStatus {
 				sellPrice = tick.Close
 			}

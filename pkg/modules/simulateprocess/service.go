@@ -369,20 +369,17 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 			"HistoryCloseCount":     cond.HistoryCloseCount,
 		}).Warn("Cond")
 		logger.GetLogger().WithFields(map[string]interface{}{
-			"OutInRatio":        cond.OutInRatio,
+			"ForwardOutInRatio": cond.ForwardOutInRatio,
 			"ReverseOutInRatio": cond.ReverseOutInRatio,
 		}).Warn("Cond")
 		logger.GetLogger().WithFields(map[string]interface{}{
-			"CloseDiff":            cond.CloseDiff,
 			"CloseChangeRatioLow":  cond.CloseChangeRatioLow,
 			"CloseChangeRatioHigh": cond.CloseChangeRatioHigh,
 			"OpenChangeRatio":      cond.OpenChangeRatio,
 		}).Warn("Cond")
 		logger.GetLogger().WithFields(map[string]interface{}{
-			"RsiHigh":        cond.RsiHigh,
-			"RsiLow":         cond.RsiLow,
-			"ReverseRsiHigh": cond.ReverseRsiHigh,
-			"ReverseRsiLow":  cond.ReverseRsiLow,
+			"RsiHigh": cond.RsiHigh,
+			"RsiLow":  cond.RsiLow,
 		}).Warn("Cond")
 		logger.GetLogger().WithFields(map[string]interface{}{
 			"TicksPeriodThreshold": cond.TicksPeriodThreshold,
@@ -491,37 +488,30 @@ func clearAllSimulation() {
 
 func generateForwardConds(historyCount int) []*simulationcond.AnalyzeCondition {
 	var conds []*simulationcond.AnalyzeCondition
-	var i, k float64
+	var i float64
 	for m := 95; m >= 85; m -= 5 {
 		for g := -1; g <= -1; g++ {
 			for h := 3; h >= 3; h-- {
 				for i = 0.9; i >= 0.6; i -= 0.1 {
-					for k = 0.1; k <= 0.1; k += 0.1 {
-						for o := 12; o >= 4; o -= 4 {
-							for p := 3; p >= 1; p-- {
-								for v := 30; v >= 10; v -= 10 {
-									for r := 1; r <= 1; r++ {
-										cond := simulationcond.AnalyzeCondition{
-											TrimHistoryCloseCount: true,
-											HistoryCloseCount:     int64(historyCount),
-											OutInRatio:            float64(m),
-											ReverseOutInRatio:     0,
-											CloseDiff:             0,
-											CloseChangeRatioLow:   float64(g),
-											CloseChangeRatioHigh:  float64(h),
-											OpenChangeRatio:       float64(g),
-											RsiHigh:               i,
-											RsiLow:                k,
-											ReverseRsiHigh:        i,
-											ReverseRsiLow:         k,
-											TicksPeriodThreshold:  float64(o),
-											TicksPeriodLimit:      float64(o) * 1.3,
-											TicksPeriodCount:      p,
-											VolumePerSecond:       int64(v),
-											MaxHoldTime:           int64(r),
-										}
-										conds = append(conds, &cond)
+					for o := 12; o >= 4; o -= 4 {
+						for p := 3; p >= 1; p-- {
+							for v := 30; v >= 10; v -= 10 {
+								for r := 1; r <= 3; r++ {
+									cond := simulationcond.AnalyzeCondition{
+										TrimHistoryCloseCount: true,
+										HistoryCloseCount:     int64(historyCount),
+										ForwardOutInRatio:     float64(m),
+										CloseChangeRatioLow:   float64(g),
+										CloseChangeRatioHigh:  float64(h),
+										OpenChangeRatio:       float64(g),
+										RsiHigh:               i,
+										TicksPeriodThreshold:  float64(o),
+										TicksPeriodLimit:      float64(o) * 1.3,
+										TicksPeriodCount:      p,
+										VolumePerSecond:       int64(v),
+										MaxHoldTime:           int64(r),
 									}
+									conds = append(conds, &cond)
 								}
 							}
 						}
@@ -535,37 +525,30 @@ func generateForwardConds(historyCount int) []*simulationcond.AnalyzeCondition {
 
 func generateReverseConds(historyCount int) []*simulationcond.AnalyzeCondition {
 	var conds []*simulationcond.AnalyzeCondition
-	var i, k float64
+	var k float64
 	for u := 3; u <= 9; u += 3 {
 		for g := 0; g <= 0; g++ {
 			for h := 3; h >= 3; h-- {
-				for i = 0.7; i >= 0.7; i -= 0.1 {
-					for k = 0.1; k <= 0.4; k += 0.1 {
-						for o := 12; o >= 4; o -= 4 {
-							for p := 3; p >= 1; p-- {
-								for v := 30; v >= 10; v -= 10 {
-									for r := 1; r <= 1; r++ {
-										cond := simulationcond.AnalyzeCondition{
-											TrimHistoryCloseCount: true,
-											HistoryCloseCount:     int64(historyCount),
-											OutInRatio:            100,
-											ReverseOutInRatio:     float64(u),
-											CloseDiff:             0,
-											CloseChangeRatioLow:   float64(g),
-											CloseChangeRatioHigh:  float64(h),
-											OpenChangeRatio:       float64(h),
-											RsiHigh:               i,
-											RsiLow:                k,
-											ReverseRsiHigh:        i,
-											ReverseRsiLow:         k,
-											TicksPeriodThreshold:  float64(o),
-											TicksPeriodLimit:      float64(o) * 1.3,
-											TicksPeriodCount:      p,
-											VolumePerSecond:       int64(v),
-											MaxHoldTime:           int64(r),
-										}
-										conds = append(conds, &cond)
+				for k = 0.1; k <= 0.4; k += 0.1 {
+					for o := 12; o >= 4; o -= 4 {
+						for p := 3; p >= 1; p-- {
+							for v := 30; v >= 10; v -= 10 {
+								for r := 1; r <= 1; r++ {
+									cond := simulationcond.AnalyzeCondition{
+										TrimHistoryCloseCount: true,
+										HistoryCloseCount:     int64(historyCount),
+										ReverseOutInRatio:     float64(u),
+										CloseChangeRatioLow:   float64(g),
+										CloseChangeRatioHigh:  float64(h),
+										OpenChangeRatio:       float64(h),
+										RsiLow:                k,
+										TicksPeriodThreshold:  float64(o),
+										TicksPeriodLimit:      float64(o) * 1.3,
+										TicksPeriodCount:      p,
+										VolumePerSecond:       int64(v),
+										MaxHoldTime:           int64(r),
 									}
+									conds = append(conds, &cond)
 								}
 							}
 						}
@@ -593,16 +576,13 @@ func generateBaseConds(historyCount int) []*simulationcond.AnalyzeCondition {
 											cond := simulationcond.AnalyzeCondition{
 												TrimHistoryCloseCount: false,
 												HistoryCloseCount:     int64(historyCount),
-												OutInRatio:            float64(m),
+												ForwardOutInRatio:     float64(m),
 												ReverseOutInRatio:     float64(u),
-												CloseDiff:             0,
 												CloseChangeRatioLow:   float64(g),
 												CloseChangeRatioHigh:  float64(h),
 												OpenChangeRatio:       float64(h),
 												RsiHigh:               i + float64(k)*0.1 + t,
 												RsiLow:                i + float64(k)*0.1,
-												ReverseRsiHigh:        i - float64(k)*0.1,
-												ReverseRsiLow:         i - float64(k)*0.1 - t,
 												TicksPeriodThreshold:  float64(o),
 												TicksPeriodLimit:      float64(o) * 1.3,
 												TicksPeriodCount:      p,
