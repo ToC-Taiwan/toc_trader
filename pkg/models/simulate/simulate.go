@@ -16,6 +16,8 @@ type Result struct {
 	TradeCount     int64 `gorm:"column:trade_count;"`
 	PositiveDays   int64 `gorm:"column:positive_days;"`
 	TotalDays      int64 `gorm:"column:total_days;"`
+	IsBestForward  bool  `gorm:"column:is_best_forward;"`
+	IsBestReverse  bool  `gorm:"column:is_best_reverse;"`
 	CondID         int64
 	Cond           simulationcond.AnalyzeCondition `gorm:"foreignKey:CondID"`
 }

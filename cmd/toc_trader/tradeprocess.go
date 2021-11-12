@@ -16,6 +16,8 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/internal/restful"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
+	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulate"
+	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulationcond"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/stock"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/targetstock"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/choosetarget"
@@ -126,8 +128,9 @@ func simulatationEntry() {
 			panic(err)
 		}
 		if result == "y" {
+			simulateprocess.ClearAllSimulation()
 			prompt := promptui.Prompt{
-				Label: "Balance type?(a: forward, b: reverse, c: force_both)",
+				Label: "Balance type?(a: forward, b: reverse)",
 			}
 			balanceTypeAns, err := prompt.Run()
 			if err != nil {
@@ -155,7 +158,40 @@ func simulatationEntry() {
 				panic(err)
 			}
 			simulateprocess.Simulate(balanceTypeAns, discardAns, useGlobalAns, countAns)
+		} else {
+			tmpChan := make(chan string)
+			logger.GetLogger().Warn("Please run in container mode")
+			tmpChan <- "stockHere"
 		}
+	} else {
+		var err error
+		var bestForwardCond, bestReverseCond simulationcond.AnalyzeCondition
+		bestForwardCond, err = simulate.GetBestForwardCond(database.GetAgent())
+		if err != nil {
+			panic(err)
+		}
+		if bestForwardCond.Model.ID == 0 {
+			simulateprocess.Simulate("a", "n", "n", "1")
+			bestForwardCond, err = simulate.GetBestForwardCond(database.GetAgent())
+			if err != nil {
+				panic(err)
+			}
+		}
+		bestReverseCond, err = simulate.GetBestReverseCond(database.GetAgent())
+		if err != nil {
+			panic(err)
+		}
+		if bestReverseCond.Model.ID == 0 {
+			simulateprocess.Simulate("b", "n", "n", "1")
+			bestReverseCond, err = simulate.GetBestReverseCond(database.GetAgent())
+			if err != nil {
+				panic(err)
+			}
+		}
+		global.ForwardCond = bestForwardCond
+		logger.GetLogger().Warnf("BestForward is %+v", global.ForwardCond)
+		global.ReverseCond = bestReverseCond
+		logger.GetLogger().Warnf("BestReverse is %+v", global.ReverseCond)
 	}
 }
 

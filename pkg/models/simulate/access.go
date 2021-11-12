@@ -4,6 +4,7 @@ package simulate
 import (
 	"sort"
 
+	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulationcond"
 	"gorm.io/gorm"
 )
 
@@ -11,6 +12,17 @@ import (
 func Insert(result *Result, db *gorm.DB) error {
 	err := db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(&result).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+	return err
+}
+
+// Update Update
+func Update(result *Result, db *gorm.DB) error {
+	err := db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Save(&result).Error; err != nil {
 			return err
 		}
 		return nil
@@ -44,8 +56,8 @@ func DeleteAll(db *gorm.DB) error {
 	return err
 }
 
-// GetBestResult GetBestResult
-func GetBestResult(db *gorm.DB) (cond Result, err error) {
+// GetBestSimulateResult GetBestSimulateResult
+func GetBestSimulateResult(db *gorm.DB) (cond Result, err error) {
 	var beforeSort []Result
 	err = db.Preload("Cond").Where("positive_days = total_days").
 		Order("balance/trade_count desc").Find(&beforeSort).Error
@@ -72,4 +84,30 @@ func GetBestResult(db *gorm.DB) (cond Result, err error) {
 		})
 	}
 	return afterSort[0], err
+}
+
+// GetBestForwardCond GetBestForwardCond
+func GetBestForwardCond(db *gorm.DB) (cond simulationcond.AnalyzeCondition, err error) {
+	var beforeSort []Result
+	err = db.Preload("Cond").Where("is_best_forward = true").Find(&beforeSort).Error
+	if err != nil {
+		return cond, err
+	}
+	if len(beforeSort) == 0 {
+		return cond, err
+	}
+	return beforeSort[0].Cond, err
+}
+
+// GetBestReverseCond GetBestReverseCond
+func GetBestReverseCond(db *gorm.DB) (cond simulationcond.AnalyzeCondition, err error) {
+	var beforeSort []Result
+	err = db.Preload("Cond").Where("is_best_reverse = true").Find(&beforeSort).Error
+	if err != nil {
+		return cond, err
+	}
+	if len(beforeSort) == 0 {
+		return cond, err
+	}
+	return beforeSort[0].Cond, err
 }

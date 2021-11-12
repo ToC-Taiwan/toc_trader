@@ -53,6 +53,7 @@ func SubStreamTick(stockArr []string) {
 			logger.GetLogger().Warnf("Stock %s has no lastClose", stockNum)
 			continue
 		}
+		// TODO: add analyze kbar result to decide buy or sell first, only one is accessble
 		forwardCh := make(chan *streamtick.StreamTick)
 		ForwardStreamTickChannelMap.Set(stockNum, forwardCh)
 		go tickprocess.ForwardTickProcess(lastClose, global.ForwardCond, forwardCh, saveCh)

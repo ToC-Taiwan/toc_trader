@@ -35,13 +35,15 @@ var (
 
 // Simulate Simulate
 func Simulate(simType, discardOT, useDefault, dayCount string) {
+	allTickMap.clearAll()
+	targetArrMap.clearAll()
+	totalTimes = 0
+	finishTimes = 0
 	switch simType {
 	case "a":
 		balanceType = simTypeForward
 	case "b":
 		balanceType = simTypeReverse
-	case "c":
-		balanceType = simTypeBase
 	}
 	if discardOT == "y" {
 		discardOverTime = true
@@ -54,7 +56,7 @@ func Simulate(simType, discardOT, useDefault, dayCount string) {
 	if err != nil {
 		panic(err)
 	}
-	clearAllSimulation()
+	// clearAllSimulation()
 	tradeDayArr, err := importbasic.GetLastNTradeDay(n + 1)
 	if err != nil {
 		panic(err)
@@ -104,8 +106,6 @@ func Simulate(simType, discardOT, useDefault, dayCount string) {
 			historyCount = global.ForwardCond.HistoryCloseCount
 		case simTypeReverse:
 			historyCount = global.ForwardCond.HistoryCloseCount
-		case simTypeBase:
-			historyCount = global.BaseCond.HistoryCloseCount
 		}
 		getBestCond(int(historyCount), useGlobal)
 	} else {
@@ -118,7 +118,6 @@ func Simulate(simType, discardOT, useDefault, dayCount string) {
 		}
 	}
 	wg.Wait()
-
 	close(resultChan)
 	logger.GetLogger().Info("Finish Simulate")
 	time.Sleep(10 * time.Second)
@@ -134,8 +133,6 @@ func getBestCond(historyCount int, useGlobal bool) {
 			conds = append(conds, &global.ForwardCond)
 		case simTypeReverse:
 			conds = append(conds, &global.ReverseCond)
-		case simTypeBase:
-			conds = append(conds, &global.BaseCond)
 		}
 	} else {
 		switch balanceType {
@@ -143,8 +140,6 @@ func getBestCond(historyCount int, useGlobal bool) {
 			conds = generateForwardConds(historyCount)
 		case simTypeReverse:
 			conds = generateReverseConds(historyCount)
-		case simTypeBase:
-			conds = generateBaseConds(historyCount)
 		}
 	}
 	if err := simulationcond.InsertMultiRecord(conds, database.GetAgent()); err != nil {
@@ -203,11 +198,11 @@ func SearchTradePoint(tradeDayArr []time.Time, cond simulationcond.AnalyzeCondit
 			if tickTimeUnix.After(lastTime) || buyPointMap[v.StockNum] != nil || sellFirstPointMap[v.StockNum] != nil {
 				continue
 			}
-			if tradebot.IsBuyPoint(tmp, cond) && (balanceType == simTypeForward || balanceType == simTypeBase) {
+			if tradebot.IsBuyPoint(tmp, cond) && balanceType == simTypeForward {
 				buyPointMap[v.StockNum] = v
 				continue
 			}
-			if tradebot.IsSellFirstPoint(tmp, cond) && (balanceType == simTypeReverse || balanceType == simTypeBase) {
+			if tradebot.IsSellFirstPoint(tmp, cond) && balanceType == simTypeReverse {
 				sellFirstPointMap[v.StockNum] = v
 			}
 		}
@@ -222,10 +217,6 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 	var forwardBalance, reverseBalance, totalLoss int64
 	var tradeCount, positiveCount int64
 	for date, analyzeMap := range analyzeMapMap {
-		if balanceType == simTypeBase && (len(analyzeMap[0]) == 0 || len(analyzeMap[1]) == 0) && training {
-			totalTimesChan <- -1
-			return
-		}
 		sellTimeStamp := make(map[string]int64)
 		var dateForwardBalance, dateReverseBalance int64
 		for stockNum, v := range analyzeMap[0] {
@@ -402,19 +393,28 @@ func catchResult(useGlobal bool) {
 			if err := simulate.InsertMultiRecord(save, database.GetAgent()); err != nil {
 				logger.GetLogger().Error(err)
 			}
-			bestCond, err := simulate.GetBestResult(database.GetAgent())
+			bestResult, err := simulate.GetBestSimulateResult(database.GetAgent())
 			if err != nil {
 				panic(err)
 			}
-			if bestCond.ID != 0 {
+			if balanceType == simTypeForward {
+				bestResult.IsBestForward = true
+			} else if balanceType == simTypeReverse {
+				bestResult.IsBestReverse = true
+			}
+			if err := simulate.Update(&bestResult, database.GetAgent()); err != nil {
+				panic(err)
+			}
+			if bestResult.ID != 0 {
 				var wg sync.WaitGroup
 				logger.GetLogger().Info("Best Result")
 				wg.Add(1)
-				go GetBalance(SearchTradePoint(simulateDayArr, bestCond.Cond), bestCond.Cond, false, &wg)
+				go GetBalance(SearchTradePoint(simulateDayArr, bestResult.Cond), bestResult.Cond, false, &wg)
 				wg.Wait()
 			} else if !useGlobal {
 				logger.GetLogger().Info("No Best")
 			}
+			close(totalTimesChan)
 			break
 		}
 		count++
@@ -431,7 +431,10 @@ func catchResult(useGlobal bool) {
 func totalTimesReceiver() {
 	var count int
 	for {
-		times := <-totalTimesChan
+		times, ok := <-totalTimesChan
+		if !ok {
+			break
+		}
 		if times > 0 {
 			count++
 			totalTimes += times
@@ -477,7 +480,8 @@ func storeAllEntireTick(stockArr []string, tradeDayArr []time.Time) {
 	}
 }
 
-func clearAllSimulation() {
+// ClearAllSimulation ClearAllSimulation
+func ClearAllSimulation() {
 	if err := simulate.DeleteAll(database.GetAgent()); err != nil {
 		panic(err)
 	}
@@ -533,7 +537,7 @@ func generateReverseConds(historyCount int) []*simulationcond.AnalyzeCondition {
 					for o := 12; o >= 4; o -= 4 {
 						for p := 3; p >= 1; p-- {
 							for v := 30; v >= 10; v -= 10 {
-								for r := 1; r <= 1; r++ {
+								for r := 1; r <= 3; r++ {
 									cond := simulationcond.AnalyzeCondition{
 										TrimHistoryCloseCount: true,
 										HistoryCloseCount:     int64(historyCount),
@@ -549,48 +553,6 @@ func generateReverseConds(historyCount int) []*simulationcond.AnalyzeCondition {
 										MaxHoldTime:           int64(r),
 									}
 									conds = append(conds, &cond)
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	return conds
-}
-
-func generateBaseConds(historyCount int) []*simulationcond.AnalyzeCondition {
-	var conds []*simulationcond.AnalyzeCondition
-	var i, t float64
-	for m := 90; m >= 80; m -= 5 {
-		for u := 3; u <= 9; u += 3 {
-			for g := -3; g <= -3; g++ {
-				for h := 7; h >= 7; h-- {
-					for i = 49; i <= 51; i += 0.1 {
-						for k := 0; k <= 9; k++ {
-							for t = 0; t <= 0.9; t += 0.1 {
-								for o := 10; o >= 6; o -= 2 {
-									for p := 2; p >= 1; p-- {
-										for v := 12; v >= 6; v -= 2 {
-											cond := simulationcond.AnalyzeCondition{
-												TrimHistoryCloseCount: false,
-												HistoryCloseCount:     int64(historyCount),
-												ForwardOutInRatio:     float64(m),
-												ReverseOutInRatio:     float64(u),
-												CloseChangeRatioLow:   float64(g),
-												CloseChangeRatioHigh:  float64(h),
-												OpenChangeRatio:       float64(h),
-												RsiHigh:               i + float64(k)*0.1 + t,
-												RsiLow:                i + float64(k)*0.1,
-												TicksPeriodThreshold:  float64(o),
-												TicksPeriodLimit:      float64(o) * 1.3,
-												TicksPeriodCount:      p,
-												VolumePerSecond:       int64(v),
-											}
-											conds = append(conds, &cond)
-										}
-									}
 								}
 							}
 						}

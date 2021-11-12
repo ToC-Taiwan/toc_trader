@@ -39,3 +39,10 @@ func (c *entireTickMap) getAllTicksByStockNumAndDate(stockNum, date string) []*e
 	c.mutex.RUnlock()
 	return tmp
 }
+
+// clearAll clearAll
+func (c *entireTickMap) clearAll() {
+	c.mutex.Lock()
+	c.tickMap = make(map[string]map[string][]*entiretick.EntireTick)
+	c.mutex.Unlock()
+}

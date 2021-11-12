@@ -31,3 +31,10 @@ func (c *targetArrMutex) getArrByDate(date string) (targetArr []string) {
 	c.mutex.RUnlock()
 	return tmp
 }
+
+// clearAll clearAll
+func (c *targetArrMutex) clearAll() {
+	c.mutex.RLock()
+	c.arrMap = make(map[string][]string)
+	c.mutex.RUnlock()
+}

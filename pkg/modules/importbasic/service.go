@@ -2,9 +2,7 @@
 package importbasic
 
 import (
-	"errors"
 	"net/http"
-	"runtime/debug"
 	"time"
 
 	"gitlab.tocraw.com/root/toc_trader/external/sinopacsrv"
@@ -22,19 +20,6 @@ var AllStockDetailMap stock.MutexStruct
 // ImportAllStock ImportAllStock
 func ImportAllStock() {
 	var err error
-	defer func() {
-		if r := recover(); r != nil {
-			switch x := r.(type) {
-			case string:
-				err = errors.New(x)
-			case error:
-				err = x
-			default:
-				err = errors.New("unknown panic")
-			}
-			logger.GetLogger().Error(err.Error() + "\n" + string(debug.Stack()))
-		}
-	}()
 	allStockNumInDB, err := stock.GetAllStockNum(database.GetAgent())
 	if err != nil {
 		panic(err)

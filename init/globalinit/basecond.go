@@ -21,5 +21,6 @@ func init() {
 		TicksPeriodLimit:      4 * 1.3,
 		TicksPeriodCount:      2,
 		VolumePerSecond:       10,
+		MaxHoldTime:           1,
 	}
 }
