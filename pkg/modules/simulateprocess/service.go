@@ -2,6 +2,7 @@
 package simulateprocess
 
 import (
+	"os"
 	"sync"
 	"time"
 
@@ -429,6 +430,11 @@ func catchResult(useGlobal bool) {
 }
 
 func totalTimesReceiver() {
+	var needBar bool
+	deployment := os.Getenv("DEPLOYMENT")
+	if deployment != "docker" {
+		needBar = true
+	}
 	var count int
 	for {
 		times, ok := <-totalTimesChan
@@ -438,12 +444,12 @@ func totalTimesReceiver() {
 		if times > 0 {
 			count++
 			totalTimes += times
-			if count == 25 {
+			if count == 25 && needBar {
 				go progressBar(totalTimes)
 			}
 		} else {
 			finishTimes++
-			if count == 25 {
+			if count == 25 && needBar {
 				bar.Increment()
 			}
 		}

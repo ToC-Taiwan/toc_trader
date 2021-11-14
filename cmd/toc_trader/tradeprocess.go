@@ -17,7 +17,6 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/internal/restful"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulate"
-	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulationcond"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/stock"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/targetstock"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/choosetarget"
@@ -165,32 +164,29 @@ func simulatationEntry() {
 		}
 	} else {
 		var err error
-		var bestForwardCond, bestReverseCond simulationcond.AnalyzeCondition
-		bestForwardCond, err = simulate.GetBestForwardCond(database.GetAgent())
+		global.ForwardCond, err = simulate.GetBestForwardCond(database.GetAgent())
 		if err != nil {
 			panic(err)
 		}
-		if bestForwardCond.Model.ID == 0 {
+		if global.ForwardCond.Model.ID == 0 {
 			simulateprocess.Simulate("a", "n", "n", "1")
-			bestForwardCond, err = simulate.GetBestForwardCond(database.GetAgent())
+			global.ForwardCond, err = simulate.GetBestForwardCond(database.GetAgent())
 			if err != nil {
 				panic(err)
 			}
 		}
-		bestReverseCond, err = simulate.GetBestReverseCond(database.GetAgent())
+		global.ReverseCond, err = simulate.GetBestReverseCond(database.GetAgent())
 		if err != nil {
 			panic(err)
 		}
-		if bestReverseCond.Model.ID == 0 {
+		if global.ReverseCond.Model.ID == 0 {
 			simulateprocess.Simulate("b", "n", "n", "1")
-			bestReverseCond, err = simulate.GetBestReverseCond(database.GetAgent())
+			global.ReverseCond, err = simulate.GetBestReverseCond(database.GetAgent())
 			if err != nil {
 				panic(err)
 			}
 		}
-		global.ForwardCond = bestForwardCond
 		logger.GetLogger().Warnf("BestForward is %+v", global.ForwardCond)
-		global.ReverseCond = bestReverseCond
 		logger.GetLogger().Warnf("BestReverse is %+v", global.ReverseCond)
 	}
 }

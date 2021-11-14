@@ -6,7 +6,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"gitlab.tocraw.com/root/toc_trader/pkg/handlers/mainsystemhandler"
-	"gitlab.tocraw.com/root/toc_trader/pkg/handlers/sysparmhandler"
 	"gitlab.tocraw.com/root/toc_trader/pkg/handlers/tradebothandler"
 	"gitlab.tocraw.com/root/toc_trader/pkg/handlers/tradeeventhandler"
 	"gitlab.tocraw.com/root/toc_trader/pkg/handlers/traderecordhandler"
@@ -16,7 +15,6 @@ import (
 func InitRouters(router *gin.Engine) {
 	mainRoute := router.Group("trade-bot")
 	mainsystemhandler.AddHandlers(mainRoute)
-	sysparmhandler.AddHandlers(mainRoute)
 	tradebothandler.AddHandlers(mainRoute)
 	tradeeventhandler.AddHandlers(mainRoute)
 	traderecordhandler.AddHandlers(mainRoute)

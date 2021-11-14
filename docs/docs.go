@@ -139,6 +139,131 @@ var doc = `{
                 }
             }
         },
+        "/manual/buy-later": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tradebot"
+                ],
+                "summary": "ManualBuyLaterStock",
+                "parameters": [
+                    {
+                        "description": "Body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/tradebothandler.ManualBuyLaterBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/manual/sell": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tradebot"
+                ],
+                "summary": "ManualSellStock",
+                "parameters": [
+                    {
+                        "description": "Body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/tradebothandler.ManualSellBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/switch": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tradebot"
+                ],
+                "summary": "GetTradeBotCondition",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            },
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tradebot"
+                ],
+                "summary": "UpdateTradeBotCondition",
+                "parameters": [
+                    {
+                        "description": "Body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/tradebothandler.UpdateTradeBotConditionBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/system/full_restart": {
             "get": {
                 "consumes": [
@@ -198,7 +323,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "sysparm"
+                    "mainsystem"
                 ],
                 "summary": "UpdateSysparm",
                 "parameters": [
@@ -212,59 +337,6 @@ var doc = `{
                             "items": {
                                 "$ref": "#/definitions/sysparm.Parameters"
                             }
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": ""
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/system/trade/switch": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "mainsystem"
-                ],
-                "summary": "GetTradeBotCondition",
-                "responses": {
-                    "200": {
-                        "description": ""
-                    }
-                }
-            },
-            "put": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "mainsystem"
-                ],
-                "summary": "UpdateTradeBotCondition",
-                "parameters": [
-                    {
-                        "description": "Body",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/mainsystemhandler.UpdateTradeBotConditionBody"
                         }
                     }
                 ],
@@ -337,78 +409,6 @@ var doc = `{
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/traderecord.TradeRecordArrProto"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": ""
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/trade/manual/buy_later": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "tradebot"
-                ],
-                "summary": "ManualBuyLaterStock",
-                "parameters": [
-                    {
-                        "description": "Body",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/tradebothandler.ManualBuyLaterBody"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": ""
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/trade/manual/sell": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "tradebot"
-                ],
-                "summary": "ManualSellStock",
-                "parameters": [
-                    {
-                        "description": "Body",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/tradebothandler.ManualSellBody"
                         }
                     }
                 ],
@@ -499,29 +499,6 @@ var doc = `{
                 },
                 "response": {
                     "type": "string"
-                }
-            }
-        },
-        "mainsystemhandler.UpdateTradeBotConditionBody": {
-            "type": "object",
-            "properties": {
-                "enable_buy": {
-                    "type": "boolean"
-                },
-                "enable_buy_later": {
-                    "type": "boolean"
-                },
-                "enable_sell": {
-                    "type": "boolean"
-                },
-                "enable_sell_first": {
-                    "type": "boolean"
-                },
-                "mean_time_trade_stock_num": {
-                    "type": "integer"
-                },
-                "use_bid_ask": {
-                    "type": "boolean"
                 }
             }
         },
@@ -645,6 +622,32 @@ var doc = `{
                 },
                 "stock_num": {
                     "type": "string"
+                }
+            }
+        },
+        "tradebothandler.UpdateTradeBotConditionBody": {
+            "type": "object",
+            "properties": {
+                "enable_buy": {
+                    "type": "boolean"
+                },
+                "enable_buy_later": {
+                    "type": "boolean"
+                },
+                "enable_sell": {
+                    "type": "boolean"
+                },
+                "enable_sell_first": {
+                    "type": "boolean"
+                },
+                "mean_time_reverse_trade_stock_num": {
+                    "type": "integer"
+                },
+                "mean_time_trade_stock_num": {
+                    "type": "integer"
+                },
+                "use_bid_ask": {
+                    "type": "boolean"
                 }
             }
         },
