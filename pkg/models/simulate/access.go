@@ -56,11 +56,15 @@ func DeleteAll(db *gorm.DB) error {
 	return err
 }
 
-// GetBestSimulateResult GetBestSimulateResult
-func GetBestSimulateResult(db *gorm.DB) (cond Result, err error) {
+// GetBestForwardSimulateResult GetBestForwardSimulateResult
+func GetBestForwardSimulateResult(db *gorm.DB) (cond Result, err error) {
 	var beforeSort []Result
-	err = db.Preload("Cond").Where("positive_days = total_days").
-		Order("balance/trade_count desc").Find(&beforeSort).Error
+	err = db.Preload("Cond").
+		Where("positive_days = total_days").
+		Where("trade_count != positive_days").
+		Where("forward_balance != 0").
+		Order("(balance-total_loss)/trade_count desc").
+		Find(&beforeSort).Error
 	if err != nil {
 		return cond, err
 	}
@@ -77,8 +81,36 @@ func GetBestSimulateResult(db *gorm.DB) (cond Result, err error) {
 	}
 	if len(afterSort) > 1 {
 		sort.Slice(afterSort, func(i, j int) bool {
-			return afterSort[i].Cond.RsiHigh-afterSort[i].Cond.RsiLow > afterSort[j].Cond.RsiHigh-afterSort[j].Cond.RsiLow
+			return afterSort[i].Cond.RsiHigh > afterSort[j].Cond.RsiHigh
 		})
+	}
+	return afterSort[0], err
+}
+
+// GetBestReverseSimulateResult GetBestReverseSimulateResult
+func GetBestReverseSimulateResult(db *gorm.DB) (cond Result, err error) {
+	var beforeSort []Result
+	err = db.Preload("Cond").
+		Where("positive_days = total_days").
+		Where("trade_count != positive_days").
+		Where("reverse_balance != 0").
+		Order("(balance-total_loss)/trade_count desc").
+		Find(&beforeSort).Error
+	if err != nil {
+		return cond, err
+	}
+	if len(beforeSort) == 0 {
+		return cond, err
+	}
+	var afterSort []Result
+	for _, v := range beforeSort {
+		if v.Balance == beforeSort[0].Balance {
+			afterSort = append(afterSort, v)
+		} else {
+			break
+		}
+	}
+	if len(afterSort) > 1 {
 		sort.Slice(afterSort, func(i, j int) bool {
 			return afterSort[i].Cond.RsiLow < afterSort[j].Cond.RsiLow
 		})

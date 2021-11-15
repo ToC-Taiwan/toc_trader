@@ -394,13 +394,19 @@ func catchResult(useGlobal bool) {
 			if err := simulate.InsertMultiRecord(save, database.GetAgent()); err != nil {
 				logger.GetLogger().Error(err)
 			}
-			bestResult, err := simulate.GetBestSimulateResult(database.GetAgent())
-			if err != nil {
-				panic(err)
-			}
+			var err error
+			var bestResult simulate.Result
 			if balanceType == simTypeForward {
+				bestResult, err = simulate.GetBestForwardSimulateResult(database.GetAgent())
+				if err != nil {
+					panic(err)
+				}
 				bestResult.IsBestForward = true
 			} else if balanceType == simTypeReverse {
+				bestResult, err = simulate.GetBestReverseSimulateResult(database.GetAgent())
+				if err != nil {
+					panic(err)
+				}
 				bestResult.IsBestReverse = true
 			}
 			if err := simulate.Update(&bestResult, database.GetAgent()); err != nil {
@@ -499,9 +505,9 @@ func ClearAllSimulation() {
 func generateForwardConds(historyCount int) []*simulationcond.AnalyzeCondition {
 	var conds []*simulationcond.AnalyzeCondition
 	var i float64
-	for m := 95; m >= 85; m -= 5 {
+	for m := 90; m >= 90; m -= 5 {
 		for g := -1; g <= -1; g++ {
-			for h := 3; h >= 3; h-- {
+			for h := 4; h >= 4; h-- {
 				for i = 0.9; i >= 0.6; i -= 0.1 {
 					for o := 12; o >= 4; o -= 4 {
 						for p := 3; p >= 1; p-- {
@@ -536,9 +542,9 @@ func generateForwardConds(historyCount int) []*simulationcond.AnalyzeCondition {
 func generateReverseConds(historyCount int) []*simulationcond.AnalyzeCondition {
 	var conds []*simulationcond.AnalyzeCondition
 	var k float64
-	for u := 3; u <= 9; u += 3 {
+	for u := 5; u <= 5; u += 5 {
 		for g := 0; g <= 0; g++ {
-			for h := 3; h >= 3; h-- {
+			for h := 4; h >= 4; h-- {
 				for k = 0.1; k <= 0.4; k += 0.1 {
 					for o := 12; o >= 4; o -= 4 {
 						for p := 3; p >= 1; p-- {

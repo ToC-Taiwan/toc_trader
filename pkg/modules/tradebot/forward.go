@@ -133,7 +133,7 @@ func GetSellPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyClose
 	}
 	holdTime := cond.MaxHoldTime * 20 * int64(time.Minute)
 	if sellPrice == 0 && tradeTime.Add(time.Duration(holdTime)).Before(tickTimeUnix) {
-		for i := cond.RsiHigh - 0.1; i >= 0.7; i -= 0.1 {
+		for i := cond.RsiHigh - 0.1; i >= 0.6; i -= 0.1 {
 			rsiHighStatus := tickanalyze.GetForwardRSIStatus(historyClose, i)
 			if rsiHighStatus {
 				sellPrice = tick.Close

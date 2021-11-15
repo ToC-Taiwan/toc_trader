@@ -186,6 +186,9 @@ func simulatationEntry() {
 				panic(err)
 			}
 		}
+		if global.ForwardCond.Model.ID == 0 || global.ReverseCond.Model.ID == 0 {
+			panic("no cond to trade")
+		}
 		logger.GetLogger().Warnf("BestForward is %+v", global.ForwardCond)
 		logger.GetLogger().Warnf("BestReverse is %+v", global.ReverseCond)
 	}

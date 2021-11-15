@@ -136,7 +136,7 @@ func GetBuyLaterPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyC
 	}
 	holdTime := cond.MaxHoldTime * 20 * int64(time.Minute)
 	if buyPrice == 0 && tradeTime.Add(time.Duration(holdTime)).Before(tickTimeUnix) {
-		for i := cond.RsiLow + 0.1; i <= 0.3; i += 0.1 {
+		for i := cond.RsiLow + 0.1; i <= 0.4; i += 0.1 {
 			rsiLowStatus := tickanalyze.GetReverseRSIStatus(historyClose, i)
 			if rsiLowStatus {
 				buyPrice = tick.Close

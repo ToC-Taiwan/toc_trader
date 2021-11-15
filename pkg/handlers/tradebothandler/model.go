@@ -19,8 +19,8 @@ type TargetResponse struct {
 	Close    float64 `json:"close"`
 }
 
-// UpdateTradeBotConditionBody UpdateTradeBotConditionBody
-type UpdateTradeBotConditionBody struct {
+// UpdateTradeBotSwitchBody UpdateTradeBotSwitchBody
+type UpdateTradeBotSwitchBody struct {
 	EnableBuy                    bool `json:"enable_buy"`
 	EnableSell                   bool `json:"enable_sell"`
 	EnableSellFirst              bool `json:"enable_sell_first"`

@@ -14,6 +14,7 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/handlers"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/bidask"
+	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulationcond"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/streamtick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/traderecord"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/bidaskprocess"
@@ -31,8 +32,10 @@ func AddHandlers(group *gin.RouterGroup) {
 	group.POST("/manual/sell", ManualSellStock)
 	group.POST("/manual/buy-later", ManualBuyLaterStock)
 
-	group.GET("/switch", GetTradeBotCondition)
+	group.GET("/switch", GetTradeBotSwitch)
 	group.PUT("/switch", UpdateTradeBotCondition)
+
+	group.GET("/condition", GetTradeCondition)
 }
 
 // ReceiveStreamTick ReceiveStreamTick
@@ -240,15 +243,15 @@ func ManualBuyLaterStock(c *gin.Context) {
 	c.JSON(http.StatusOK, nil)
 }
 
-// GetTradeBotCondition GetTradeBotCondition
-// @Summary GetTradeBotCondition
+// GetTradeBotSwitch GetTradeBotSwitch
+// @Summary GetTradeBotSwitch
 // @tags tradebot
 // @accept json
 // @produce json
 // @success 200
 // @Router /switch [get]
-func GetTradeBotCondition(c *gin.Context) {
-	data := UpdateTradeBotConditionBody{
+func GetTradeBotSwitch(c *gin.Context) {
+	data := UpdateTradeBotSwitchBody{
 		EnableBuy:                    global.TradeSwitch.Buy,
 		EnableSell:                   global.TradeSwitch.Sell,
 		EnableSellFirst:              global.TradeSwitch.SellFirst,
@@ -265,12 +268,12 @@ func GetTradeBotCondition(c *gin.Context) {
 // @tags tradebot
 // @accept json
 // @produce json
-// @param body body UpdateTradeBotConditionBody true "Body"
+// @param body body UpdateTradeBotSwitchBody true "Body"
 // @success 200
 // @failure 500 {object} handlers.ErrorResponse
 // @Router /switch [put]
 func UpdateTradeBotCondition(c *gin.Context) {
-	req := UpdateTradeBotConditionBody{}
+	req := UpdateTradeBotSwitchBody{}
 	var res handlers.ErrorResponse
 	if byteArr, err := ioutil.ReadAll(c.Request.Body); err != nil {
 		logger.GetLogger().Error(err)
@@ -298,4 +301,19 @@ func UpdateTradeBotCondition(c *gin.Context) {
 		"MeanTimeTradeStockNum": global.TradeSwitch.MeanTimeTradeStockNum,
 	}).Info("Trade Switch Status")
 	c.JSON(http.StatusOK, nil)
+}
+
+// GetTradeCondition GetTradeCondition
+// @Summary GetTradeCondition
+// @tags tradebot
+// @accept json
+// @produce json
+// @success 200
+// @Router /condition [get]
+func GetTradeCondition(c *gin.Context) {
+	data := []simulationcond.AnalyzeCondition{
+		global.ForwardCond,
+		global.ReverseCond,
+	}
+	c.JSON(http.StatusOK, data)
 }

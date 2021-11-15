@@ -27,6 +27,25 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/condition": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tradebot"
+                ],
+                "summary": "GetTradeCondition",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/data/bid-ask": {
             "post": {
                 "consumes": [
@@ -222,7 +241,7 @@ var doc = `{
                 "tags": [
                     "tradebot"
                 ],
-                "summary": "GetTradeBotCondition",
+                "summary": "GetTradeBotSwitch",
                 "responses": {
                     "200": {
                         "description": ""
@@ -247,7 +266,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/tradebothandler.UpdateTradeBotConditionBody"
+                            "$ref": "#/definitions/tradebothandler.UpdateTradeBotSwitchBody"
                         }
                     }
                 ],
@@ -625,7 +644,7 @@ var doc = `{
                 }
             }
         },
-        "tradebothandler.UpdateTradeBotConditionBody": {
+        "tradebothandler.UpdateTradeBotSwitchBody": {
             "type": "object",
             "properties": {
                 "enable_buy": {

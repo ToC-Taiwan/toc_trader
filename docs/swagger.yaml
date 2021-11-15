@@ -129,7 +129,7 @@ definitions:
       stock_num:
         type: string
     type: object
-  tradebothandler.UpdateTradeBotConditionBody:
+  tradebothandler.UpdateTradeBotSwitchBody:
     properties:
       enable_buy:
         type: boolean
@@ -190,6 +190,18 @@ info:
   title: ToC Trader
   version: 0.1.0
 paths:
+  /condition:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: GetTradeCondition
+      tags:
+      - tradebot
   /data/bid-ask:
     post:
       consumes:
@@ -317,7 +329,7 @@ paths:
       responses:
         "200":
           description: ""
-      summary: GetTradeBotCondition
+      summary: GetTradeBotSwitch
       tags:
       - tradebot
     put:
@@ -329,7 +341,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/tradebothandler.UpdateTradeBotConditionBody'
+          $ref: '#/definitions/tradebothandler.UpdateTradeBotSwitchBody'
       produces:
       - application/json
       responses:
