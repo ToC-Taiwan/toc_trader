@@ -39,7 +39,7 @@ var DefaultSetting = map[string]interface{}{
 	"black_stock_arr":                 `["1314","2317","3481","3701"]`,
 	"black_category_arr":              `["17"]`,
 	"cleanevent_cron":                 "0 0 4 * * ?",
-	"restart_sinopac_toc_trader_cron": "0 20 8 * * ?",
+	"restart_sinopac_toc_trader_cron": "0 20 2,8,16 * * ?",
 	"http_port":                       "6670",
 	"py_server_port":                  "3333",
 	"py_server_host":                  "127.0.0.1",
