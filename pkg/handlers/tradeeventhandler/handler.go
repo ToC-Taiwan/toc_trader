@@ -57,7 +57,7 @@ func ReciveTradeEvent(c *gin.Context) {
 	}).Info("SinoPacSRV Event")
 	if req.EventCode == 401 {
 		logger.GetLogger().Error("Terminate, sinpac srv send 401")
-		healthcheck.RestartService()
+		healthcheck.ExitService()
 	}
 	c.JSON(http.StatusOK, nil)
 }

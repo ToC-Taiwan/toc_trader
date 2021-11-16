@@ -1,5 +1,5 @@
-// Package fullrestart package fullrestart
-package fullrestart
+// Package healthchecktask package healthchecktask
+package healthchecktask
 
 import (
 	"sync"
@@ -13,7 +13,7 @@ var lock sync.Mutex
 func Run() {
 	lock.Lock()
 	defer lock.Unlock()
-	if err := healthcheck.FullRestart(); err != nil {
+	if err := healthcheck.AskSinopacSRVRestart(); err != nil {
 		panic(err)
 	}
 }

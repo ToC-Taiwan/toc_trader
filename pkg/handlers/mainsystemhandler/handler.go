@@ -18,7 +18,6 @@ import (
 // AddHandlers AddHandlers
 func AddHandlers(group *gin.RouterGroup) {
 	group.GET("/system/restart", Restart)
-	group.GET("/system/full_restart", FullRestart)
 	group.POST("/system/sysparm", UpdateSysparm)
 }
 
@@ -38,31 +37,7 @@ func Restart(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, res)
 		return
 	}
-	healthcheck.RestartService()
-	c.JSON(http.StatusOK, nil)
-}
-
-// FullRestart FullRestart
-// @Summary FullRestart
-// @tags mainsystem
-// @accept json
-// @produce json
-// @success 200
-// @failure 500 {object} string
-// @Router /system/full_restart [get]
-func FullRestart(c *gin.Context) {
-	var res handlers.ErrorResponse
-	deployment := os.Getenv("DEPLOYMENT")
-	if deployment != "docker" {
-		res.Response = "you should be in the docker container(full_restart)"
-		c.JSON(http.StatusInternalServerError, res)
-		return
-	}
-	if err := healthcheck.FullRestart(); err != nil {
-		res.Response = err.Error()
-		c.JSON(http.StatusInternalServerError, res)
-		return
-	}
+	healthcheck.ExitService()
 	c.JSON(http.StatusOK, nil)
 }
 

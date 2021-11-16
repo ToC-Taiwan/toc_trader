@@ -44,7 +44,7 @@ func SubscribeTarget(targetArr []string) {
 	for {
 		err := UpdateStockCloseMapByDate(targetArr, global.LastTradeDayArr)
 		if errorTimes >= 5 {
-			if err = healthcheck.FullRestart(); err != nil && tradebot.BuyOrderMap.GetCount() != 0 && tradebot.SellFirstOrderMap.GetCount() != 0 {
+			if err = healthcheck.AskSinopacSRVRestart(); err != nil && tradebot.BuyOrderMap.GetCount() != 0 && tradebot.SellFirstOrderMap.GetCount() != 0 {
 				logger.GetLogger().Fatal(err)
 			}
 			return

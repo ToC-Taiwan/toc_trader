@@ -1,5 +1,5 @@
-// Package tradeeventprocess is task for trade event
-package tradeeventprocess
+// Package tradeeventtask is task for trade event
+package tradeeventtask
 
 import (
 	"errors"

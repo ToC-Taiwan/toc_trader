@@ -13,16 +13,8 @@ import (
 
 var serverToken string
 
-// FullRestart FullRestart
-func FullRestart() (err error) {
-	if err = askSinopacSRVRestart(); err != nil {
-		return err
-	}
-	RestartService()
-	return err
-}
-
-func askSinopacSRVRestart() error {
+// AskSinopacSRVRestart AskSinopacSRVRestart
+func AskSinopacSRVRestart() error {
 	resp, err := restful.GetClient().R().
 		SetResult(&sinopacsrv.OrderResponse{}).
 		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/system/restart")
@@ -38,8 +30,8 @@ func askSinopacSRVRestart() error {
 	return err
 }
 
-// RestartService RestartService
-func RestartService() {
+// ExitService ExitService
+func ExitService() {
 	global.ExitChannel <- global.ExitSignal
 }
 
@@ -58,7 +50,7 @@ func CheckSinopacSRVStatus() error {
 		serverToken = res.ServerToken
 	} else if serverToken != res.ServerToken {
 		logger.GetLogger().Warn("Token expired")
-		RestartService()
+		ExitService()
 	}
 	return err
 }
