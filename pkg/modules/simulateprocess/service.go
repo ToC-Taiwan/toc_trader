@@ -398,13 +398,13 @@ func catchResult(useGlobal bool) {
 			var err error
 			var bestResult simulate.Result
 			if balanceType == simTypeForward {
-				bestResult, err = simulate.GetBestForwardSimulateResultByTradeDay(bestResult.TradeDay, database.GetAgent())
+				bestResult, err = simulate.GetBestForwardSimulateResultByTradeDay(global.TradeDay, database.GetAgent())
 				if err != nil {
 					panic(err)
 				}
 				bestResult.IsBestForward = true
 			} else if balanceType == simTypeReverse {
-				bestResult, err = simulate.GetBestReverseSimulateResultByTradeDay(bestResult.TradeDay, database.GetAgent())
+				bestResult, err = simulate.GetBestReverseSimulateResultByTradeDay(global.TradeDay, database.GetAgent())
 				if err != nil {
 					panic(err)
 				}
