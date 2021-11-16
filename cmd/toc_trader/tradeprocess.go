@@ -30,13 +30,14 @@ import (
 
 // TradeProcess TradeProcess
 func TradeProcess() {
+	// Send ip to sinopac srv
+	sendCurrentIP()
 	// Check token is expired or not, if expired, restart service
 	go checkSinopacToken()
 	// Import all stock and update AllStockNameMap
 	importbasic.ImportAllStock()
 	// Chekc if is in debug mode and simulation
 	simulatationEntry()
-
 	// Generate global target array and fetch entireTick
 	var savedTarget []targetstock.Target
 	if targets, err := choosetarget.GetTargetByVolumeRankByDate(global.LastTradeDay.Format(global.ShortTimeLayout), 200); err != nil {
@@ -116,8 +117,6 @@ func checkSinopacToken() {
 func simulatationEntry() {
 	deployment := os.Getenv("DEPLOYMENT")
 	if deployment != "docker" {
-		// Send ip to sinopac srv
-		sendCurrentIP()
 		// Simulate
 		prompt := promptui.Prompt{
 			Label: "Simulate?(y/n)",
