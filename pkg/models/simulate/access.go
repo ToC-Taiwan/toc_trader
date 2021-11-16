@@ -3,6 +3,7 @@ package simulate
 
 import (
 	"sort"
+	"time"
 
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulationcond"
 	"gorm.io/gorm"
@@ -56,10 +57,11 @@ func DeleteAll(db *gorm.DB) error {
 	return err
 }
 
-// GetBestForwardSimulateResult GetBestForwardSimulateResult
-func GetBestForwardSimulateResult(db *gorm.DB) (cond Result, err error) {
+// GetBestForwardSimulateResultByTradeDay GetBestForwardSimulateResultByTradeDay
+func GetBestForwardSimulateResultByTradeDay(tradeDay time.Time, db *gorm.DB) (cond Result, err error) {
 	var beforeSort []Result
 	err = db.Preload("Cond").
+		Where("trade_day = ?", tradeDay).
 		Where("positive_days = total_days").
 		Where("trade_count != positive_days").
 		Where("forward_balance != 0").
@@ -87,10 +89,11 @@ func GetBestForwardSimulateResult(db *gorm.DB) (cond Result, err error) {
 	return afterSort[0], err
 }
 
-// GetBestReverseSimulateResult GetBestReverseSimulateResult
-func GetBestReverseSimulateResult(db *gorm.DB) (cond Result, err error) {
+// GetBestReverseSimulateResultByTradeDay GetBestReverseSimulateResultByTradeDay
+func GetBestReverseSimulateResultByTradeDay(tradeDay time.Time, db *gorm.DB) (cond Result, err error) {
 	var beforeSort []Result
 	err = db.Preload("Cond").
+		Where("trade_day = ?", tradeDay).
 		Where("positive_days = total_days").
 		Where("trade_count != positive_days").
 		Where("reverse_balance != 0").
@@ -118,10 +121,10 @@ func GetBestReverseSimulateResult(db *gorm.DB) (cond Result, err error) {
 	return afterSort[0], err
 }
 
-// GetBestForwardCond GetBestForwardCond
-func GetBestForwardCond(db *gorm.DB) (cond simulationcond.AnalyzeCondition, err error) {
+// GetBestForwardCondByTradeDay GetBestForwardCondByTradeDay
+func GetBestForwardCondByTradeDay(tradeDay time.Time, db *gorm.DB) (cond simulationcond.AnalyzeCondition, err error) {
 	var beforeSort []Result
-	err = db.Preload("Cond").Where("is_best_forward = true").Find(&beforeSort).Error
+	err = db.Preload("Cond").Where("trade_day = ?", tradeDay).Where("is_best_forward = true").Find(&beforeSort).Error
 	if err != nil {
 		return cond, err
 	}
@@ -131,10 +134,10 @@ func GetBestForwardCond(db *gorm.DB) (cond simulationcond.AnalyzeCondition, err 
 	return beforeSort[0].Cond, err
 }
 
-// GetBestReverseCond GetBestReverseCond
-func GetBestReverseCond(db *gorm.DB) (cond simulationcond.AnalyzeCondition, err error) {
+// GetBestReverseCondByTradeDay GetBestReverseCondByTradeDay
+func GetBestReverseCondByTradeDay(tradeDay time.Time, db *gorm.DB) (cond simulationcond.AnalyzeCondition, err error) {
 	var beforeSort []Result
-	err = db.Preload("Cond").Where("is_best_reverse = true").Find(&beforeSort).Error
+	err = db.Preload("Cond").Where("trade_day = ?", tradeDay).Where("is_best_reverse = true").Find(&beforeSort).Error
 	if err != nil {
 		return cond, err
 	}

@@ -164,24 +164,24 @@ func simulatationEntry() {
 		}
 	} else {
 		var err error
-		global.ForwardCond, err = simulate.GetBestForwardCond(database.GetAgent())
+		global.ForwardCond, err = simulate.GetBestForwardCondByTradeDay(global.TradeDay, database.GetAgent())
 		if err != nil {
 			panic(err)
 		}
 		if global.ForwardCond.Model.ID == 0 {
 			simulateprocess.Simulate("a", "n", "n", "1")
-			global.ForwardCond, err = simulate.GetBestForwardCond(database.GetAgent())
+			global.ForwardCond, err = simulate.GetBestForwardCondByTradeDay(global.TradeDay, database.GetAgent())
 			if err != nil {
 				panic(err)
 			}
 		}
-		global.ReverseCond, err = simulate.GetBestReverseCond(database.GetAgent())
+		global.ReverseCond, err = simulate.GetBestReverseCondByTradeDay(global.TradeDay, database.GetAgent())
 		if err != nil {
 			panic(err)
 		}
 		if global.ReverseCond.Model.ID == 0 {
 			simulateprocess.Simulate("b", "n", "n", "1")
-			global.ReverseCond, err = simulate.GetBestReverseCond(database.GetAgent())
+			global.ReverseCond, err = simulate.GetBestReverseCondByTradeDay(global.TradeDay, database.GetAgent())
 			if err != nil {
 				panic(err)
 			}

@@ -344,6 +344,7 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 		ReverseBalance: reverseBalance,
 		TotalLoss:      totalLoss * -1,
 		TradeCount:     tradeCount,
+		TradeDay:       global.TradeDay,
 		Cond:           cond,
 		PositiveDays:   positiveCount,
 		TotalDays:      int64(len(analyzeMapMap)),
@@ -397,13 +398,13 @@ func catchResult(useGlobal bool) {
 			var err error
 			var bestResult simulate.Result
 			if balanceType == simTypeForward {
-				bestResult, err = simulate.GetBestForwardSimulateResult(database.GetAgent())
+				bestResult, err = simulate.GetBestForwardSimulateResultByTradeDay(bestResult.TradeDay, database.GetAgent())
 				if err != nil {
 					panic(err)
 				}
 				bestResult.IsBestForward = true
 			} else if balanceType == simTypeReverse {
-				bestResult, err = simulate.GetBestReverseSimulateResult(database.GetAgent())
+				bestResult, err = simulate.GetBestReverseSimulateResultByTradeDay(bestResult.TradeDay, database.GetAgent())
 				if err != nil {
 					panic(err)
 				}
