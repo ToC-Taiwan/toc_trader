@@ -410,8 +410,8 @@ func generateForwardConds(historyCount int) []*simulationcond.AnalyzeCondition {
 			for h := 4; h >= 4; h-- {
 				for i = 0.9; i >= 0.6; i -= 0.1 {
 					for o := 12; o >= 4; o -= 4 {
-						for p := 3; p >= 1; p-- {
-							for v := 80; v >= 20; v -= 20 {
+						for p := 4; p >= 2; p-- {
+							for v := 90; v >= 30; v -= 30 {
 								for r := 1; r <= 3; r++ {
 									cond := simulationcond.AnalyzeCondition{
 										TrimHistoryCloseCount: true,
@@ -447,8 +447,8 @@ func generateReverseConds(historyCount int) []*simulationcond.AnalyzeCondition {
 			for h := 4; h >= 4; h-- {
 				for k = 0.1; k <= 0.4; k += 0.1 {
 					for o := 12; o >= 4; o -= 4 {
-						for p := 3; p >= 1; p-- {
-							for v := 80; v >= 20; v -= 20 {
+						for p := 4; p >= 2; p-- {
+							for v := 90; v >= 30; v -= 30 {
 								for r := 1; r <= 3; r++ {
 									cond := simulationcond.AnalyzeCondition{
 										TrimHistoryCloseCount: true,
