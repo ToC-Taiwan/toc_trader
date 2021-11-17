@@ -9,7 +9,9 @@
 
 ## Features
 
-- [API Docs](http://toc-trader.tocraw.com:6670/swagger/index.html)
+![monitor_sample](./assets/monitor_sample.png "monitor_sample")
+
+[API Docs](http://toc-trader.tocraw.com:6670/swagger/index.html)
 
 ## Query Best Condition
 

@@ -40,7 +40,7 @@ func TradeProcess() {
 	simulatationEntry()
 	// Generate global target array and fetch entireTick
 	var savedTarget []targetstock.Target
-	if targets, err := choosetarget.GetTargetByVolumeRankByDate(global.LastTradeDay.Format(global.ShortTimeLayout), 200); err != nil {
+	if targets, err := choosetarget.GetVolumeRankByDate(global.LastTradeDay.Format(global.ShortTimeLayout), 200); err != nil {
 		panic(err)
 	} else {
 		// UnSubscribeAll first
@@ -142,20 +142,13 @@ func simulatationEntry() {
 				panic(err)
 			}
 			prompt = promptui.Prompt{
-				Label: "Use global cond?(y/n)",
-			}
-			useGlobalAns, err := prompt.Run()
-			if err != nil {
-				panic(err)
-			}
-			prompt = promptui.Prompt{
 				Label: "N days?",
 			}
 			countAns, err := prompt.Run()
 			if err != nil {
 				panic(err)
 			}
-			simulateprocess.Simulate(balanceTypeAns, discardAns, useGlobalAns, countAns)
+			simulateprocess.Simulate(balanceTypeAns, discardAns, countAns)
 		} else {
 			tmpChan := make(chan string)
 			logger.GetLogger().Warn("Please run in container mode")
@@ -168,7 +161,7 @@ func simulatationEntry() {
 			panic(err)
 		}
 		if global.ForwardCond.Model.ID == 0 {
-			simulateprocess.Simulate("a", "n", "n", "1")
+			simulateprocess.Simulate("a", "n", "1")
 			global.ForwardCond, err = simulate.GetBestForwardCondByTradeDay(global.TradeDay, database.GetAgent())
 			if err != nil {
 				panic(err)
@@ -179,7 +172,7 @@ func simulatationEntry() {
 			panic(err)
 		}
 		if global.ReverseCond.Model.ID == 0 {
-			simulateprocess.Simulate("b", "n", "n", "1")
+			simulateprocess.Simulate("b", "n", "1")
 			global.ReverseCond, err = simulate.GetBestReverseCondByTradeDay(global.TradeDay, database.GetAgent())
 			if err != nil {
 				panic(err)

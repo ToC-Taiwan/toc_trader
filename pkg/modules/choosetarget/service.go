@@ -307,8 +307,8 @@ func TSEProcess() {
 	}
 }
 
-// GetTargetByVolumeRankByDate GetTargetByVolumeRankByDate
-func GetTargetByVolumeRankByDate(date string, count int64) (rankArr []string, err error) {
+// GetVolumeRankByDate GetVolumeRankByDate
+func GetVolumeRankByDate(date string, count int64) (rankArr []string, err error) {
 	countStr := strconv.FormatInt(count, 10)
 	resp, err := restful.GetClient().R().
 		SetHeader("X-Count", countStr).
