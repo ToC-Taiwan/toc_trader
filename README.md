@@ -16,7 +16,13 @@
 ## Query Best Condition
 
 ```sql
-select * from simulate_result as a LEFT JOIN simulate_cond as b ON a.cond_id=b.id WHERE a.positive_days=a.total_days order by balance/trade_count DESC, rsi_high-rsi_low DESC, rsi_low ASC;
+SELECT * FROM simulate_result AS a LEFT JOIN simulate_cond AS b ON a.cond_id=b.id
+WHERE positive_days=total_days AND trade_count!=total_days AND total_loss<balance AND forward_balance!=0
+order by (balance-total_loss)/trade_count DESC, rsi_high DESC;
+
+SELECT * FROM simulate_result AS a LEFT JOIN simulate_cond AS b ON a.cond_id=b.id
+WHERE positive_days=total_days AND trade_count!=total_days AND total_loss<balance AND reverse_balance!=0
+order by (balance-total_loss)/trade_count DESC, rsi_low ASC;
 ```
 
 ### Git

@@ -1,111 +1,111 @@
 include:
-  - template: SAST.gitlab-ci.yml
+    - template: SAST.gitlab-ci.yml
 
 variables:
-  DOCKER_DRIVER: overlay2
-  IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+    DOCKER_DRIVER: overlay2
+    IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
 
 stages:
-  - lint
-  - test
-  - build
-  - deployment
+    - lint
+    - test
+    - build
+    - deployment
 
 go-lint:
-  image: registry.gitlab.com/gitlab-org/gitlab-build-images:golangci-lint-alpine
-  only:
-    - main
-  stage: lint
-  script:
-    # Use default .golangci.yml file from the image if one is not present in the project root.
-    - "[ -e .golangci.yml ] || cp /golangci/.golangci.yml ."
-    # Write the code coverage report to gl-code-quality-report.json
-    # and print linting issues to stdout in the format: path/to/file:line description
-    # remove `--issues-exit-code 0` or set to non-zero to fail the job if linting issues are detected
-    - golangci-lint run --issues-exit-code 0 --out-format code-climate | tee gl-code-quality-report.json | jq -r '.[] | "\(.location.path):\(.location.lines.begin) \(.description)"'
-  artifacts:
-    reports:
-      codequality: gl-code-quality-report.json
+    image: registry.gitlab.com/gitlab-org/gitlab-build-images:golangci-lint-alpine
+    only:
+        - main
+    stage: lint
+    script:
+        # Use default .golangci.yml file from the image if one is not present in the project root.
+        - "[ -e .golangci.yml ] || cp /golangci/.golangci.yml ."
+        # Write the code coverage report to gl-code-quality-report.json
+        # and print linting issues to stdout in the format: path/to/file:line description
+        # remove `--issues-exit-code 0` or set to non-zero to fail the job if linting issues are detected
+        - golangci-lint run --issues-exit-code 0 --out-format code-climate | tee gl-code-quality-report.json | jq -r '.[] | "\(.location.path):\(.location.lines.begin) \(.description)"'
+    artifacts:
+        reports:
+            codequality: gl-code-quality-report.json
 
 go-build-test:
-  image: golang:1.17.2-bullseye
-  only:
-    - main
-  stage: test
-  script:
-    - go build -o toc_trader ./cmd/toc_trader/
+    image: golang:1.17.2-bullseye
+    only:
+        - main
+    stage: test
+    script:
+        - go build -o toc_trader ./cmd/toc_trader/
 
 go-test:
-  image: golang:1.17.2-bullseye
-  only:
-    - main
-  stage: test
-  allow_failure: true
-  script:
-    - export DEPLOYMENT=test
-    - go get gotest.tools/gotestsum
-    - gotestsum --junitfile report.xml --format testname
-    - go test -race $(go list ./... | grep -v /vendor/) -v -coverprofile=coverage.out -covermode=atomic
-    - go tool cover -func=coverage.out
-  artifacts:
-    when: always
-    reports:
-      junit: report.xml
+    image: golang:1.17.2-bullseye
+    only:
+        - main
+    stage: test
+    allow_failure: true
+    script:
+        - export DEPLOYMENT=test
+        - go get gotest.tools/gotestsum
+        - gotestsum --junitfile report.xml --format testname
+        - go test -race $(go list ./... | grep -v /vendor/) -v -coverprofile=coverage.out -covermode=atomic
+        - go tool cover -func=coverage.out
+    artifacts:
+        when: always
+        reports:
+            junit: report.xml
 
 docker_build:
-  image: docker:20.10.10
-  only:
-    - main
-  stage: build
-  before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-  script:
-    - docker build -t $IMAGE_TAG .
-    - docker push $IMAGE_TAG
-    - docker rmi $IMAGE_TAG
-    - docker system prune --volumes -f
+    image: docker:latest
+    only:
+        - main
+    stage: build
+    before_script:
+        - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    script:
+        - docker build -t $IMAGE_TAG .
+        - docker push $IMAGE_TAG
+        - docker rmi $IMAGE_TAG
+        - docker system prune --volumes -f
 
 docker-deploy:
-  image: alpine:latest
-  only:
-    - main
-  stage: deployment
-  script:
-    - chmod og= $ID_ED25519
-    - apk update && apk add openssh-client
-    - ssh -i $ID_ED25519 -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY"
-    - ssh -i $ID_ED25519 -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker pull $IMAGE_TAG"
-    - ssh -i $ID_ED25519 -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker stop toc_trader || true"
-    - ssh -i $ID_ED25519 -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker system prune --volumes -f"
-    - |
-      ssh -i $ID_ED25519 -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker run --name toc_trader \
-      --network tocvlan \
-      --ip=172.20.10.222 \
-      --restart always \
-      -e TZ="Asia/Taipei" \
-      -dt $IMAGE_TAG"
-  environment:
-    name: review/$CI_COMMIT_REF_NAME
-    on_stop: stop_production
+    image: alpine:latest
+    only:
+        - main
+    stage: deployment
+    script:
+        - chmod og= $ID_ED25519
+        - apk update && apk add openssh-client
+        - ssh -i $ID_ED25519 -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY"
+        - ssh -i $ID_ED25519 -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker pull $IMAGE_TAG"
+        - ssh -i $ID_ED25519 -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker stop toc_trader || true"
+        - ssh -i $ID_ED25519 -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker system prune --volumes -f"
+        - |
+            ssh -i $ID_ED25519 -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker run --name toc_trader \
+            --network tocvlan \
+            --ip=172.20.10.222 \
+            --restart always \
+            -e TZ="Asia/Taipei" \
+            -dt $IMAGE_TAG"
+    environment:
+        name: review/$CI_COMMIT_REF_NAME
+        on_stop: stop_production
 
 stop_production:
-  image: alpine:latest
-  only:
-    - main
-  stage: deployment
-  script:
-    - chmod og= $ID_ED25519
-    - apk update && apk add openssh-client
-    - ssh -i $ID_ED25519 -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker logs toc_trader > /home/$SERVER_USER/output_$CI_COMMIT_SHORT_SHA.json"
-    - ssh -i $ID_ED25519 -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker stop toc_trader"
-    - ssh -i $ID_ED25519 -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker system prune --volumes -f"
-    - ssh -i $ID_ED25519 -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker rmi $IMAGE_TAG"
-    - scp -i $ID_ED25519 -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP:~/output_$CI_COMMIT_SHORT_SHA.json output_$CI_COMMIT_SHORT_SHA.json
-  when: manual
-  environment:
-    name: review/$CI_COMMIT_REF_NAME
-    action: stop
-  artifacts:
-    paths:
-      - output_$CI_COMMIT_SHORT_SHA.json
-    expire_in: 2 week
+    image: alpine:latest
+    only:
+        - main
+    stage: deployment
+    script:
+        - chmod og= $ID_ED25519
+        - apk update && apk add openssh-client
+        - ssh -i $ID_ED25519 -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker logs toc_trader > /home/$SERVER_USER/output_$CI_COMMIT_SHORT_SHA.json"
+        - ssh -i $ID_ED25519 -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker stop toc_trader"
+        - ssh -i $ID_ED25519 -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker system prune --volumes -f"
+        - ssh -i $ID_ED25519 -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker rmi $IMAGE_TAG"
+        - scp -i $ID_ED25519 -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP:~/output_$CI_COMMIT_SHORT_SHA.json output_$CI_COMMIT_SHORT_SHA.json
+    when: manual
+    environment:
+        name: review/$CI_COMMIT_REF_NAME
+        action: stop
+    artifacts:
+        paths:
+            - output_$CI_COMMIT_SHORT_SHA.json
+        expire_in: 2 week

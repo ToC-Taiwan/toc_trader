@@ -1,9 +1,19 @@
 # CHANGELOG
 
-## Unreleased (2021-11-05)
+## Unreleased (2021-11-17)
 
 ### New feature
 
+- **simulate**: :package: add trade day in result, and get by trade day, modify sell, buy later time unit to 15 minutes([`4a5eaaf`](https://gitlab.tocraw.com/root/toc_trader/commit/4a5eaaf021cdc4cdb4e5d87762eed8f4093ed52a)) (@TimHsu@M1BP-20210907)
+- **cron**: :pushpin: restart_sinopac_toc_trader_cron add 2, 16([`880c1a1`](https://gitlab.tocraw.com/root/toc_trader/commit/880c1a13cd817f488547a4c9ee25e1fb754864b6)) (@TimHsu@M1BP-20210907)
+- **tradebot**: :heavy_plus_sign: shorten sell buy later time unit to 10 minutes([`a0da15a`](https://gitlab.tocraw.com/root/toc_trader/commit/a0da15ae088c10f8d9d28f7519f5fed90c0cd757)) (@TimHsu@M1BP-20210907)
+- **simulate**: :boom: add auto simulate on startup, if best cond exist, then skip([`d1b8d2b`](https://gitlab.tocraw.com/root/toc_trader/commit/d1b8d2bd741fb3b7170e054746903229dc494f62)) (@TimHsu@M1BP-20210907)
+- **tradebot**: :zap: add max hold time to rapid trade, tmp fix on 1([`c6c2e24`](https://gitlab.tocraw.com/root/toc_trader/commit/c6c2e2425d0cf9dd4722e77406cc4b80eba88e84)) (@TimHsu@M1BP-20210907)
+- **tradebot**: :busts_in_silhouette: change reverse flow, add analyzeTick.Rsi < 50([`6ffdb21`](https://gitlab.tocraw.com/root/toc_trader/commit/6ffdb21f47790ccf48acc5c1f14437f269c6a4e5)) (@TimHsu@M1BP-20210907)
+- **tradebot**: :zap: add stop point at 1.5% on buy, 1 % on sell first, tmp disable sell first([`80ac882`](https://gitlab.tocraw.com/root/toc_trader/commit/80ac88211adcc2724dfed41c636b601c83c48c71)) (@TimHsu@M1BP-20210907)
+- **simulation**: :truck: add total loss in result, cancel ask update basic([`68a4f80`](https://gitlab.tocraw.com/root/toc_trader/commit/68a4f80a42ee7d59efe85472309e9c97d8471336)) (@TimHsu@M1BP-20210907)
+- **tickanalyze**: :heavy_plus_sign: change part from 10 to 11, clear simulate condition log([`a05092e`](https://gitlab.tocraw.com/root/toc_trader/commit/a05092e8af4f06372c3c4d54a8a291332fb2073b)) (@TimHsu@M1BP-20210907)
+- **simtrade**: :loud_sound: add simtrade collector to reduce log, logger add quote, add bestresult([`81d4ba7`](https://gitlab.tocraw.com/root/toc_trader/commit/81d4ba7fe0a975f9e55cff225fe2e5dd7b8643b2)) (@TimHsu@M1BP-20210907)
 - **missingtick**: :iphone: finish tradeswitch for missing ticks, remove all streamticks in start([`f4796cd`](https://gitlab.tocraw.com/root/toc_trader/commit/f4796cd61c7d892aa3388aa08c39c78f82ab285e)) (@TimHsu@M1BP-20210907)
 - **tradebot**: :page_facing_up: fill missing ticks when subscribe, rename some package([`48868ed`](https://gitlab.tocraw.com/root/toc_trader/commit/48868edff2febc20047a22b440856d3cfd3cf2e0)) (@TimHsu@M1BP-20210907)
 - **middlebot**: :children_crossing: let stock can be buy and sell first at one day([`10abb48`](https://gitlab.tocraw.com/root/toc_trader/commit/10abb48dce06a300d3303bf151ed55b08060ec37)) (@TimHsu@M1BP-20210907)
@@ -12,6 +22,15 @@
 
 ### Bugs fixed
 
+- **simulate**: :tada: modify tick period count from 4 to 2, volume per second from 90 to 30([`1136067`](https://gitlab.tocraw.com/root/toc_trader/commit/1136067000b99591731e1967870f64d627fb4e66)) (@TimHsu@M1BP-20210907)
+- **simulate**: :package: remove use global, modify time limit method, modify ticks per second to 100-20([`7a993a8`](https://gitlab.tocraw.com/root/toc_trader/commit/7a993a88372f349dedee1aa02d7171032ae926ed)) (@TimHsu@M1BP-20210907)
+- **ip**: :monocle_face: send trader ip every startup([`2bb4f8e`](https://gitlab.tocraw.com/root/toc_trader/commit/2bb4f8e8a9324d6fe6184512ab7d18559cb3de22)) (@TimHsu@M1BP-20210907)
+- **healthcheck**: :triangular_flag_on_post: remove full_restart api, rename package, variable names([`8cc39b9`](https://gitlab.tocraw.com/root/toc_trader/commit/8cc39b9a48155713d5915451bb6004b3664c8efc)) (@TimHsu@M1BP-20210907)
+- **simulate**: :wheelchair: fix wrong trade day in get best simulate result([`6cc1fbf`](https://gitlab.tocraw.com/root/toc_trader/commit/6cc1fbf4ceb7f00477539d6b75dc8943126e47a8)) (@TimHsu@M1BP-20210907)
+- **tradebot**: :globe_with_meridians: add trade condition query api, separate get simulate best cond([`76ca145`](https://gitlab.tocraw.com/root/toc_trader/commit/76ca1458688e066853a8d703db16dbd5884901d1)) (@TimHsu@M1BP-20210907)
+- **api_handler**: :sparkles: fix some tiny bug, hide progress bar in docker([`3ae75f1`](https://gitlab.tocraw.com/root/toc_trader/commit/3ae75f1d8b42da43fd9e91e841f018ef5e6d1bf2)) (@TimHsu@M1BP-20210907)
+- **tradebot**: :camera_flash: change max hold time unit to 20 minute, remove spare cond([`f041809`](https://gitlab.tocraw.com/root/toc_trader/commit/f041809fdeeaf1745753f58d9267dbf05f0faa73)) (@TimHsu@M1BP-20210907)
+- **tradeswitch**: :arrow_up: fix sell first wrong setting([`aa8a9e9`](https://gitlab.tocraw.com/root/toc_trader/commit/aa8a9e9554abad2f67e03b99fda23aec3f3d2245)) (@TimHsu@M1BP-20210907)
 - **ticks**: :twisted_rightwards_arrows: fix missing ticks switch off in reverse([`8d2df95`](https://gitlab.tocraw.com/root/toc_trader/commit/8d2df9582b629424df41751bacde82c769162f92)) (@TimHsu@M1BP-20210907)
 - **ci**: :truck: fix ci build error([`22662a5`](https://gitlab.tocraw.com/root/toc_trader/commit/22662a5bfd5b97f389abd674514287ea0cad3b03)) (@TimHsu@M1BP-20210907)
 - **quota**: :recycle: fix 100% cpu rate, change quota to buy and sell first([`033e349`](https://gitlab.tocraw.com/root/toc_trader/commit/033e3499c47dec2d453eb097921ff728a85baac1)) (@TimHsu@M1BP-20210907)
