@@ -57,6 +57,17 @@ func DeleteAll(db *gorm.DB) error {
 	return err
 }
 
+// DeleteAllNotBest DeleteAllNotBest
+func DeleteAllNotBest(db *gorm.DB) error {
+	err := db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("is_best_forward = false AND is_best_reverse = false").Unscoped().Delete(&Result{}).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+	return err
+}
+
 // GetBestForwardSimulateResultByTradeDay GetBestForwardSimulateResultByTradeDay
 func GetBestForwardSimulateResultByTradeDay(tradeDay time.Time, db *gorm.DB) (cond Result, err error) {
 	var beforeSort []Result
@@ -145,4 +156,17 @@ func GetBestReverseCondByTradeDay(tradeDay time.Time, db *gorm.DB) (cond simulat
 		return cond, err
 	}
 	return beforeSort[0].Cond, err
+}
+
+// GetBestCondIDArr GetBestCondIDArr
+func GetBestCondIDArr(db *gorm.DB) (idArr []int64, err error) {
+	var tmp []Result
+	err = db.Where("is_best_forward = true OR is_best_reverse = true").Find(&tmp).Error
+	if err != nil {
+		return idArr, err
+	}
+	for _, v := range tmp {
+		idArr = append(idArr, v.CondID)
+	}
+	return idArr, err
 }

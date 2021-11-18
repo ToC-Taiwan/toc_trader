@@ -317,6 +317,8 @@ func catchResult() {
 			if bestResult.Model.ID != 0 {
 				if err := simulate.Update(&bestResult, database.GetAgent()); err != nil {
 					panic(err)
+				} else {
+					clearAllNotBest()
 				}
 			} else {
 				logger.GetLogger().Info("No Best")
@@ -331,6 +333,20 @@ func catchResult() {
 				logger.GetLogger().Error(err)
 			}
 			save = []simulate.Result{}
+		}
+	}
+}
+
+func clearAllNotBest() {
+	if err := simulate.DeleteAllNotBest(database.GetAgent()); err != nil {
+		panic(err)
+	}
+	if notBestCondArr, err := simulate.GetBestCondIDArr(database.GetAgent()); err != nil {
+		panic(err)
+	} else {
+		err = simulationcond.DeleteAllExcept(notBestCondArr, database.GetAgent())
+		if err != nil {
+			panic(err)
 		}
 	}
 }

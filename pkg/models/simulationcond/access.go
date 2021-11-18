@@ -39,3 +39,14 @@ func DeleteAll(db *gorm.DB) error {
 	})
 	return err
 }
+
+// DeleteAllExcept DeleteAllExcept
+func DeleteAllExcept(except []int64, db *gorm.DB) error {
+	err := db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Not("id IN ?", except).Unscoped().Delete(&AnalyzeCondition{}).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+	return err
+}
