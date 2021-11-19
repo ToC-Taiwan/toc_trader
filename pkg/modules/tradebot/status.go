@@ -4,8 +4,10 @@ package tradebot
 import (
 	"time"
 
+	"gitlab.tocraw.com/root/toc_trader/internal/database"
 	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
+	"gitlab.tocraw.com/root/toc_trader/pkg/models/balance"
 )
 
 // CheckOrderStatusLoop CheckOrderStatusLoop
@@ -26,20 +28,35 @@ func showStatus() {
 	var tmpBalance int64
 	for range tick {
 		if isCurrentOrderAllFinished() {
-			balance := FilledSellOrderMap.GetTotalSellCost() + FilledSellFirstOrderMap.GetTotalSellCost() - FilledBuyLaterOrderMap.GetTotalBuyCost() - FilledBuyOrderMap.GetTotalBuyCost()
-			back := FilledBuyOrderMap.GetTotalCostBack() + FilledSellOrderMap.GetTotalCostBack() + FilledSellFirstOrderMap.GetTotalCostBack() + FilledBuyLaterOrderMap.GetTotalCostBack()
-			if tmpBalance != (balance + back) {
-				tmpBalance = (balance + back)
+			forward := FilledSellOrderMap.GetTotalSellCost() - FilledBuyOrderMap.GetTotalBuyCost()
+			reverse := FilledSellFirstOrderMap.GetTotalSellCost() - FilledBuyLaterOrderMap.GetTotalBuyCost()
+			totalCount := FilledSellOrderMap.GetCount() + FilledBuyLaterOrderMap.GetCount()
+			discount := FilledBuyOrderMap.GetTotalCostBack() + FilledSellOrderMap.GetTotalCostBack() + FilledSellFirstOrderMap.GetTotalCostBack() + FilledBuyLaterOrderMap.GetTotalCostBack()
+			sum := balance.Balance{
+				TradeDay:        global.TradeDay,
+				TradeCount:      int64(totalCount),
+				Forward:         forward,
+				Reverse:         reverse,
+				OriginalBalance: forward + reverse,
+				Discount:        discount,
+				Total:           forward + reverse + discount,
+			}
+			if err := balance.InsertOrUpdate(sum, database.GetAgent()); err != nil {
+				logger.GetLogger().Error(err)
+				continue
+			}
+			if tmpBalance != sum.Total {
+				tmpBalance = sum.Total
 				logger.GetLogger().WithFields(map[string]interface{}{
 					"Current":         BuyOrderMap.GetCount(),
 					"Maximum":         global.TradeSwitch.MeanTimeTradeStockNum,
 					"TradeQuota":      TradeQuota,
-					"OriginalBalance": balance,
-					"Back":            back,
-					"Real":            balance + back,
+					"OriginalBalance": sum.OriginalBalance,
+					"Back":            sum.Discount,
+					"Real":            sum.Total,
 				}).Info("TradeStatus")
 			}
-			if balance < -1000 && (global.TradeSwitch.Buy || global.TradeSwitch.SellFirst) {
+			if sum.Total < -500 && (global.TradeSwitch.Buy || global.TradeSwitch.SellFirst) {
 				global.TradeSwitch.Buy = false
 				global.TradeSwitch.SellFirst = false
 				logger.GetLogger().Warn("Enable buy and Sell first are all OFF because too...")

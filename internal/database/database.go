@@ -8,6 +8,7 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/analyzeentiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/analyzestreamtick"
+	"gitlab.tocraw.com/root/toc_trader/pkg/models/balance"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/bidask"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/entiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/holiday"
@@ -47,12 +48,13 @@ func GetAgent() *gorm.DB {
 		" port=" + sysparminit.GlobalSettings.GetDBPort() +
 		" sslmode=disable" +
 		" TimeZone=" + sysparminit.GlobalSettings.GetDBTimeZone()
-	Agent, err = gorm.Open(postgres.Open(dsn), &gorm.Config{Logger: dbLogger})
+	Agent, err = gorm.Open(postgres.Open(dsn), &gorm.Config{Logger: dbLogger, SkipDefaultTransaction: true})
 	if err != nil {
 		panic(err)
 	}
 
 	err = Agent.AutoMigrate(
+		&balance.Balance{},
 		&analyzeentiretick.AnalyzeEntireTick{},
 		&analyzestreamtick.AnalyzeStreamTick{},
 		&bidask.BidAsk{},
