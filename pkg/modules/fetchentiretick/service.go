@@ -4,7 +4,6 @@ package fetchentiretick
 import (
 	"errors"
 	"net/http"
-	"runtime/debug"
 	"sync"
 	"time"
 
@@ -23,20 +22,6 @@ var wg sync.WaitGroup
 
 // FetchEntireTick FetchEntireTick
 func FetchEntireTick(stockNumArr []string, dateArr []time.Time, cond simulationcond.AnalyzeCondition) {
-	var err error
-	defer func() {
-		if r := recover(); r != nil {
-			switch x := r.(type) {
-			case string:
-				err = errors.New(x)
-			case error:
-				err = x
-			default:
-				err = errors.New("unknown panic")
-			}
-			logger.GetLogger().Error(err.Error() + "\n" + string(debug.Stack()))
-		}
-	}()
 	saveCh := make(chan []*entiretick.EntireTick, len(stockNumArr))
 	go tickprocess.SaveEntireTicks(saveCh)
 	for _, d := range dateArr {
@@ -64,20 +49,6 @@ func FetchEntireTick(stockNumArr []string, dateArr []time.Time, cond simulationc
 
 // GetAndSaveEntireTick GetAndSaveEntireTick
 func GetAndSaveEntireTick(stockNum, date string, cond simulationcond.AnalyzeCondition, saveCh chan []*entiretick.EntireTick) {
-	var err error
-	defer func() {
-		if r := recover(); r != nil {
-			switch x := r.(type) {
-			case string:
-				err = errors.New(x)
-			case error:
-				err = x
-			default:
-				err = errors.New("unknown panic")
-			}
-			logger.GetLogger().Error(err.Error() + "\n" + string(debug.Stack()))
-		}
-	}()
 	logger.GetLogger().WithFields(map[string]interface{}{
 		"StockNum": stockNum,
 		"Date":     date,

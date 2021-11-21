@@ -31,6 +31,28 @@ func Update(result *Result, db *gorm.DB) error {
 	return err
 }
 
+// ClearIsBestForwardByTradeDay ClearIsBestForwardByTradeDay
+func ClearIsBestForwardByTradeDay(tradeDay time.Time, db *gorm.DB) error {
+	err := db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("is_best_forward = true AND trade_day = ?", tradeDay).Unscoped().Delete(&Result{}).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+	return err
+}
+
+// ClearIsBestReverseByTradeDay ClearIsBestReverseByTradeDay
+func ClearIsBestReverseByTradeDay(tradeDay time.Time, db *gorm.DB) error {
+	err := db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("is_best_reverse = true AND trade_day = ?", tradeDay).Unscoped().Delete(&Result{}).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+	return err
+}
+
 // InsertMultiRecord InsertMultiRecord
 func InsertMultiRecord(resultArr []Result, db *gorm.DB) error {
 	batch := len(resultArr)

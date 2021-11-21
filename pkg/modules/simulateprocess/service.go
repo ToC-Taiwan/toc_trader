@@ -57,8 +57,6 @@ func Simulate(simType, discardOT, useDefault, dayCount string) {
 	}
 	if useDefault == "y" {
 		useGlobal = true
-	} else {
-		ClearAllSimulation()
 	}
 	n, err := common.StrToInt64(dayCount)
 	if err != nil {
@@ -376,12 +374,18 @@ func catchResult() {
 			var err error
 			var bestResult simulate.Result
 			if balanceType == simTypeForward {
+				if err = simulate.ClearIsBestForwardByTradeDay(global.TradeDay, database.GetAgent()); err != nil {
+					panic(err)
+				}
 				bestResult, err = simulate.GetBestForwardSimulateResultByTradeDay(global.TradeDay, database.GetAgent())
 				if err != nil {
 					panic(err)
 				}
 				bestResult.IsBestForward = true
 			} else if balanceType == simTypeReverse {
+				if err = simulate.ClearIsBestReverseByTradeDay(global.TradeDay, database.GetAgent()); err != nil {
+					panic(err)
+				}
 				bestResult, err = simulate.GetBestReverseSimulateResultByTradeDay(global.TradeDay, database.GetAgent())
 				if err != nil {
 					panic(err)

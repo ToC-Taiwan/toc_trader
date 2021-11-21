@@ -2,8 +2,6 @@
 package tickprocess
 
 import (
-	"errors"
-	"runtime/debug"
 	"sync"
 
 	"github.com/markcheno/go-quote"
@@ -135,21 +133,7 @@ func SaveEntireTicks(saveCh chan []*entiretick.EntireTick) {
 
 // AnalyzeEntireTickSaver AnalyzeEntireTickSaver
 func AnalyzeEntireTickSaver(ch chan *analyzeentiretick.AnalyzeEntireTick, wg *sync.WaitGroup, sim bool, simulateMap *AnalyzeEntireTickMap) {
-	var err error
 	defer wg.Done()
-	defer func() {
-		if r := recover(); r != nil {
-			switch x := r.(type) {
-			case string:
-				err = errors.New(x)
-			case error:
-				err = x
-			default:
-				err = errors.New("unknown panic")
-			}
-			logger.GetLogger().Error(err.Error() + "\n" + string(debug.Stack()))
-		}
-	}()
 	var tmpArr []*analyzeentiretick.AnalyzeEntireTick
 	for {
 		tick, ok := <-ch

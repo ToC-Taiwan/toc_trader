@@ -2,9 +2,7 @@
 package subscribe
 
 import (
-	"errors"
 	"net/http"
-	"runtime/debug"
 	"sync"
 	"time"
 
@@ -32,19 +30,6 @@ var SimTradeChannel chan int
 // SubStreamTick SubStreamTick
 func SubStreamTick(stockArr []string) {
 	var err error
-	defer func() {
-		if r := recover(); r != nil {
-			switch x := r.(type) {
-			case string:
-				err = errors.New(x)
-			case error:
-				err = x
-			default:
-				err = errors.New("unknown panic")
-			}
-			logger.GetLogger().Error(err.Error() + "\n" + string(debug.Stack()))
-		}
-	}()
 	saveCh := make(chan []*streamtick.StreamTick, len(stockArr)*3)
 	go tickprocess.SaveStreamTicks(saveCh)
 	for _, stockNum := range stockArr {
@@ -53,7 +38,6 @@ func SubStreamTick(stockArr []string) {
 			logger.GetLogger().Warnf("Stock %s has no lastClose", stockNum)
 			continue
 		}
-		// TODO: add analyze kbar result to decide buy or sell first, only one is accessble
 		forwardCh := make(chan *streamtick.StreamTick)
 		ForwardStreamTickChannelMap.Set(stockNum, forwardCh)
 		go tickprocess.ForwardTickProcess(lastClose, global.ForwardCond, forwardCh, saveCh)
@@ -112,20 +96,6 @@ func SubStreamTick(stockArr []string) {
 
 // SubBidAsk SubBidAsk
 func SubBidAsk(stockArr []string) {
-	var err error
-	defer func() {
-		if r := recover(); r != nil {
-			switch x := r.(type) {
-			case string:
-				err = errors.New(x)
-			case error:
-				err = x
-			default:
-				err = errors.New("unknown panic")
-			}
-			logger.GetLogger().Error(err.Error() + "\n" + string(debug.Stack()))
-		}
-	}()
 	for _, stock := range stockArr {
 		go bidaskprocess.SaveBidAsk(stock)
 	}
@@ -149,20 +119,6 @@ func SubBidAsk(stockArr []string) {
 
 // UnSubscribeAll UnSubscribeAll
 func UnSubscribeAll(dataType TickType) {
-	var err error
-	defer func() {
-		if r := recover(); r != nil {
-			switch x := r.(type) {
-			case string:
-				err = errors.New(x)
-			case error:
-				err = x
-			default:
-				err = errors.New("unknown panic")
-			}
-			logger.GetLogger().Error(err.Error() + "\n" + string(debug.Stack()))
-		}
-	}()
 	var url string
 	switch {
 	case dataType == StreamType:

@@ -128,7 +128,7 @@ func GetSellPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyClose
 	switch {
 	case tick.Close/originalOrderClose < 0.99:
 		sellPrice = tick.Close
-	case rsiHighStatus && tick.Close > originalOrderClose && tradeTime.Add(3*time.Minute).Before(tickTimeUnix):
+	case rsiHighStatus && tick.Close > originalOrderClose && tradeTime.Add(5*time.Minute).Before(tickTimeUnix):
 		sellPrice = tick.Close
 	case tickTimeUnix.After(lastTime):
 		sellPrice = tick.Close

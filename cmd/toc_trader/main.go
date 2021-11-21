@@ -27,6 +27,7 @@ func main() {
 		}
 	}()
 	// Check Sinopac SRV is alive
+	logger.GetLogger().Infof("Checking host on %s:%s...", global.PyServerHost, global.PyServerPort)
 	for range time.Tick(time.Second) {
 		if network.CheckPortIsOpen(global.PyServerHost, global.PyServerPort) {
 			break

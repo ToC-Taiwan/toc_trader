@@ -4,7 +4,6 @@ package choosetarget
 import (
 	"errors"
 	"net/http"
-	"runtime/debug"
 	"sort"
 	"strconv"
 	"sync"
@@ -133,20 +132,6 @@ func GetTopTarget(count int) (targetArr []string, err error) {
 
 // GetTargetFromStockList GetTargetFromStockList
 func GetTargetFromStockList(conditionArr []sysparm.TargetCondArr) {
-	var err error
-	defer func() {
-		if r := recover(); r != nil {
-			switch x := r.(type) {
-			case string:
-				err = errors.New(x)
-			case error:
-				err = x
-			default:
-				err = errors.New("unknown panic")
-			}
-			logger.GetLogger().Error(err.Error() + "\n" + string(debug.Stack()))
-		}
-	}()
 	var savedTarget []targetstock.Target
 	if dbTarget, err := targetstock.GetTargetByTime(global.LastTradeDay, database.GetAgent()); err != nil {
 		panic(err)
@@ -191,19 +176,6 @@ func GetTargetFromStockList(conditionArr []sysparm.TargetCondArr) {
 // UpdateLastStockVolume UpdateLastStockVolume
 func UpdateLastStockVolume() {
 	var err error
-	defer func() {
-		if r := recover(); r != nil {
-			switch x := r.(type) {
-			case string:
-				err = errors.New(x)
-			case error:
-				err = x
-			default:
-				err = errors.New("unknown panic")
-			}
-			logger.GetLogger().Error(err.Error() + "\n" + string(debug.Stack()))
-		}
-	}()
 	var lastUpdateTime time.Time
 	if lastUpdateTime, err = stock.GetLastUpdatedTime(database.GetAgent()); err != nil {
 		panic(err)
