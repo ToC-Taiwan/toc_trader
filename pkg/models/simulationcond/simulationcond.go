@@ -21,7 +21,6 @@ type AnalyzeCondition struct {
 	TicksPeriodLimit      float64 `gorm:"column:ticks_period_limit"`
 	TicksPeriodCount      int     `gorm:"column:ticks_period_count"`
 	VolumePerSecond       int64   `gorm:"column:volume_per_second"`
-	MaxHoldTime           int64   `gorm:"column:max_hold_time"`
 }
 
 // Tabler Tabler

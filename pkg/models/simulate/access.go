@@ -76,7 +76,7 @@ func GetBestForwardSimulateResultByTradeDay(tradeDay time.Time, db *gorm.DB) (co
 		Where("positive_days = total_days").
 		Where("trade_count != positive_days").
 		Where("forward_balance != 0").
-		Order("(balance-total_loss)/trade_count desc").
+		Order("balance-total_loss desc").
 		Find(&beforeSort).Error
 	if err != nil {
 		return cond, err
@@ -96,9 +96,6 @@ func GetBestForwardSimulateResultByTradeDay(tradeDay time.Time, db *gorm.DB) (co
 		sort.Slice(afterSort, func(i, j int) bool {
 			return afterSort[i].Cond.RsiHigh > afterSort[j].Cond.RsiHigh
 		})
-		sort.Slice(afterSort, func(i, j int) bool {
-			return float64(afterSort[i].Cond.MaxHoldTime) < float64(afterSort[j].Cond.MaxHoldTime)
-		})
 	}
 	return afterSort[0], err
 }
@@ -111,7 +108,7 @@ func GetBestReverseSimulateResultByTradeDay(tradeDay time.Time, db *gorm.DB) (co
 		Where("positive_days = total_days").
 		Where("trade_count != positive_days").
 		Where("reverse_balance != 0").
-		Order("(balance-total_loss)/trade_count desc").
+		Order("balance-total_loss desc").
 		Find(&beforeSort).Error
 	if err != nil {
 		return cond, err
@@ -130,9 +127,6 @@ func GetBestReverseSimulateResultByTradeDay(tradeDay time.Time, db *gorm.DB) (co
 	if len(afterSort) > 1 {
 		sort.Slice(afterSort, func(i, j int) bool {
 			return afterSort[i].Cond.RsiLow < afterSort[j].Cond.RsiLow
-		})
-		sort.Slice(afterSort, func(i, j int) bool {
-			return float64(afterSort[i].Cond.MaxHoldTime) < float64(afterSort[j].Cond.MaxHoldTime)
 		})
 	}
 	return afterSort[0], err

@@ -6,6 +6,7 @@ import (
 
 	"gitlab.tocraw.com/root/toc_trader/internal/database"
 	"gitlab.tocraw.com/root/toc_trader/internal/logger"
+	"gitlab.tocraw.com/root/toc_trader/internal/stockutil"
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/analyzestreamtick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulationcond"
@@ -61,11 +62,17 @@ func BuyBot(analyzeTick *analyzestreamtick.AnalyzeStreamTick) {
 
 // SellBot SellBot
 func SellBot(ch chan *streamtick.StreamTick, cond simulationcond.AnalyzeCondition, historyClosePtr *[]float64) {
+	var maxClose float64
 	for {
 		tick := <-ch
+		if maxClose == 0 {
+			maxClose = tick.Close
+		} else if tick.Close > maxClose {
+			maxClose = tick.Close
+		}
 		if !SellOrderMap.CheckStockExist(tick.StockNum) {
 			originalOrderClose := BuyOrderMap.GetClose(tick.StockNum)
-			sellPrice := GetSellPrice(tick, BuyOrderMap.GetTradeTime(tick.StockNum), *historyClosePtr, originalOrderClose, cond)
+			sellPrice := GetSellPrice(tick, BuyOrderMap.GetTradeTime(tick.StockNum), *historyClosePtr, originalOrderClose, maxClose, cond)
 			if sellPrice == 0 {
 				continue
 			} else if order, err := PlaceOrder(SellAction, tick.StockNum, global.OneTimeQuantity, sellPrice); err != nil {
@@ -107,7 +114,7 @@ func IsBuyPoint(analyzeTick *analyzestreamtick.AnalyzeStreamTick, cond simulatio
 }
 
 // GetSellPrice GetSellPrice
-func GetSellPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyClose []float64, originalOrderClose float64, cond simulationcond.AnalyzeCondition) float64 {
+func GetSellPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyClose []float64, originalOrderClose, maxClose float64, cond simulationcond.AnalyzeCondition) float64 {
 	if tick.PctChg > 9.9 {
 		return tick.Close
 	}
@@ -121,24 +128,20 @@ func GetSellPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyClose
 	switch {
 	case tick.Close/originalOrderClose < 0.99:
 		sellPrice = tick.Close
-	case rsiHighStatus && tick.Close > originalOrderClose:
+	case rsiHighStatus && tick.Close > originalOrderClose && tradeTime.Add(3*time.Minute).Before(tickTimeUnix):
+		sellPrice = tick.Close
+	case tickTimeUnix.After(lastTime):
 		sellPrice = tick.Close
 	case ManualSellMap.CheckStockExist(tick.StockNum):
 		sellPrice = ManualSellMap.GetClose(tick.StockNum)
 		if sellPrice == 0 {
 			sellPrice = tick.Close
 		}
-	case tickTimeUnix.After(lastTime):
-		sellPrice = tick.Close
 	}
-	holdTime := cond.MaxHoldTime * 15 * int64(time.Minute)
-	if sellPrice == 0 && tradeTime.Add(time.Duration(holdTime)).Before(tickTimeUnix) && tick.Close > originalOrderClose {
-		// sellPrice = tick.Close
-		for i := cond.RsiHigh - 0.05; i >= 0.6; i -= 0.05 {
-			rsiHighStatus := tickanalyze.GetForwardRSIStatus(historyClose, i)
-			if rsiHighStatus {
-				sellPrice = tick.Close
-			}
+	holdTime := 30 * int64(time.Minute)
+	if sellPrice == 0 && tradeTime.Add(time.Duration(holdTime)).Before(tickTimeUnix) {
+		if tick.Close < stockutil.GetNewClose(maxClose, -1) && tick.Close > originalOrderClose {
+			sellPrice = tick.Close
 		}
 	}
 	return sellPrice

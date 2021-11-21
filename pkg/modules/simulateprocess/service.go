@@ -29,6 +29,7 @@ var (
 
 	balanceType     simulateType
 	discardOverTime bool
+	useGlobal       bool
 
 	resultChan     chan simulate.Result
 	totalTimesChan chan int
@@ -38,7 +39,7 @@ var (
 )
 
 // Simulate Simulate
-func Simulate(simType, discardOT, dayCount string) {
+func Simulate(simType, discardOT, useDefault, dayCount string) {
 	// init every time
 	allTickMap.clearAll()
 	targetArrMap.clearAll()
@@ -53,6 +54,11 @@ func Simulate(simType, discardOT, dayCount string) {
 	}
 	if discardOT == "y" {
 		discardOverTime = true
+	}
+	if useDefault == "y" {
+		useGlobal = true
+	} else {
+		ClearAllSimulation()
 	}
 	n, err := common.StrToInt64(dayCount)
 	if err != nil {
@@ -99,14 +105,34 @@ func Simulate(simType, discardOT, dayCount string) {
 	totalTimesChan = make(chan int)
 	go totalTimesReceiver()
 	go catchResult()
-
 	var wg sync.WaitGroup
-	for i := 2500; i >= 100; i -= 100 {
+	if useGlobal {
 		wg.Add(1)
-		go func(historyCount int) {
-			defer wg.Done()
-			getBestCond(historyCount)
-		}(i)
+		if balanceType == simTypeForward {
+			cond, err := simulate.GetBestForwardCondByTradeDay(global.TradeDay, database.GetAgent())
+			if err != nil {
+				panic(err)
+			} else if cond.HistoryCloseCount == 0 {
+				panic("no global forward cond")
+			}
+			GetBalance(SearchTradePoint(simulateDayArr, cond), cond, &wg)
+		} else if balanceType == simTypeReverse {
+			cond, err := simulate.GetBestReverseCondByTradeDay(global.TradeDay, database.GetAgent())
+			if err != nil {
+				panic(err)
+			} else if cond.HistoryCloseCount == 0 {
+				panic("no global reverse cond")
+			}
+			GetBalance(SearchTradePoint(simulateDayArr, cond), cond, &wg)
+		}
+	} else {
+		for i := 2500; i >= 100; i -= 100 {
+			wg.Add(1)
+			go func(historyCount int) {
+				defer wg.Done()
+				getBestCond(historyCount)
+			}(i)
+		}
 	}
 	wg.Wait()
 	close(resultChan)
@@ -200,20 +226,27 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 			endTradeOutTime := getLastTradeOutTimeByEntireTickTimeStamp(ticks[0].TimeStamp)
 			var historyClose []float64
 			var buyPrice, sellPrice float64
+			var maxClose float64
 			for _, k := range ticks {
+				if maxClose == 0 {
+					maxClose = k.Close
+				} else if k.Close > maxClose {
+					maxClose = k.Close
+				}
 				historyClose = append(historyClose, k.Close)
 				if len(historyClose) > int(cond.HistoryCloseCount) && cond.TrimHistoryCloseCount {
 					historyClose = historyClose[1:]
 				}
 				if k.TimeStamp == v.TimeStamp && buyPrice == 0 && v.TimeStamp < endTradeInTime {
+					maxClose = 0
 					buyPrice = k.Close
 					tradeCount++
 				}
-				if buyPrice != 0 {
-					sellPrice = tradebot.GetSellPrice(k.ToStreamTick(), time.Unix(0, v.TimeStamp).Add(-8*time.Hour), historyClose, buyPrice, cond)
+				if buyPrice != 0 && maxClose != 0 {
+					sellPrice = tradebot.GetSellPrice(k.ToStreamTick(), time.Unix(0, v.TimeStamp).Add(-8*time.Hour), historyClose, buyPrice, maxClose, cond)
 					if sellPrice != 0 {
 						sellTimeStamp[k.StockNum] = k.TimeStamp
-						if discardOverTime && k.TimeStamp > endTradeOutTime {
+						if discardOverTime && k.TimeStamp > endTradeOutTime && !useGlobal {
 							totalTimesChan <- -1
 							return
 						}
@@ -230,6 +263,16 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 			if tmpBalance < 0 {
 				totalLoss += tmpBalance
 			}
+			if useGlobal && tmpBalance != 0 {
+				buyTime := time.Unix(0, v.TimeStamp).Add(-8 * time.Hour)
+				sellTime := time.Unix(0, sellTimeStamp[v.StockNum]).Add(-8 * time.Hour)
+				logger.GetLogger().WithFields(map[string]interface{}{
+					"Balance": tmpBalance,
+					"Name":    global.AllStockNameMap.GetName(v.StockNum),
+					"BuyAt":   buyTime.Format(global.LongTimeLayout)[11:],
+					"SellAt":  sellTime.Format(global.LongTimeLayout)[11:],
+				}).Warn("Forward Balance")
+			}
 		}
 		sellTimeStamp = make(map[string]int64)
 		for stockNum, v := range analyzeMapArr[1] {
@@ -238,20 +281,27 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 			endTradeOutTime := getLastTradeOutTimeByEntireTickTimeStamp(ticks[0].TimeStamp)
 			var historyClose []float64
 			var sellFirstPrice, buyLaterPrice float64
+			var minClose float64
 			for _, k := range ticks {
+				if minClose == 0 {
+					minClose = k.Close
+				} else if k.Close < minClose {
+					minClose = k.Close
+				}
 				historyClose = append(historyClose, k.Close)
 				if len(historyClose) > int(cond.HistoryCloseCount) && cond.TrimHistoryCloseCount {
 					historyClose = historyClose[1:]
 				}
 				if k.TimeStamp == v.TimeStamp && sellFirstPrice == 0 && v.TimeStamp < endTradeInTime {
+					minClose = 0
 					sellFirstPrice = k.Close
 					tradeCount++
 				}
-				if sellFirstPrice != 0 {
-					buyLaterPrice = tradebot.GetBuyLaterPrice(k.ToStreamTick(), time.Unix(0, v.TimeStamp).Add(-8*time.Hour), historyClose, sellFirstPrice, cond)
+				if sellFirstPrice != 0 && minClose != 0 {
+					buyLaterPrice = tradebot.GetBuyLaterPrice(k.ToStreamTick(), time.Unix(0, v.TimeStamp).Add(-8*time.Hour), historyClose, sellFirstPrice, minClose, cond)
 					if buyLaterPrice != 0 {
 						sellTimeStamp[k.StockNum] = k.TimeStamp
-						if discardOverTime && k.TimeStamp > endTradeOutTime {
+						if discardOverTime && k.TimeStamp > endTradeOutTime && !useGlobal {
 							totalTimesChan <- -1
 							return
 						}
@@ -268,9 +318,25 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 			if tmpBalance < 0 {
 				totalLoss += tmpBalance
 			}
+			if useGlobal && tmpBalance != 0 {
+				sellFirstTime := time.Unix(0, v.TimeStamp).Add(-8 * time.Hour)
+				buyLaterTime := time.Unix(0, sellTimeStamp[v.StockNum]).Add(-8 * time.Hour)
+				logger.GetLogger().WithFields(map[string]interface{}{
+					"Balance":     tmpBalance,
+					"Name":        global.AllStockNameMap.GetName(v.StockNum),
+					"SellFirstAt": sellFirstTime.Format(global.LongTimeLayout)[11:],
+					"BuyLaterAt":  buyLaterTime.Format(global.LongTimeLayout)[11:],
+				}).Warn("Reverse Balance")
+			}
 		}
 		if dateForwardBalance+dateReverseBalance > 0 {
 			positiveCount++
+		}
+		if useGlobal {
+			logger.GetLogger().WithFields(map[string]interface{}{
+				"Date":    date,
+				"Balance": dateForwardBalance + dateReverseBalance,
+			}).Warn("Single Day Balance")
 		}
 	}
 	tmp := simulate.Result{
@@ -285,6 +351,14 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 		TotalDays:      int64(len(analyzeMapMap)),
 	}
 	resultChan <- tmp
+	if useGlobal {
+		logger.GetLogger().WithFields(map[string]interface{}{
+			"TradeCount":    tmp.TradeCount,
+			"Balance":       tmp.Balance,
+			"PositiveCount": tmp.PositiveDays,
+			"TotalDays":     tmp.TotalDays,
+		}).Warn("Total Balance")
+	}
 }
 
 func catchResult() {
@@ -421,30 +495,27 @@ func ClearAllSimulation() {
 func generateForwardConds(historyCount int) []*simulationcond.AnalyzeCondition {
 	var conds []*simulationcond.AnalyzeCondition
 	var i float64
-	for m := 95; m >= 95; m -= 5 {
+	for m := 95; m >= 80; m -= 5 {
 		for g := -1; g <= -1; g++ {
 			for h := 4; h >= 4; h-- {
-				for i = 0.9; i >= 0.6; i -= 0.1 {
+				for i = 0.8; i >= 0.8; i -= 0.1 {
 					for o := 12; o >= 4; o -= 4 {
 						for p := 4; p >= 2; p-- {
-							for v := 90; v >= 30; v -= 30 {
-								for r := 1; r <= 2; r++ {
-									cond := simulationcond.AnalyzeCondition{
-										TrimHistoryCloseCount: true,
-										HistoryCloseCount:     int64(historyCount),
-										ForwardOutInRatio:     float64(m),
-										CloseChangeRatioLow:   float64(g),
-										CloseChangeRatioHigh:  float64(h),
-										OpenChangeRatio:       float64(g),
-										RsiHigh:               i,
-										TicksPeriodThreshold:  float64(o),
-										TicksPeriodLimit:      float64(o) * 1.3,
-										TicksPeriodCount:      p,
-										VolumePerSecond:       int64(v),
-										MaxHoldTime:           int64(r),
-									}
-									conds = append(conds, &cond)
+							for v := 90; v >= 10; v -= 20 {
+								cond := simulationcond.AnalyzeCondition{
+									TrimHistoryCloseCount: true,
+									HistoryCloseCount:     int64(historyCount),
+									ForwardOutInRatio:     float64(m),
+									CloseChangeRatioLow:   float64(g),
+									CloseChangeRatioHigh:  float64(h),
+									OpenChangeRatio:       float64(g),
+									RsiHigh:               i,
+									TicksPeriodThreshold:  float64(o),
+									TicksPeriodLimit:      float64(o) * 1.3,
+									TicksPeriodCount:      p,
+									VolumePerSecond:       int64(v),
 								}
+								conds = append(conds, &cond)
 							}
 						}
 					}
@@ -458,30 +529,27 @@ func generateForwardConds(historyCount int) []*simulationcond.AnalyzeCondition {
 func generateReverseConds(historyCount int) []*simulationcond.AnalyzeCondition {
 	var conds []*simulationcond.AnalyzeCondition
 	var k float64
-	for u := 5; u <= 5; u += 5 {
+	for u := 5; u <= 20; u += 5 {
 		for g := 0; g <= 0; g++ {
 			for h := 4; h >= 4; h-- {
-				for k = 0.1; k <= 0.4; k += 0.1 {
+				for k = 0.2; k <= 0.2; k += 0.1 {
 					for o := 12; o >= 4; o -= 4 {
 						for p := 4; p >= 2; p-- {
-							for v := 90; v >= 30; v -= 30 {
-								for r := 1; r <= 2; r++ {
-									cond := simulationcond.AnalyzeCondition{
-										TrimHistoryCloseCount: true,
-										HistoryCloseCount:     int64(historyCount),
-										ReverseOutInRatio:     float64(u),
-										CloseChangeRatioLow:   float64(g),
-										CloseChangeRatioHigh:  float64(h),
-										OpenChangeRatio:       float64(h),
-										RsiLow:                k,
-										TicksPeriodThreshold:  float64(o),
-										TicksPeriodLimit:      float64(o) * 1.3,
-										TicksPeriodCount:      p,
-										VolumePerSecond:       int64(v),
-										MaxHoldTime:           int64(r),
-									}
-									conds = append(conds, &cond)
+							for v := 90; v >= 10; v -= 20 {
+								cond := simulationcond.AnalyzeCondition{
+									TrimHistoryCloseCount: true,
+									HistoryCloseCount:     int64(historyCount),
+									ReverseOutInRatio:     float64(u),
+									CloseChangeRatioLow:   float64(g),
+									CloseChangeRatioHigh:  float64(h),
+									OpenChangeRatio:       float64(h),
+									RsiLow:                k,
+									TicksPeriodThreshold:  float64(o),
+									TicksPeriodLimit:      float64(o) * 1.3,
+									TicksPeriodCount:      p,
+									VolumePerSecond:       int64(v),
 								}
+								conds = append(conds, &cond)
 							}
 						}
 					}
