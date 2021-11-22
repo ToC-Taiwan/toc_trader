@@ -18,9 +18,6 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/entiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/snapshot"
-	"gitlab.tocraw.com/root/toc_trader/pkg/models/stock"
-	"gitlab.tocraw.com/root/toc_trader/pkg/models/sysparm"
-	"gitlab.tocraw.com/root/toc_trader/pkg/models/targetstock"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/volumerank"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/fetchentiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/importbasic"
@@ -128,89 +125,6 @@ func GetTopTarget(count int) (targetArr []string, err error) {
 		}
 	}
 	return targetArr, err
-}
-
-// GetTargetFromStockList GetTargetFromStockList
-func GetTargetFromStockList(conditionArr []sysparm.TargetCondArr) {
-	var savedTarget []targetstock.Target
-	if dbTarget, err := targetstock.GetTargetByTime(global.LastTradeDay, database.GetAgent()); err != nil {
-		panic(err)
-	} else if len(dbTarget) != 0 {
-		for i, v := range dbTarget {
-			global.TargetArr = append(global.TargetArr, v.Stock.StockNum)
-			logger.GetLogger().WithFields(map[string]interface{}{
-				"StockNum": v.Stock.StockNum,
-				"Name":     v.Stock.StockName,
-			}).Infof("Target %d", i+1)
-		}
-		return
-	}
-	blackStockMap := sysparminit.GlobalSettings.GetBlackStockMap()
-	blackCategoryMap := sysparminit.GlobalSettings.GetBlackCategoryMap()
-	if targets, err := stock.GetTargetByMultiLowHighVolume(conditionArr, database.GetAgent()); err != nil {
-		panic(err)
-	} else {
-		for i, v := range targets {
-			if _, ok := blackStockMap[v.StockNum]; ok {
-				continue
-			}
-			if _, ok := blackCategoryMap[v.Category]; ok {
-				continue
-			}
-			global.TargetArr = append(global.TargetArr, v.StockNum)
-			logger.GetLogger().WithFields(map[string]interface{}{
-				"StockNum": v.StockNum,
-				"Name":     v.StockName,
-			}).Infof("Target %d", i+1)
-			savedTarget = append(savedTarget, targetstock.Target{
-				LastTradeDay: global.LastTradeDay,
-				Stock:        targets[i],
-			})
-		}
-	}
-	if err := targetstock.InsertMultiTarget(savedTarget, database.GetAgent()); err != nil {
-		panic(err)
-	}
-}
-
-// UpdateLastStockVolume UpdateLastStockVolume
-func UpdateLastStockVolume() {
-	var err error
-	var lastUpdateTime time.Time
-	if lastUpdateTime, err = stock.GetLastUpdatedTime(database.GetAgent()); err != nil {
-		panic(err)
-	} else if lastUpdateTime.After(global.LastTradeDay.Local().Add(7 * time.Hour)) {
-		logger.GetLogger().Info("Volume and close is no need to update")
-		return
-	}
-	resp, err := restful.GetClient().R().
-		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/basic/update/snapshot")
-	if err != nil {
-		panic(err)
-	} else if resp.StatusCode() != http.StatusOK {
-		panic("UpdateLastStockVolume api fail")
-	}
-	tmpMap := make(map[string]struct {
-		Close  float64
-		Volume int64
-	})
-	res := snapshot.SnapShotArrProto{}
-	if err := proto.Unmarshal(resp.Body(), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res.Data {
-		if v.Code == "001" {
-			continue
-		}
-		tmpMap[v.Code] = struct {
-			Close  float64
-			Volume int64
-		}{Close: v.GetClose(), Volume: v.GetTotalVolume()}
-	}
-	if err := stock.UpdateVolumeByStockNum(tmpMap, database.GetAgent()); err != nil {
-		panic(err)
-	}
-	logger.GetLogger().Info("Volume and close update done")
 }
 
 var fetchSaveLock sync.Mutex

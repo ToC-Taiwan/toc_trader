@@ -64,25 +64,6 @@ func GetTargetByMultiLowHighVolume(conditionArr []sysparm.TargetCondArr, db *gor
 	return data, err
 }
 
-// UpdateVolumeByStockNum UpdateVolumeByStockNum
-func UpdateVolumeByStockNum(input map[string]struct {
-	Close  float64
-	Volume int64
-}, db *gorm.DB) (err error) {
-	err = db.Transaction(func(tx *gorm.DB) error {
-		for stockNumStr, v := range input {
-			if err = tx.Model(&Stock{}).Where("stock_num = ?", stockNumStr).Updates(map[string]interface{}{
-				"last_volume": v.Volume,
-				"last_close":  v.Close,
-			}).Error; err != nil {
-				return err
-			}
-		}
-		return nil
-	})
-	return err
-}
-
 // GetTotalCnt GetTotalCnt
 func GetTotalCnt(db *gorm.DB) (cnt int64, err error) {
 	result := db.Model(&Stock{}).Count(&cnt)
