@@ -30,7 +30,7 @@ func Run() {
 		}
 	}()
 	defer lock.Unlock()
-	if err := tradeeventprocess.CleanEvent(); err != nil {
-		panic(err)
+	if err = tradeeventprocess.CleanEvent(); err != nil {
+		logger.GetLogger().Panic(err)
 	}
 }

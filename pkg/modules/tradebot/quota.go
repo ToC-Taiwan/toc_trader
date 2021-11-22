@@ -28,7 +28,7 @@ func InitStartUpQuota() {
 	if time.Now().Day() == global.TradeDay.Day() {
 		realOrderArr, err := traderecord.GetAllorderByDayTime(global.TradeDay, database.GetAgent())
 		if err != nil {
-			panic(err)
+			logger.GetLogger().Panic(err)
 		}
 		for _, v := range realOrderArr {
 			if v.Status != 6 {

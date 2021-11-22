@@ -7,8 +7,8 @@ import (
 	"gorm.io/gorm"
 )
 
-// InsertTarget InsertTarget
-func InsertTarget(target Target, db *gorm.DB) error {
+// Insert Insert
+func Insert(target Target, db *gorm.DB) error {
 	err := db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(&target).Error; err != nil {
 			return err
@@ -18,8 +18,8 @@ func InsertTarget(target Target, db *gorm.DB) error {
 	return err
 }
 
-// InsertMultiTarget InsertMultiTarget
-func InsertMultiTarget(targetArr []Target, db *gorm.DB) error {
+// InsertMultiRecord InsertMultiRecord
+func InsertMultiRecord(targetArr []Target, db *gorm.DB) error {
 	err := db.Transaction(func(tx *gorm.DB) error {
 		batch := len(targetArr)
 		if batch >= 2000 {

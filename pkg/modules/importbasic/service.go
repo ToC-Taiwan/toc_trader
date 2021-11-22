@@ -22,7 +22,7 @@ func ImportAllStock() {
 	var err error
 	allStockNumInDB, err := stock.GetAllStockNum(database.GetAgent())
 	if err != nil {
-		panic(err)
+		logger.GetLogger().Panic(err)
 	}
 	existMap := make(map[string]bool)
 	for _, v := range allStockNumInDB {
@@ -33,9 +33,9 @@ func ImportAllStock() {
 		SetResult(&[]sinopacsrv.FetchStockBody{}).
 		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/basic/importstock")
 	if err != nil {
-		panic(err)
+		logger.GetLogger().Panic(err)
 	} else if resp.StatusCode() != http.StatusOK {
-		panic("ImportAllStock api fail")
+		logger.GetLogger().Panic("ImportAllStock api fail")
 	}
 	res := *resp.Result().(*[]sinopacsrv.FetchStockBody)
 	var importStock, already int64
@@ -52,7 +52,7 @@ func ImportAllStock() {
 		}
 	}
 	if err := stock.InsertMultiRecord(insertArr, database.GetAgent()); err != nil {
-		panic(err)
+		logger.GetLogger().Panic(err)
 	}
 	logger.GetLogger().WithFields(map[string]interface{}{
 		"Imported":     importStock,

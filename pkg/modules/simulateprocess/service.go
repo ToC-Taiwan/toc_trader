@@ -60,19 +60,43 @@ func Simulate(simType, discardOT, useDefault, dayCount string) {
 	}
 	n, err := common.StrToInt64(dayCount)
 	if err != nil {
-		panic(err)
+		logger.GetLogger().Panic(err)
 	}
 	tradeDayArr, err := importbasic.GetLastNTradeDay(n + 1)
 	if err != nil {
-		panic(err)
+		logger.GetLogger().Panic(err)
 	}
 	for i, date := range tradeDayArr {
 		if i == 0 {
 			continue
 		}
 		if targets, err := choosetarget.GetVolumeRankByDate(date.Format(global.ShortTimeLayout), 200); err != nil {
-			panic(err)
+			logger.GetLogger().Panic(err)
 		} else {
+			var noCloseArr []string
+			var err error
+			for {
+				tmp := []time.Time{date}
+				noCloseArr, err = choosetarget.UpdateStockCloseMapByDate(targets, tmp)
+				if err != nil {
+					logger.GetLogger().Error(err)
+				} else {
+					break
+				}
+			}
+			if len(noCloseArr) != 0 {
+				tmp := make(map[string]bool)
+				for _, v := range noCloseArr {
+					tmp[v] = true
+				}
+				var subArr []string
+				for _, k := range targets {
+					if _, ok := tmp[k]; !ok {
+						subArr = append(subArr, k)
+					}
+				}
+				targets = subArr
+			}
 			for i, v := range targets {
 				logger.GetLogger().WithFields(map[string]interface{}{
 					"Date": date.Format(global.ShortTimeLayout),
@@ -81,15 +105,6 @@ func Simulate(simType, discardOT, useDefault, dayCount string) {
 				}).Infof("Volume Rank")
 			}
 			targetArrMap.saveByDate(tradeDayArr[i-1].Format(global.ShortTimeLayout), targets)
-			for {
-				tmp := []time.Time{date}
-				err := choosetarget.UpdateStockCloseMapByDate(targets, tmp)
-				if err != nil {
-					logger.GetLogger().Error(err)
-				} else {
-					break
-				}
-			}
 			tmp := []time.Time{tradeDayArr[i-1]}
 			fetchentiretick.FetchEntireTick(targets, tmp, global.BaseCond)
 			storeAllEntireTick(targets, tmp)
@@ -109,17 +124,17 @@ func Simulate(simType, discardOT, useDefault, dayCount string) {
 		if balanceType == simTypeForward {
 			cond, err := simulate.GetBestForwardCondByTradeDay(global.TradeDay, database.GetAgent())
 			if err != nil {
-				panic(err)
+				logger.GetLogger().Panic(err)
 			} else if cond.HistoryCloseCount == 0 {
-				panic("no global forward cond")
+				logger.GetLogger().Panic("no global forward cond")
 			}
 			GetBalance(SearchTradePoint(simulateDayArr, cond), cond, &wg)
 		} else if balanceType == simTypeReverse {
 			cond, err := simulate.GetBestReverseCondByTradeDay(global.TradeDay, database.GetAgent())
 			if err != nil {
-				panic(err)
+				logger.GetLogger().Panic(err)
 			} else if cond.HistoryCloseCount == 0 {
-				panic("no global reverse cond")
+				logger.GetLogger().Panic("no global reverse cond")
 			}
 			GetBalance(SearchTradePoint(simulateDayArr, cond), cond, &wg)
 		}
@@ -149,7 +164,7 @@ func getBestCond(historyCount int) {
 		conds = generateReverseConds(historyCount)
 	}
 	if err := simulationcond.InsertMultiRecord(conds, database.GetAgent()); err != nil {
-		panic(err)
+		logger.GetLogger().Panic(err)
 	}
 	totalTimesChan <- len(conds)
 	for _, v := range conds {
@@ -375,26 +390,26 @@ func catchResult() {
 			var bestResult simulate.Result
 			if balanceType == simTypeForward {
 				if err = simulate.ClearIsBestForwardByTradeDay(global.TradeDay, database.GetAgent()); err != nil {
-					panic(err)
+					logger.GetLogger().Panic(err)
 				}
 				bestResult, err = simulate.GetBestForwardSimulateResultByTradeDay(global.TradeDay, database.GetAgent())
 				if err != nil {
-					panic(err)
+					logger.GetLogger().Panic(err)
 				}
 				bestResult.IsBestForward = true
 			} else if balanceType == simTypeReverse {
 				if err = simulate.ClearIsBestReverseByTradeDay(global.TradeDay, database.GetAgent()); err != nil {
-					panic(err)
+					logger.GetLogger().Panic(err)
 				}
 				bestResult, err = simulate.GetBestReverseSimulateResultByTradeDay(global.TradeDay, database.GetAgent())
 				if err != nil {
-					panic(err)
+					logger.GetLogger().Panic(err)
 				}
 				bestResult.IsBestReverse = true
 			}
 			if bestResult.Model.ID != 0 {
 				if err := simulate.Update(&bestResult, database.GetAgent()); err != nil {
-					panic(err)
+					logger.GetLogger().Panic(err)
 				} else {
 					clearAllNotBest()
 				}
@@ -417,14 +432,14 @@ func catchResult() {
 
 func clearAllNotBest() {
 	if err := simulate.DeleteAllNotBest(database.GetAgent()); err != nil {
-		panic(err)
+		logger.GetLogger().Panic(err)
 	}
 	if notBestCondArr, err := simulate.GetBestCondIDArr(database.GetAgent()); err != nil {
-		panic(err)
+		logger.GetLogger().Panic(err)
 	} else {
 		err = simulationcond.DeleteAllExcept(notBestCondArr, database.GetAgent())
 		if err != nil {
-			panic(err)
+			logger.GetLogger().Panic(err)
 		}
 	}
 }
@@ -489,10 +504,10 @@ func storeAllEntireTick(stockArr []string, tradeDayArr []time.Time) {
 // ClearAllSimulation ClearAllSimulation
 func ClearAllSimulation() {
 	if err := simulate.DeleteAll(database.GetAgent()); err != nil {
-		panic(err)
+		logger.GetLogger().Panic(err)
 	}
 	if err := simulationcond.DeleteAll(database.GetAgent()); err != nil {
-		panic(err)
+		logger.GetLogger().Panic(err)
 	}
 }
 

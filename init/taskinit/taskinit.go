@@ -3,6 +3,7 @@ package taskinit
 
 import (
 	"gitlab.tocraw.com/root/toc_trader/init/sysparminit"
+	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/tasks/healthchecktask"
 	"gitlab.tocraw.com/root/toc_trader/pkg/tasks/tradeeventtask"
 
@@ -15,14 +16,14 @@ func init() {
 		tradeeventtask.Run()
 	})
 	if err != nil {
-		panic(err)
+		logger.GetLogger().Panic(err)
 	}
 
 	err = c.AddFunc(sysparminit.GlobalSettings.GetRestartSinopacCron(), func() {
 		healthchecktask.Run()
 	})
 	if err != nil {
-		panic(err)
+		logger.GetLogger().Panic(err)
 	}
 	c.Start()
 }

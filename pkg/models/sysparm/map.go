@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 
 	"gitlab.tocraw.com/root/toc_trader/internal/common"
+	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 )
 
 // GlobalSettingMap GlobalSettingMap
@@ -19,7 +20,7 @@ func (c GlobalSettingMap) GetRunMode() string {
 func (c GlobalSettingMap) GetResetParm() bool {
 	reset, err := common.StrToInt64(c["reset"])
 	if err != nil {
-		panic(err)
+		logger.GetLogger().Panic(err)
 	}
 	if reset == 1 {
 		return true
@@ -66,7 +67,7 @@ func (c GlobalSettingMap) GetDBTimeZone() string {
 func (c GlobalSettingMap) GetKbarPeriod() int64 {
 	tmp, err := common.StrToInt64(c["kbar_period"])
 	if err != nil {
-		panic(err)
+		logger.GetLogger().Panic(err)
 	}
 	return tmp
 }
@@ -101,7 +102,7 @@ func (c GlobalSettingMap) GetTargetCondArr() []TargetCondArr {
 	targetArrString := c["target_condition"]
 	var ans []TargetCondArr
 	if err := json.Unmarshal([]byte(targetArrString), &ans); err != nil {
-		panic(err)
+		logger.GetLogger().Panic(err)
 	}
 	return ans
 }
@@ -111,7 +112,7 @@ func (c GlobalSettingMap) GetBlackStockMap() map[string]string {
 	BlackStockArrString := c["black_stock_arr"]
 	var ans []string
 	if err := json.Unmarshal([]byte(BlackStockArrString), &ans); err != nil {
-		panic(err)
+		logger.GetLogger().Panic(err)
 	}
 	ansMap := make(map[string]string)
 	for _, v := range ans {
@@ -125,7 +126,7 @@ func (c GlobalSettingMap) GetBlackCategoryMap() map[string]string {
 	BlackCategoryArrString := c["black_category_arr"]
 	var ans []string
 	if err := json.Unmarshal([]byte(BlackCategoryArrString), &ans); err != nil {
-		panic(err)
+		logger.GetLogger().Panic(err)
 	}
 	ansMap := make(map[string]string)
 	for _, v := range ans {

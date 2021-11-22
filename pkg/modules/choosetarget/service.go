@@ -34,11 +34,13 @@ func init() {
 }
 
 // SubscribeTarget SubscribeTarget
-func SubscribeTarget(targetArr []string) {
+func SubscribeTarget(targetArr *[]string) {
 	var errorTimes int
+	var noCloseArr []string
+	var err error
 	// Update last 2 trade day close in map
 	for {
-		err := UpdateStockCloseMapByDate(targetArr, global.LastTradeDayArr)
+		noCloseArr, err = UpdateStockCloseMapByDate(*targetArr, global.LastTradeDayArr)
 		if errorTimes >= 5 {
 			if err = healthcheck.AskSinopacSRVRestart(); err != nil && tradebot.BuyOrderMap.GetCount() != 0 && tradebot.SellFirstOrderMap.GetCount() != 0 {
 				logger.GetLogger().Fatal(err)
@@ -52,9 +54,21 @@ func SubscribeTarget(targetArr []string) {
 			break
 		}
 	}
-	// Subscribe all target stock and bidask and unsubscribefirst
 	// subscribe.SubBidAsk(targetArr)
-	subscribe.SubStreamTick(targetArr)
+	if len(noCloseArr) != 0 {
+		tmp := make(map[string]bool)
+		for _, v := range noCloseArr {
+			tmp[v] = true
+		}
+		var subArr []string
+		for _, k := range *targetArr {
+			if _, ok := tmp[k]; !ok {
+				subArr = append(subArr, k)
+			}
+		}
+		*targetArr = subArr
+	}
+	subscribe.SubStreamTick(*targetArr)
 }
 
 // UnSubscribeAll UnSubscribeAll
@@ -130,7 +144,7 @@ func GetTopTarget(count int) (targetArr []string, err error) {
 var fetchSaveLock sync.Mutex
 
 // UpdateStockCloseMapByDate UpdateStockCloseMapByDate
-func UpdateStockCloseMapByDate(stockNumArr []string, dateArr []time.Time) error {
+func UpdateStockCloseMapByDate(stockNumArr []string, dateArr []time.Time) (noCloseArr []string, err error) {
 	stockArr := FetchLastCountBody{
 		StockNumArr: stockNumArr,
 	}
@@ -144,9 +158,9 @@ func UpdateStockCloseMapByDate(stockNumArr []string, dateArr []time.Time) error 
 			SetResult(&[]sinopacsrv.StockLastCount{}).
 			Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/history/lastcount")
 		if err != nil {
-			return err
+			return noCloseArr, err
 		} else if resp.StatusCode() != http.StatusOK {
-			return errors.New("UpdateStockCloseMapByDate api fail")
+			return noCloseArr, errors.New("UpdateStockCloseMapByDate api fail")
 		}
 		stockLastCountArr := *resp.Result().(*[]sinopacsrv.StockLastCount)
 		for _, val := range stockLastCountArr {
@@ -155,20 +169,21 @@ func UpdateStockCloseMapByDate(stockNumArr []string, dateArr []time.Time) error 
 			} else {
 				tmpClose, err := entiretick.GetLastCloseByDate(val.Code, val.Date, database.GetAgent())
 				if err != nil {
-					return err
+					return noCloseArr, err
 				}
 				if tmpClose == 0 {
 					res, err := fetchentiretick.FetchByDate(val.Code, val.Date)
 					if err != nil {
-						return err
+						return noCloseArr, err
 					}
 					if len(res) == 0 {
-						logger.GetLogger().Errorf("%s cannot fetch %s close", val.Code, val.Date)
+						noCloseArr = append(noCloseArr, val.Code)
+						logger.GetLogger().Warnf("%s cannot fetch %s close", val.Code, val.Date)
 						continue
 					} else {
 						fetchSaveLock.Lock()
 						if err := entiretick.InsertMultiRecord(res, database.GetAgent()); err != nil {
-							return err
+							return noCloseArr, err
 						}
 						fetchSaveLock.Unlock()
 						tmpClose = res[len(res)-1].Close
@@ -178,7 +193,7 @@ func UpdateStockCloseMapByDate(stockNumArr []string, dateArr []time.Time) error 
 			}
 		}
 	}
-	return nil
+	return noCloseArr, err
 }
 
 // TSE001 TSE001
@@ -195,9 +210,8 @@ func TSEProcess() {
 
 // GetVolumeRankByDate GetVolumeRankByDate
 func GetVolumeRankByDate(date string, count int64) (rankArr []string, err error) {
-	countStr := strconv.FormatInt(count, 10)
 	resp, err := restful.GetClient().R().
-		SetHeader("X-Count", countStr).
+		SetHeader("X-Count", strconv.FormatInt(count, 10)).
 		SetHeader("X-Date", date).
 		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/trade/volumerank")
 	if err != nil {
@@ -228,4 +242,29 @@ func GetVolumeRankByDate(date string, count int64) (rankArr []string, err error)
 		}
 	}
 	return rankArr, err
+}
+
+// AddTop10RankTarget AddTop10RankTarget
+func AddTop10RankTarget() {
+	tick := time.Tick(30 * time.Second)
+	for range tick {
+		if !tradebot.CheckIsOpenTime() {
+			continue
+		}
+		var count int
+		if newTargetArr, err := GetTopTarget(10); err != nil {
+			logger.GetLogger().Error(err)
+			continue
+			// Start from 9:10 every 30 seconds
+		} else if time.Now().After(global.TradeDay.Add(1*time.Hour + 10*time.Minute)) {
+			count = len(newTargetArr)
+			if count != 0 {
+				SubscribeTarget(&newTargetArr)
+				global.TargetArr = append(global.TargetArr, newTargetArr...)
+			}
+		}
+		if count != 0 {
+			logger.GetLogger().Infof("GetTopTarget %d", count)
+		}
+	}
 }

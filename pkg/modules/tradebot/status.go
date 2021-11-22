@@ -14,8 +14,8 @@ import (
 func CheckOrderStatusLoop() {
 	go showStatus()
 	go tradeSwitch()
-	tick := time.Tick(1*time.Second + 500*time.Millisecond)
-	for range tick {
+
+	for range time.Tick(1*time.Second + 500*time.Millisecond) {
 		if err := FetchOrderStatus(); err != nil {
 			logger.GetLogger().Error(err)
 		}
@@ -56,6 +56,7 @@ func showStatus() {
 					"Real":            sum.Total,
 				}).Info("TradeStatus")
 			}
+
 			if sum.Total < -500 && (global.TradeSwitch.Buy || global.TradeSwitch.SellFirst) {
 				global.TradeSwitch.Buy = false
 				global.TradeSwitch.SellFirst = false

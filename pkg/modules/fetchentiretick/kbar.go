@@ -4,6 +4,7 @@ package fetchentiretick
 import (
 	"errors"
 	"net/http"
+	"runtime/debug"
 	"sync"
 	"time"
 
@@ -17,6 +18,20 @@ import (
 
 // FetchKbar FetchKbar
 func FetchKbar(stockNumArr []string, start, end time.Time) {
+	var err error
+	defer func() {
+		if r := recover(); r != nil {
+			switch x := r.(type) {
+			case string:
+				err = errors.New(x)
+			case error:
+				err = x
+			default:
+				err = errors.New("unknown panic")
+			}
+			logger.GetLogger().Error(err.Error() + "\n" + string(debug.Stack()))
+		}
+	}()
 	saveCh := make(chan *kbar.Kbar)
 	go kbarSaver(saveCh)
 	var wg sync.WaitGroup
@@ -25,21 +40,22 @@ func FetchKbar(stockNumArr []string, start, end time.Time) {
 		stock := v
 		go func(stockNum string) {
 			defer wg.Done()
-			exist, err := kbar.CheckExistByStockAndDateRange(stockNum, start, end, database.GetAgent())
+			var exist bool
+			exist, err = kbar.CheckExistByStockAndDateRange(stockNum, start, end, database.GetAgent())
 			if err != nil {
-				panic(err)
+				logger.GetLogger().Panic(err)
 			}
 			if !exist {
-				if err := kbar.DeleteByStockNum(stockNum, database.GetAgent()); err != nil {
-					panic(err)
+				if err = kbar.DeleteByStockNum(stockNum, database.GetAgent()); err != nil {
+					logger.GetLogger().Panic(err)
 				}
 				logger.GetLogger().WithFields(map[string]interface{}{
 					"StockNum": stockNum,
 					"From":     start.Format(global.ShortTimeLayout),
 					"To":       end.Format(global.ShortTimeLayout),
 				}).Info("Fetching Kbar")
-				if err := FetchKbarByDateRange(stockNum, start, end, saveCh); err != nil {
-					panic(err)
+				if err = FetchKbarByDateRange(stockNum, start, end, saveCh); err != nil {
+					logger.GetLogger().Panic(err)
 				}
 			} else {
 				logger.GetLogger().WithFields(map[string]interface{}{

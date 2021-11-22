@@ -2,10 +2,13 @@
 package subscribe
 
 import (
+	"errors"
 	"net/http"
+	"runtime/debug"
 	"sync"
 	"time"
 
+	"github.com/go-resty/resty/v2"
 	"gitlab.tocraw.com/root/toc_trader/external/sinopacsrv"
 	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/internal/restful"
@@ -30,6 +33,20 @@ var SimTradeChannel chan int
 // SubStreamTick SubStreamTick
 func SubStreamTick(stockArr []string) {
 	var err error
+	defer func() {
+		if r := recover(); r != nil {
+			switch x := r.(type) {
+			case string:
+				err = errors.New(x)
+			case error:
+				err = x
+			default:
+				err = errors.New("unknown panic")
+			}
+			logger.GetLogger().Error(err.Error() + "\n" + string(debug.Stack()))
+		}
+	}()
+
 	saveCh := make(chan []*streamtick.StreamTick, len(stockArr)*3)
 	go tickprocess.SaveStreamTicks(saveCh)
 	for _, stockNum := range stockArr {
@@ -79,46 +96,76 @@ func SubStreamTick(stockArr []string) {
 	stocks := subBody{
 		StockNumArr: stockArr,
 	}
-	resp, err := restful.GetClient().R().
+	var resp *resty.Response
+	resp, err = restful.GetClient().R().
 		SetBody(stocks).
 		SetResult(&sinopacsrv.OrderResponse{}).
 		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/subscribe/streamtick")
 	if err != nil {
-		panic(err)
+		logger.GetLogger().Panic(err)
 	} else if resp.StatusCode() != http.StatusOK {
-		panic("SubStreamTick api fail")
+		logger.GetLogger().Panic("SubStreamTick api fail")
 	}
 	res := *resp.Result().(*sinopacsrv.OrderResponse)
 	if res.Status != sinopacsrv.StatusSuccuss {
-		panic("Subscribe fail")
+		logger.GetLogger().Panic("Subscribe fail")
 	}
 }
 
 // SubBidAsk SubBidAsk
 func SubBidAsk(stockArr []string) {
+	var err error
+	defer func() {
+		if r := recover(); r != nil {
+			switch x := r.(type) {
+			case string:
+				err = errors.New(x)
+			case error:
+				err = x
+			default:
+				err = errors.New("unknown panic")
+			}
+			logger.GetLogger().Error(err.Error() + "\n" + string(debug.Stack()))
+		}
+	}()
 	for _, stock := range stockArr {
 		go bidaskprocess.SaveBidAsk(stock)
 	}
 	stocks := subBody{
 		StockNumArr: stockArr,
 	}
-	resp, err := restful.GetClient().R().
+	var resp *resty.Response
+	resp, err = restful.GetClient().R().
 		SetBody(stocks).
 		SetResult(&sinopacsrv.OrderResponse{}).
 		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/subscribe/bid-ask")
 	if err != nil {
-		panic(err)
+		logger.GetLogger().Panic(err)
 	} else if resp.StatusCode() != http.StatusOK {
-		panic("SubBidAsk api fail")
+		logger.GetLogger().Panic("SubBidAsk api fail")
 	}
 	res := *resp.Result().(*sinopacsrv.OrderResponse)
 	if res.Status != sinopacsrv.StatusSuccuss {
-		panic("Subscribe bidask fail")
+		logger.GetLogger().Panic("Subscribe bidask fail")
 	}
 }
 
 // UnSubscribeAll UnSubscribeAll
 func UnSubscribeAll(dataType TickType) {
+	var err error
+	defer func() {
+		if r := recover(); r != nil {
+			switch x := r.(type) {
+			case string:
+				err = errors.New(x)
+			case error:
+				err = x
+			default:
+				err = errors.New("unknown panic")
+			}
+			logger.GetLogger().Error(err.Error() + "\n" + string(debug.Stack()))
+		}
+	}()
 	var url string
 	switch {
 	case dataType == StreamType:
@@ -126,17 +173,18 @@ func UnSubscribeAll(dataType TickType) {
 	case dataType == BidAsk:
 		url = "/pyapi/unsubscribeall/bid-ask"
 	}
-	resp, err := restful.GetClient().R().
+	var resp *resty.Response
+	resp, err = restful.GetClient().R().
 		SetResult(&sinopacsrv.OrderResponse{}).
 		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + url)
 	if err != nil {
-		panic(err)
+		logger.GetLogger().Panic(err)
 	} else if resp.StatusCode() != http.StatusOK {
-		panic("UnSubscribeAll api fail")
+		logger.GetLogger().Panic("UnSubscribeAll api fail")
 	}
 	res := *resp.Result().(*sinopacsrv.OrderResponse)
 	if res.Status != sinopacsrv.StatusSuccuss {
-		panic("Unsubscribe fail")
+		logger.GetLogger().Panic("Unsubscribe fail")
 	}
 }
 

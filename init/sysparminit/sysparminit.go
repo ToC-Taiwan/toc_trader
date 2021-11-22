@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"runtime"
 
+	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/sysparm"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -20,7 +21,7 @@ var ConfigPath string
 func init() {
 	ex, err := os.Executable()
 	if err != nil {
-		panic(err)
+		logger.GetLogger().Panic(err)
 	}
 	exPath := filepath.Dir(ex)
 	ConfigPath = exPath + "/configs/global.db"
@@ -41,21 +42,20 @@ func init() {
 	GlobalSettings = make(map[string]string)
 	db, err := gorm.Open(sqlite.Open(ConfigPath), &gorm.Config{})
 	if err != nil {
-		panic(err)
+		logger.GetLogger().Panic(err)
 	}
 	sqlDB, err := db.DB()
 	if err != nil {
-		panic(err)
+		logger.GetLogger().Panic(err)
 	}
 	defer func() {
 		if err := sqlDB.Close(); err != nil {
-			panic(err)
+			logger.GetLogger().Panic(err)
 		}
 	}()
 	if err := db.AutoMigrate(&sysparm.Parameters{}); err != nil {
-		panic(err)
+		logger.GetLogger().Panic(err)
 	}
-
 	var settings []sysparm.Parameters
 	db.Model(&sysparm.Parameters{}).Find(&settings)
 	for _, v := range settings {
@@ -73,13 +73,13 @@ func init() {
 				return nil
 			})
 			if err != nil {
-				panic(err)
+				logger.GetLogger().Panic(err)
 			}
 		}
 	}
 
 	if err := insertDefaultSetting(db); err != nil {
-		panic(err)
+		logger.GetLogger().Panic(err)
 	}
 	db.Model(&sysparm.Parameters{}).Find(&settings)
 	for _, v := range settings {

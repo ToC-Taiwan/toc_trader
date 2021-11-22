@@ -1,9 +1,11 @@
 package main
 
 import (
+	"os"
 	"time"
 
 	_ "gitlab.tocraw.com/root/toc_trader/init/sysinit"
+	"gitlab.tocraw.com/root/toc_trader/internal/healthcheck"
 	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/internal/network"
 
@@ -12,6 +14,8 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/routers"
 )
+
+var sinopacToken string
 
 func main() {
 	// Gin server
@@ -23,7 +27,7 @@ func main() {
 		routers.AddSwagger(g)
 		routers.InitRouters(g)
 		if err := g.Run(":" + global.HTTPPort); err != nil {
-			panic(err)
+			logger.GetLogger().Panic(err)
 		}
 	}()
 	// Check Sinopac SRV is alive
@@ -33,13 +37,34 @@ func main() {
 			break
 		}
 	}
+	// Send ip to sinopac srv
+	if err := sendHostIP(getHostIP()); err != nil {
+		logger.GetLogger().Panic(err)
+	}
+	// Check token is expired or not, if expired, restart service
+	go checkSinopacToken()
 	// Main service
 	go TradeProcess()
 	// Keep thread running
 	for {
-		exit := <-global.ExitChannel
-		if exit == global.ExitSignal {
-			logger.GetLogger().Panic("manual exit")
+		signal := <-global.ExitChannel
+		if signal == global.ExitSignal {
+			logger.GetLogger().Warn("Manual exit")
+			os.Exit(1)
+		}
+	}
+}
+
+func checkSinopacToken() {
+	for range time.Tick(10 * time.Second) {
+		token, err := healthcheck.GetSinopacSRVToken()
+		if err != nil {
+			logger.GetLogger().Panic(err)
+		}
+		if sinopacToken == "" {
+			sinopacToken = token
+		} else if sinopacToken != "" && sinopacToken != token {
+			healthcheck.ExitService()
 		}
 	}
 }

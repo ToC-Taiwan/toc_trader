@@ -1,9 +1,13 @@
 # CHANGELOG
 
-## Unreleased (2021-11-17)
+## Unreleased (2021-11-22)
 
 ### New feature
 
+- **tradebot**: :tada: remove all recover, extend normal wait time to 5 minutes, remove rsi < 50 in sell first check([`734b2bb`](https://gitlab.tocraw.com/root/toc_trader/commit/734b2bbe53d856021e308f59fc24aca8686b8c21)) (@TimHsu@M1BP-20210907)
+- **simulate**: :seedling: add use default, modify get sell buy later method, remove max hold time([`e30d7f5`](https://gitlab.tocraw.com/root/toc_trader/commit/e30d7f59849b13200d4e7bcc3e3736e1dd512631)) (@TimHsu@M1BP-20210907)
+- **balance**: :bulb: add balance schema, disable default Transaction,  modify forward, reverse method([`1446d7e`](https://gitlab.tocraw.com/root/toc_trader/commit/1446d7eccfb6111c9e595e1f83a271a79a10868c)) (@TimHsu@M1BP-20210907)
+- **simulate**: :pencil2: add method to delete all not best result and cond([`1b2fa7f`](https://gitlab.tocraw.com/root/toc_trader/commit/1b2fa7f74c1b15b8a0602d9d842ec45b0f45f23e)) (@TimHsu@M1BP-20210907)
 - **simulate**: :package: add trade day in result, and get by trade day, modify sell, buy later time unit to 15 minutes([`4a5eaaf`](https://gitlab.tocraw.com/root/toc_trader/commit/4a5eaaf021cdc4cdb4e5d87762eed8f4093ed52a)) (@TimHsu@M1BP-20210907)
 - **cron**: :pushpin: restart_sinopac_toc_trader_cron add 2, 16([`880c1a1`](https://gitlab.tocraw.com/root/toc_trader/commit/880c1a13cd817f488547a4c9ee25e1fb754864b6)) (@TimHsu@M1BP-20210907)
 - **tradebot**: :heavy_plus_sign: shorten sell buy later time unit to 10 minutes([`a0da15a`](https://gitlab.tocraw.com/root/toc_trader/commit/a0da15ae088c10f8d9d28f7519f5fed90c0cd757)) (@TimHsu@M1BP-20210907)
@@ -22,6 +26,7 @@
 
 ### Bugs fixed
 
+- **tradebothandler**: :truck: check if channel exists, remove some non-use method, add task recover([`63349c2`](https://gitlab.tocraw.com/root/toc_trader/commit/63349c2fc89f00b8db3f10f1caac4c46a9dbcd04)) (@TimHsu@M1BP-20210907)
 - **simulate**: :tada: modify tick period count from 4 to 2, volume per second from 90 to 30([`1136067`](https://gitlab.tocraw.com/root/toc_trader/commit/1136067000b99591731e1967870f64d627fb4e66)) (@TimHsu@M1BP-20210907)
 - **simulate**: :package: remove use global, modify time limit method, modify ticks per second to 100-20([`7a993a8`](https://gitlab.tocraw.com/root/toc_trader/commit/7a993a88372f349dedee1aa02d7171032ae926ed)) (@TimHsu@M1BP-20210907)
 - **ip**: :monocle_face: send trader ip every startup([`2bb4f8e`](https://gitlab.tocraw.com/root/toc_trader/commit/2bb4f8e8a9324d6fe6184512ab7d18559cb3de22)) (@TimHsu@M1BP-20210907)

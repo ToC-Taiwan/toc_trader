@@ -50,7 +50,7 @@ func GetAgent() *gorm.DB {
 		" TimeZone=" + sysparminit.GlobalSettings.GetDBTimeZone()
 	Agent, err = gorm.Open(postgres.Open(dsn), &gorm.Config{Logger: dbLogger, SkipDefaultTransaction: true})
 	if err != nil {
-		panic(err)
+		logger.GetLogger().Panic(err)
 	}
 
 	err = Agent.AutoMigrate(
@@ -70,7 +70,7 @@ func GetAgent() *gorm.DB {
 		&traderecord.TradeRecord{},
 	)
 	if err != nil {
-		panic(err)
+		logger.GetLogger().Panic(err)
 	}
 	return Agent
 }

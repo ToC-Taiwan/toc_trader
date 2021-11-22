@@ -13,7 +13,7 @@ func init() {
 	var err error
 	global.TradeDay, err = importbasic.GetTradeDay()
 	if err != nil {
-		panic(err)
+		logger.GetLogger().Panic(err)
 	}
 	global.TradeDayInEndTime = time.Date(
 		global.TradeDay.Year(),
@@ -35,7 +35,7 @@ func init() {
 		time.Local)
 	lastTradeDayArr, err := importbasic.GetLastNTradeDay(2)
 	if err != nil {
-		panic(err)
+		logger.GetLogger().Panic(err)
 	}
 	global.LastTradeDay = lastTradeDayArr[0]
 	global.LastLastTradeDay = lastTradeDayArr[1]
