@@ -30,6 +30,7 @@ func ReverseTickProcess(lastClose float64, cond simulationcond.AnalyzeCondition,
 		buyLaterChan = make(chan *streamtick.StreamTick)
 		go tradebot.BuyLaterBot(buyLaterChan, cond, &input.Close)
 	}
+	var shouldBuyLater bool
 	for {
 		tick := <-ch
 		if !tradeSwitch {
@@ -40,6 +41,10 @@ func ReverseTickProcess(lastClose float64, cond simulationcond.AnalyzeCondition,
 		}
 		tmpArr = append(tmpArr, tick)
 		if tradebot.SellFirstOrderMap.CheckStockExist(tick.StockNum) && tradebot.FilledSellFirstOrderMap.CheckStockExist(tick.StockNum) {
+			if !shouldBuyLater {
+				input.Close = []float64{}
+				shouldBuyLater = true
+			}
 			buyLaterChan <- tick
 		}
 		if tmpArr.GetTotalTime() < cond.TicksPeriodThreshold {

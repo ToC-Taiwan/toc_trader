@@ -30,6 +30,7 @@ func ForwardTickProcess(lastClose float64, cond simulationcond.AnalyzeCondition,
 		sellChan = make(chan *streamtick.StreamTick)
 		go tradebot.SellBot(sellChan, cond, &input.Close)
 	}
+	var shouldSell bool
 	for {
 		tick := <-ch
 		if !tradeSwitch {
@@ -40,6 +41,10 @@ func ForwardTickProcess(lastClose float64, cond simulationcond.AnalyzeCondition,
 		}
 		tmpArr = append(tmpArr, tick)
 		if tradebot.BuyOrderMap.CheckStockExist(tick.StockNum) && tradebot.FilledBuyOrderMap.CheckStockExist(tick.StockNum) {
+			if !shouldSell {
+				input.Close = []float64{}
+				shouldSell = true
+			}
 			sellChan <- tick
 		}
 		if tmpArr.GetTotalTime() < cond.TicksPeriodThreshold {

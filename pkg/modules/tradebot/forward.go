@@ -104,7 +104,7 @@ func IsBuyPoint(analyzeTick *analyzestreamtick.AnalyzeStreamTick, cond simulatio
 	if analyzeTick.Volume < cond.VolumePerSecond*int64(analyzeTick.TotalTime) {
 		return false
 	}
-	if analyzeTick.OpenChangeRatio < cond.OpenChangeRatio || closeChangeRatio > cond.CloseChangeRatioHigh || closeChangeRatio < cond.CloseChangeRatioLow {
+	if analyzeTick.OpenChangeRatio > cond.OpenChangeRatio || closeChangeRatio > cond.CloseChangeRatioHigh || closeChangeRatio < cond.CloseChangeRatioLow {
 		return false
 	}
 	if analyzeTick.OutInRatio < cond.ForwardOutInRatio {
@@ -128,7 +128,7 @@ func GetSellPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyClose
 	switch {
 	case tick.Close/originalOrderClose < 0.99:
 		sellPrice = tick.Close
-	case rsiHighStatus && tick.Close > originalOrderClose && tradeTime.Add(5*time.Minute).Before(tickTimeUnix):
+	case rsiHighStatus && tick.Close > originalOrderClose:
 		sellPrice = tick.Close
 	case tickTimeUnix.After(lastTime):
 		sellPrice = tick.Close

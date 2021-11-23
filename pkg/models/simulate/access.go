@@ -98,7 +98,7 @@ func GetBestForwardSimulateResultByTradeDay(tradeDay time.Time, db *gorm.DB) (co
 		Where("positive_days = total_days").
 		Where("trade_count != positive_days").
 		Where("forward_balance != 0").
-		Order("balance-total_loss desc").
+		Order("balance/trade_count desc").
 		Find(&beforeSort).Error
 	if err != nil {
 		return cond, err
@@ -130,7 +130,7 @@ func GetBestReverseSimulateResultByTradeDay(tradeDay time.Time, db *gorm.DB) (co
 		Where("positive_days = total_days").
 		Where("trade_count != positive_days").
 		Where("reverse_balance != 0").
-		Order("balance-total_loss desc").
+		Order("balance/trade_count desc").
 		Find(&beforeSort).Error
 	if err != nil {
 		return cond, err

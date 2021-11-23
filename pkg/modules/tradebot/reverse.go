@@ -128,7 +128,7 @@ func GetBuyLaterPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyC
 	switch {
 	case tick.Close/originalOrderClose > 1.01:
 		buyPrice = tick.Close
-	case rsiLowStatus && tick.Close < originalOrderClose && tradeTime.Add(5*time.Minute).Before(tickTimeUnix):
+	case rsiLowStatus && tick.Close < originalOrderClose:
 		buyPrice = tick.Close
 	case tickTimeUnix.After(lastTime):
 		buyPrice = tick.Close
