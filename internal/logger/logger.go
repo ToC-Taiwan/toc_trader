@@ -2,6 +2,7 @@
 package logger
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"time"
@@ -42,7 +43,8 @@ func GetLogger() *logrus.Logger {
 		})
 	}
 	// Log.SetReportCaller(true)
-	fileNamePrefix := time.Now().Format(global.LongTimeLayout) + "-"
+	fileNamePrefix := time.Now().Format(time.RFC3339) + "-"
+	fmt.Println(fileNamePrefix)
 	Log.SetLevel(logrus.TraceLevel)
 	Log.SetOutput(os.Stdout)
 	pathMap := lfshook.PathMap{
