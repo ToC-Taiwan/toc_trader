@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Unreleased (2021-11-22)
+## Unreleased (2021-11-23)
 
 ### New feature
 
@@ -26,6 +26,10 @@
 
 ### Bugs fixed
 
+- **ci**: :speech_balloon: change deployer to root, modify logs path([`8a7c87e`](https://gitlab.tocraw.com/root/toc_trader/commit/8a7c87e00278fd22912d16f92d8d7c9e0e85b3fa)) (@TimHsu@M1BP-20210907)
+- **ci**: :mute: change tar command arguments, modify file path([`c0ab447`](https://gitlab.tocraw.com/root/toc_trader/commit/c0ab4471b9d2b77e335a8cb7897230dc545ba58b)) (@TimHsu@M1BP-20210907)
+- **ci**: :wrench: fix wrong logs compressed([`5ec9210`](https://gitlab.tocraw.com/root/toc_trader/commit/5ec9210451eec898fde38a0ad4744ba654010ea6)) (@TimHsu@M1BP-20210907)
+- **lastclose**: :passport_control: fix no last close panic, change panic to logrus panic, add necessary recover([`b0eec6c`](https://gitlab.tocraw.com/root/toc_trader/commit/b0eec6cf4f6518c99f4135fc16470eb465e2728a)) (@TimHsu@M1BP-20210907)
 - **tradebothandler**: :truck: check if channel exists, remove some non-use method, add task recover([`63349c2`](https://gitlab.tocraw.com/root/toc_trader/commit/63349c2fc89f00b8db3f10f1caac4c46a9dbcd04)) (@TimHsu@M1BP-20210907)
 - **simulate**: :tada: modify tick period count from 4 to 2, volume per second from 90 to 30([`1136067`](https://gitlab.tocraw.com/root/toc_trader/commit/1136067000b99591731e1967870f64d627fb4e66)) (@TimHsu@M1BP-20210907)
 - **simulate**: :package: remove use global, modify time limit method, modify ticks per second to 100-20([`7a993a8`](https://gitlab.tocraw.com/root/toc_trader/commit/7a993a88372f349dedee1aa02d7171032ae926ed)) (@TimHsu@M1BP-20210907)

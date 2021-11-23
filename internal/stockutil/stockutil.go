@@ -25,6 +25,42 @@ func GetNewClose(close float64, unit int64) float64 {
 	}
 }
 
+// GetMaxByOpen GetMaxByOpen
+func GetMaxByOpen(open float64) float64 {
+	if open == 0 {
+		return 0
+	}
+	tmpClose := open
+	var changeRate, diff float64
+	for {
+		diff = GetDiff(tmpClose)
+		tmpClose += diff
+		tmpClose = common.Round(tmpClose, 2)
+		changeRate = 100 * (tmpClose - open) / open
+		if common.Round(changeRate, 2) > 10 {
+			return common.Round(tmpClose-diff, 2)
+		}
+	}
+}
+
+// GetMinByOpen GetMinByOpen
+func GetMinByOpen(open float64) float64 {
+	if open == 0 {
+		return 0
+	}
+	tmpClose := open
+	var changeRate, diff float64
+	for {
+		diff = GetDiff(tmpClose)
+		tmpClose -= diff
+		tmpClose = common.Round(tmpClose, 2)
+		changeRate = 100 * (tmpClose - open) / open
+		if common.Round(changeRate, 2) < -10 {
+			return common.Round(tmpClose+diff, 2)
+		}
+	}
+}
+
 // GetDiff GetDiff
 func GetDiff(close float64) float64 {
 	switch {

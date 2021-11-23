@@ -115,7 +115,7 @@ func IsSellFirstPoint(analyzeTick *analyzestreamtick.AnalyzeStreamTick, cond sim
 
 // GetBuyLaterPrice GetBuyLaterPrice
 func GetBuyLaterPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyClose []float64, originalOrderClose, minClose float64, cond simulationcond.AnalyzeCondition) float64 {
-	if tick.PctChg < -9.9 {
+	if tick.Close <= stockutil.GetMinByOpen(tick.Open) {
 		return tick.Close
 	}
 	tickTimeUnix := time.Unix(0, tick.TimeStamp)
