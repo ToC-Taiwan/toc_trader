@@ -2,9 +2,9 @@
 package logger
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/rifflock/lfshook"
@@ -43,8 +43,8 @@ func GetLogger() *logrus.Logger {
 		})
 	}
 	// Log.SetReportCaller(true)
-	fileNamePrefix := time.Now().Format(time.RFC3339) + "-"
-	fmt.Println(fileNamePrefix)
+	fileNamePrefix := time.Now().Format(time.RFC3339)[:16] + "-"
+	fileNamePrefix = strings.ReplaceAll(fileNamePrefix, ":", "")
 	Log.SetLevel(logrus.TraceLevel)
 	Log.SetOutput(os.Stdout)
 	pathMap := lfshook.PathMap{

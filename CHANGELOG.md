@@ -1,9 +1,12 @@
 # CHANGELOG
 
-## Unreleased (2021-11-23)
+## v1.3.0 (2021-11-24)
 
 ### New feature
 
+- **entiretick**: :beers: add sinopac native tick_type in entiretick and tse_entiretick([`dc199bd`](https://gitlab.tocraw.com/root/toc_trader/commit/dc199bd9983a3c0bf38da9ab2bc8969e13883712)) (@TimHsu@M1BP-20210907)
+- **tradebot**: :boom: clear close array if need sell or buy later, result order by balance/trade_count([`38604c9`](https://gitlab.tocraw.com/root/toc_trader/commit/38604c9d05ba16826c3a1659bc75a785d2e6143f)) (@TimHsu@M1BP-20210907)
+- **stockutil**: :card_file_box: add get max, min by open used in get price, modify ci logs path([`ea727d3`](https://gitlab.tocraw.com/root/toc_trader/commit/ea727d3ec5b0950ee26cf87af64bf49df9d1d3e6)) (@TimHsu@M1BP-20210907)
 - **tradebot**: :tada: remove all recover, extend normal wait time to 5 minutes, remove rsi < 50 in sell first check([`734b2bb`](https://gitlab.tocraw.com/root/toc_trader/commit/734b2bbe53d856021e308f59fc24aca8686b8c21)) (@TimHsu@M1BP-20210907)
 - **simulate**: :seedling: add use default, modify get sell buy later method, remove max hold time([`e30d7f5`](https://gitlab.tocraw.com/root/toc_trader/commit/e30d7f59849b13200d4e7bcc3e3736e1dd512631)) (@TimHsu@M1BP-20210907)
 - **balance**: :bulb: add balance schema, disable default Transaction,  modify forward, reverse method([`1446d7e`](https://gitlab.tocraw.com/root/toc_trader/commit/1446d7eccfb6111c9e595e1f83a271a79a10868c)) (@TimHsu@M1BP-20210907)
@@ -26,6 +29,8 @@
 
 ### Bugs fixed
 
+- **logger**: :construction: change log file name time to RFC339([`1f1792b`](https://gitlab.tocraw.com/root/toc_trader/commit/1f1792be7e610213355528726d01e3156a7206e5)) (@TimHsu@M1BP-20210907)
+- **ci**: :art: remove folder structure in tar([`121cb5c`](https://gitlab.tocraw.com/root/toc_trader/commit/121cb5c4f0638a4fb74d6a98cf9e295775d32f34)) (@TimHsu@M1BP-20210907)
 - **ci**: :speech_balloon: change deployer to root, modify logs path([`8a7c87e`](https://gitlab.tocraw.com/root/toc_trader/commit/8a7c87e00278fd22912d16f92d8d7c9e0e85b3fa)) (@TimHsu@M1BP-20210907)
 - **ci**: :mute: change tar command arguments, modify file path([`c0ab447`](https://gitlab.tocraw.com/root/toc_trader/commit/c0ab4471b9d2b77e335a8cb7897230dc545ba58b)) (@TimHsu@M1BP-20210907)
 - **ci**: :wrench: fix wrong logs compressed([`5ec9210`](https://gitlab.tocraw.com/root/toc_trader/commit/5ec9210451eec898fde38a0ad4744ba654010ea6)) (@TimHsu@M1BP-20210907)
