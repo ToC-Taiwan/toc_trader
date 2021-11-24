@@ -93,9 +93,12 @@ type PtrArr []*StreamTick
 func (c *PtrArr) GetOutInRatio() float64 {
 	var outSum, inSum int64
 	for _, v := range *c {
-		if v.TickType == 1 {
+		switch v.TickType {
+		case 0:
+			continue
+		case 1:
 			outSum += v.Volume
-		} else {
+		case 2:
 			inSum += v.Volume
 		}
 	}
@@ -106,7 +109,10 @@ func (c *PtrArr) GetOutInRatio() float64 {
 func (c *PtrArr) GetOutSum() int64 {
 	var outSum int64
 	for _, v := range *c {
-		if v.TickType == 1 {
+		switch v.TickType {
+		case 0:
+			continue
+		case 1:
 			outSum += v.Volume
 		}
 	}
@@ -117,7 +123,10 @@ func (c *PtrArr) GetOutSum() int64 {
 func (c *PtrArr) GetInSum() int64 {
 	var inSum int64
 	for _, v := range *c {
-		if v.TickType == 2 {
+		switch v.TickType {
+		case 0:
+			continue
+		case 2:
 			inSum += v.Volume
 		}
 	}

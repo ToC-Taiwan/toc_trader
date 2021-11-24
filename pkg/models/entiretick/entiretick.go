@@ -37,16 +37,16 @@ func (EntireTick) TableName() string {
 
 // ProtoToEntireTick ProtoToEntireTick
 func (c *EntireTickProto) ProtoToEntireTick(stockNum string) (tick *EntireTick, err error) {
-	var tickType int64
-	if c.Close == c.AskPrice {
-		tickType = 1
-	} else {
-		tickType = 2
-	}
+	// var tickType int64
+	// if c.Close == c.AskPrice {
+	// 	tickType = 1
+	// } else {
+	// 	tickType = 2
+	// }
 	tmp := EntireTick{
 		StockNum:  stockNum,
 		Close:     c.Close,
-		TickType:  tickType,
+		TickType:  c.TickType,
 		Volume:    c.Volume,
 		TimeStamp: c.Ts,
 		AskPrice:  c.AskPrice,
@@ -64,9 +64,12 @@ type PtrArr []*EntireTick
 func (c *PtrArr) GetOutInRatio() float64 {
 	var outSum, inSum int64
 	for _, v := range *c {
-		if v.TickType == 1 {
+		switch v.TickType {
+		case 0:
+			continue
+		case 1:
 			outSum += v.Volume
-		} else {
+		case 2:
 			inSum += v.Volume
 		}
 	}
@@ -77,7 +80,10 @@ func (c *PtrArr) GetOutInRatio() float64 {
 func (c *PtrArr) GetOutSum() int64 {
 	var outSum int64
 	for _, v := range *c {
-		if v.TickType == 1 {
+		switch v.TickType {
+		case 0:
+			continue
+		case 1:
 			outSum += v.Volume
 		}
 	}
@@ -88,7 +94,10 @@ func (c *PtrArr) GetOutSum() int64 {
 func (c *PtrArr) GetInSum() int64 {
 	var inSum int64
 	for _, v := range *c {
-		if v.TickType == 2 {
+		switch v.TickType {
+		case 0:
+			continue
+		case 2:
 			inSum += v.Volume
 		}
 	}
