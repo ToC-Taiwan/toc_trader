@@ -34,7 +34,7 @@ var DefaultSetting = map[string]interface{}{
 	"database":             "tradebot_debug",
 	"dbencode":             "utf8",
 	"dbtimezone":           "Asia/Taipei",
-	"kbar_period":          60,
+	"kbar_period":          2,
 	"target_condition":     `[{"limit_price_low":10,"limit_price_high":50,"limit_volume":20000}]`,
 	"black_stock_arr":      `["1314","2317","3481","3701"]`,
 	"black_category_arr":   `["17"]`,

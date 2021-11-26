@@ -14,7 +14,6 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/handlers"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/bidask"
-	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulationcond"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/streamtick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/traderecord"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/bidaskprocess"
@@ -25,17 +24,16 @@ import (
 
 // AddHandlers AddHandlers
 func AddHandlers(group *gin.RouterGroup) {
+	group.GET("/target", GetTarget)
+
 	group.POST("/data/streamtick", ReceiveStreamTick)
-	group.GET("/data/target", GetTarget)
 	group.POST("/data/bid-ask", ReceiveBidAsk)
 
 	group.POST("/manual/sell", ManualSellStock)
 	group.POST("/manual/buy-later", ManualBuyLaterStock)
 
 	group.GET("/switch", GetTradeBotSwitch)
-	group.PUT("/switch", UpdateTradeBotCondition)
-
-	group.GET("/condition", GetTradeCondition)
+	group.PUT("/switch", UpdateTradeBotSwitch)
 }
 
 // ReceiveStreamTick ReceiveStreamTick
@@ -91,7 +89,7 @@ func ReceiveStreamTick(c *gin.Context) {
 // @param count header string true "count"
 // @success 200 {object} []TargetResponse
 // @failure 500 {object} handlers.ErrorResponse
-// @Router /data/target [get]
+// @Router /target [get]
 func GetTarget(c *gin.Context) {
 	var res handlers.ErrorResponse
 	count := c.Request.Header.Get("count")
@@ -252,32 +250,23 @@ func ManualBuyLaterStock(c *gin.Context) {
 // @tags tradebot
 // @accept json
 // @produce json
-// @success 200
+// @success 200 {object} global.SystemSwitch
 // @Router /switch [get]
 func GetTradeBotSwitch(c *gin.Context) {
-	data := UpdateTradeBotSwitchBody{
-		EnableBuy:                    global.TradeSwitch.Buy,
-		EnableSell:                   global.TradeSwitch.Sell,
-		EnableSellFirst:              global.TradeSwitch.SellFirst,
-		EnableBuyLater:               global.TradeSwitch.BuyLater,
-		UseBidAsk:                    global.TradeSwitch.UseBidAsk,
-		MeanTimeTradeStockNum:        global.TradeSwitch.MeanTimeTradeStockNum,
-		MeanTimeReverseTradeStockNum: global.TradeSwitch.MeanTimeReverseTradeStockNum,
-	}
-	c.JSON(http.StatusOK, data)
+	c.JSON(http.StatusOK, global.TradeSwitch)
 }
 
-// UpdateTradeBotCondition UpdateTradeBotCondition
-// @Summary UpdateTradeBotCondition
+// UpdateTradeBotSwitch UpdateTradeBotSwitch
+// @Summary UpdateTradeBotSwitch
 // @tags tradebot
 // @accept json
 // @produce json
-// @param body body UpdateTradeBotSwitchBody true "Body"
+// @param body body global.SystemSwitch true "Body"
 // @success 200
 // @failure 500 {object} handlers.ErrorResponse
 // @Router /switch [put]
-func UpdateTradeBotCondition(c *gin.Context) {
-	req := UpdateTradeBotSwitchBody{}
+func UpdateTradeBotSwitch(c *gin.Context) {
+	req := global.SystemSwitch{}
 	var res handlers.ErrorResponse
 	if byteArr, err := ioutil.ReadAll(c.Request.Body); err != nil {
 		logger.GetLogger().Error(err)
@@ -290,13 +279,7 @@ func UpdateTradeBotCondition(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, res)
 		return
 	}
-	global.TradeSwitch.Buy = req.EnableBuy
-	global.TradeSwitch.Sell = req.EnableSell
-	global.TradeSwitch.SellFirst = req.EnableSell
-	global.TradeSwitch.BuyLater = req.EnableBuyLater
-	global.TradeSwitch.UseBidAsk = req.UseBidAsk
-	global.TradeSwitch.MeanTimeTradeStockNum = req.MeanTimeTradeStockNum
-	global.TradeSwitch.MeanTimeReverseTradeStockNum = req.MeanTimeReverseTradeStockNum
+	global.TradeSwitch = req
 	logger.GetLogger().WithFields(map[string]interface{}{
 		"EnableBuy":             global.TradeSwitch.Buy,
 		"EnableSell":            global.TradeSwitch.Sell,
@@ -305,19 +288,4 @@ func UpdateTradeBotCondition(c *gin.Context) {
 		"MeanTimeTradeStockNum": global.TradeSwitch.MeanTimeTradeStockNum,
 	}).Info("Trade Switch Status")
 	c.JSON(http.StatusOK, nil)
-}
-
-// GetTradeCondition GetTradeCondition
-// @Summary GetTradeCondition
-// @tags tradebot
-// @accept json
-// @produce json
-// @success 200
-// @Router /condition [get]
-func GetTradeCondition(c *gin.Context) {
-	data := []simulationcond.AnalyzeCondition{
-		global.ForwardCond,
-		global.ReverseCond,
-	}
-	c.JSON(http.StatusOK, data)
 }

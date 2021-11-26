@@ -27,6 +27,97 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/balance": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "balance"
+                ],
+                "summary": "GetAllBalance",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/balance.Balance"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "balance"
+                ],
+                "summary": "ImportBalance",
+                "parameters": [
+                    {
+                        "description": "Body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/balance.Balance"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "balance"
+                ],
+                "summary": "DeletaAllBalance",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/condition": {
             "get": {
                 "consumes": [
@@ -36,12 +127,97 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "tradebot"
+                    "condition"
                 ],
-                "summary": "GetTradeCondition",
+                "summary": "GetLatestTradeCondition",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/simulate.Result"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "condition"
+                ],
+                "summary": "ImpoprtTradeCondition",
+                "parameters": [
+                    {
+                        "description": "Body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/simulate.Result"
+                            }
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": ""
+                    }
+                }
+            },
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "condition"
+                ],
+                "summary": "DeletaAllResultAndCond",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/condition/latest": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "condition"
+                ],
+                "summary": "GetLatestTradeCondition",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/simulationcond.AnalyzeCondition"
+                            }
+                        }
                     }
                 }
             }
@@ -108,46 +284,6 @@ var doc = `{
                 "responses": {
                     "200": {
                         "description": ""
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/data/target": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "tradebot"
-                ],
-                "summary": "GetTarget",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "count",
-                        "name": "count",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/tradebothandler.TargetResponse"
-                            }
-                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -244,7 +380,10 @@ var doc = `{
                 "summary": "GetTradeBotSwitch",
                 "responses": {
                     "200": {
-                        "description": ""
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/global.SystemSwitch"
+                        }
                     }
                 }
             },
@@ -258,7 +397,7 @@ var doc = `{
                 "tags": [
                     "tradebot"
                 ],
-                "summary": "UpdateTradeBotCondition",
+                "summary": "UpdateTradeBotSwitch",
                 "parameters": [
                     {
                         "description": "Body",
@@ -266,7 +405,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/tradebothandler.UpdateTradeBotSwitchBody"
+                            "$ref": "#/definitions/global.SystemSwitch"
                         }
                     }
                 ],
@@ -337,6 +476,46 @@ var doc = `{
                 "responses": {
                     "200": {
                         "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/target": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tradebot"
+                ],
+                "summary": "GetTarget",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "count",
+                        "name": "count",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/tradebothandler.TargetResponse"
+                            }
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -421,6 +600,32 @@ var doc = `{
         }
     },
     "definitions": {
+        "balance.Balance": {
+            "type": "object",
+            "properties": {
+                "discount": {
+                    "type": "integer"
+                },
+                "forward": {
+                    "type": "integer"
+                },
+                "original_balance": {
+                    "type": "integer"
+                },
+                "reverse": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                },
+                "trade_count": {
+                    "type": "integer"
+                },
+                "trade_day": {
+                    "type": "string"
+                }
+            }
+        },
         "bidask.BidAskProto": {
             "type": "object",
             "properties": {
@@ -485,14 +690,123 @@ var doc = `{
                 }
             }
         },
+        "global.SystemSwitch": {
+            "type": "object",
+            "properties": {
+                "buy": {
+                    "type": "boolean"
+                },
+                "buy_later": {
+                    "type": "boolean"
+                },
+                "mean_time_reverse_trade_stock_num": {
+                    "type": "integer"
+                },
+                "mean_time_trade_stock_num": {
+                    "type": "integer"
+                },
+                "sell": {
+                    "type": "boolean"
+                },
+                "sell_first": {
+                    "type": "boolean"
+                },
+                "use_bid_ask": {
+                    "type": "boolean"
+                }
+            }
+        },
         "handlers.ErrorResponse": {
             "type": "object",
             "properties": {
-                "attachment": {
-                    "type": "object"
-                },
+                "attachment": {},
                 "response": {
                     "type": "string"
+                }
+            }
+        },
+        "simulate.Result": {
+            "type": "object",
+            "properties": {
+                "balance": {
+                    "type": "integer"
+                },
+                "cond": {
+                    "$ref": "#/definitions/simulationcond.AnalyzeCondition"
+                },
+                "cond_id": {
+                    "type": "integer"
+                },
+                "forward_balance": {
+                    "type": "integer"
+                },
+                "is_best_forward": {
+                    "type": "boolean"
+                },
+                "is_best_reverse": {
+                    "type": "boolean"
+                },
+                "positive_days": {
+                    "type": "integer"
+                },
+                "reverse_balance": {
+                    "type": "integer"
+                },
+                "total_days": {
+                    "type": "integer"
+                },
+                "total_loss": {
+                    "type": "integer"
+                },
+                "trade_count": {
+                    "type": "integer"
+                },
+                "trade_day": {
+                    "type": "string"
+                }
+            }
+        },
+        "simulationcond.AnalyzeCondition": {
+            "type": "object",
+            "properties": {
+                "close_change_ratio_high": {
+                    "type": "number"
+                },
+                "close_change_ratio_low": {
+                    "type": "number"
+                },
+                "forward_out_in_ratio": {
+                    "type": "number"
+                },
+                "history_close_count": {
+                    "type": "integer"
+                },
+                "open_change_ratio": {
+                    "type": "number"
+                },
+                "reverse_out_in_ratio": {
+                    "type": "number"
+                },
+                "rsi_high": {
+                    "type": "number"
+                },
+                "rsi_low": {
+                    "type": "number"
+                },
+                "ticks_period_count": {
+                    "type": "integer"
+                },
+                "ticks_period_limit": {
+                    "type": "number"
+                },
+                "ticks_period_threshold": {
+                    "type": "number"
+                },
+                "trim_history_close_count": {
+                    "type": "boolean"
+                },
+                "volume_per_second": {
+                    "type": "integer"
                 }
             }
         },
@@ -619,32 +933,6 @@ var doc = `{
                 }
             }
         },
-        "tradebothandler.UpdateTradeBotSwitchBody": {
-            "type": "object",
-            "properties": {
-                "enable_buy": {
-                    "type": "boolean"
-                },
-                "enable_buy_later": {
-                    "type": "boolean"
-                },
-                "enable_sell": {
-                    "type": "boolean"
-                },
-                "enable_sell_first": {
-                    "type": "boolean"
-                },
-                "mean_time_reverse_trade_stock_num": {
-                    "type": "integer"
-                },
-                "mean_time_trade_stock_num": {
-                    "type": "integer"
-                },
-                "use_bid_ask": {
-                    "type": "boolean"
-                }
-            }
-        },
         "tradeevent.EventProto": {
             "type": "object",
             "properties": {
@@ -713,7 +1001,7 @@ type swaggerInfo struct {
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = swaggerInfo{
-	Version:     "0.1.0",
+	Version:     "1.4.0",
 	Host:        "",
 	BasePath:    "/trade-bot",
 	Schemes:     []string{},
@@ -753,5 +1041,5 @@ func (s *s) ReadDoc() string {
 }
 
 func init() {
-	swag.Register(swag.Name, &s{})
+	swag.Register("swagger", &s{})
 }

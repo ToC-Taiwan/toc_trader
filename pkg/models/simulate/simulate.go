@@ -10,19 +10,19 @@ import (
 
 // Result Result
 type Result struct {
-	gorm.Model
-	Balance        int64     `gorm:"column:balance;"`
-	ForwardBalance int64     `gorm:"column:forward_balance;"`
-	ReverseBalance int64     `gorm:"column:reverse_balance;"`
-	TotalLoss      int64     `gorm:"column:total_loss;"`
-	TradeCount     int64     `gorm:"column:trade_count;"`
-	PositiveDays   int64     `gorm:"column:positive_days;"`
-	TotalDays      int64     `gorm:"column:total_days;"`
-	IsBestForward  bool      `gorm:"column:is_best_forward;"`
-	IsBestReverse  bool      `gorm:"column:is_best_reverse;"`
-	TradeDay       time.Time `gorm:"column:trade_day;"`
-	CondID         int64
-	Cond           simulationcond.AnalyzeCondition `gorm:"foreignKey:CondID"`
+	gorm.Model     `json:"-" swaggerignore:"true"`
+	Balance        int64                           `gorm:"column:balance;" json:"balance"`
+	ForwardBalance int64                           `gorm:"column:forward_balance;" json:"forward_balance"`
+	ReverseBalance int64                           `gorm:"column:reverse_balance;" json:"reverse_balance"`
+	TotalLoss      int64                           `gorm:"column:total_loss;" json:"total_loss"`
+	TradeCount     int64                           `gorm:"column:trade_count;" json:"trade_count"`
+	PositiveDays   int64                           `gorm:"column:positive_days;" json:"positive_days"`
+	TotalDays      int64                           `gorm:"column:total_days;" json:"total_days"`
+	IsBestForward  bool                            `gorm:"column:is_best_forward;" json:"is_best_forward"`
+	IsBestReverse  bool                            `gorm:"column:is_best_reverse;" json:"is_best_reverse"`
+	TradeDay       time.Time                       `gorm:"column:trade_day;" json:"trade_day"`
+	CondID         int64                           `gorm:"column:cond_id;" json:"cond_id"`
+	Cond           simulationcond.AnalyzeCondition `gorm:"foreignKey:CondID" json:"cond"`
 }
 
 // Tabler Tabler

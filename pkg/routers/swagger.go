@@ -14,7 +14,7 @@ import (
 
 // AddSwagger AddSwagger
 // @title ToC Trader
-// @version 0.1.0
+// @version 1.4.0
 // @description API docs for ToC Trader
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
@@ -27,5 +27,4 @@ func AddSwagger(router *gin.Engine) {
 	}
 	url := ginSwagger.URL("/swagger/doc.json")
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
-	// logger.GetLogger().Info("http://" + docs.SwaggerInfo.Host + "/swagger/index.html")
 }

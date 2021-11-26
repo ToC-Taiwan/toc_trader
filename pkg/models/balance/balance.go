@@ -9,14 +9,14 @@ import (
 
 // Balance Balance
 type Balance struct {
-	gorm.Model
-	TradeDay        time.Time `gorm:"column:trade_day;"`
-	TradeCount      int64     `gorm:"column:trade_count;"`
-	Forward         int64     `gorm:"column:forward"`
-	Reverse         int64     `gorm:"column:reverse"`
-	OriginalBalance int64     `gorm:"column:original_balance"`
-	Discount        int64     `gorm:"column:discount"`
-	Total           int64     `gorm:"column:total"`
+	gorm.Model      `json:"-" swaggerignore:"true"`
+	TradeDay        time.Time `gorm:"column:trade_day;" json:"trade_day"`
+	TradeCount      int64     `gorm:"column:trade_count;" json:"trade_count"`
+	Forward         int64     `gorm:"column:forward" json:"forward"`
+	Reverse         int64     `gorm:"column:reverse" json:"reverse"`
+	OriginalBalance int64     `gorm:"column:original_balance" json:"original_balance"`
+	Discount        int64     `gorm:"column:discount" json:"discount"`
+	Total           int64     `gorm:"column:total" json:"total"`
 }
 
 // Tabler Tabler

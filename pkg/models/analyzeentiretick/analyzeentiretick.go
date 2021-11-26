@@ -10,7 +10,7 @@ import (
 
 // AnalyzeEntireTick AnalyzeEntireTick
 type AnalyzeEntireTick struct {
-	gorm.Model
+	gorm.Model       `json:"-" swaggerignore:"true"`
 	TimeStamp        int64   `gorm:"column:timestamp;index:idx_analyzeentiretick"`
 	StockNum         string  `gorm:"column:stock_num;index:idx_analyzeentiretick"`
 	Close            float64 `gorm:"column:close"`

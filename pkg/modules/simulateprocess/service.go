@@ -414,7 +414,7 @@ func catchResult() {
 				if err := simulate.Update(&bestResult, database.GetAgent()); err != nil {
 					logger.GetLogger().Panic(err)
 				} else {
-					clearAllNotBest()
+					ClearAllNotBest()
 				}
 			} else {
 				logger.GetLogger().Info("No Best")
@@ -433,7 +433,8 @@ func catchResult() {
 	}
 }
 
-func clearAllNotBest() {
+// ClearAllNotBest ClearAllNotBest
+func ClearAllNotBest() {
 	if err := simulate.DeleteAllNotBest(database.GetAgent()); err != nil {
 		logger.GetLogger().Panic(err)
 	}

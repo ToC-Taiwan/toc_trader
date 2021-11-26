@@ -10,7 +10,7 @@ import (
 
 // BidAsk BidAsk
 type BidAsk struct {
-	gorm.Model
+	gorm.Model  `json:"-" swaggerignore:"true"`
 	StockNum    string  `gorm:"column:stock_num;index:idx_bidask"`
 	TimeStamp   int64   `gorm:"column:timestamp;index:idx_bidask"`
 	BidPrice1   float64 `gorm:"column:bid_price_1"`

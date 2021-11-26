@@ -9,7 +9,7 @@ import (
 
 // AnalyzeStreamTick AnalyzeStreamTick
 type AnalyzeStreamTick struct {
-	gorm.Model
+	gorm.Model       `json:"-" swaggerignore:"true"`
 	TimeStamp        int64   `gorm:"column:timestamp;index:idx_analyzestreamtick"`
 	StockNum         string  `gorm:"column:stock_num;index:idx_analyzestreamtick"`
 	Close            float64 `gorm:"column:close"`

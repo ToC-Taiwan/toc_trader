@@ -192,3 +192,21 @@ func GetBestCondIDArr(db *gorm.DB) (idArr []int64, err error) {
 	}
 	return idArr, err
 }
+
+// GetAllBestForwardResultAndCond GetAllBestForwardResultAndCond
+func GetAllBestForwardResultAndCond(db *gorm.DB) (data []Result, err error) {
+	err = db.Preload("Cond").Where("is_best_forward = true").Find(&data).Error
+	if err != nil {
+		return data, err
+	}
+	return data, err
+}
+
+// GetAllBestReverseResultAndCond GetAllBestReverseResultAndCond
+func GetAllBestReverseResultAndCond(db *gorm.DB) (data []Result, err error) {
+	err = db.Preload("Cond").Where("is_best_reverse = true").Find(&data).Error
+	if err != nil {
+		return data, err
+	}
+	return data, err
+}

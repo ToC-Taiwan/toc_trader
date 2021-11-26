@@ -10,17 +10,17 @@ import (
 
 // TradeRecord TradeRecord
 type TradeRecord struct {
-	gorm.Model
-	StockNum  string    `gorm:"column:stock_num;index:idx_traderecord"`
-	StockName string    `gorm:"column:stock_name"`
-	Action    int64     `gorm:"column:action"`
-	Price     float64   `gorm:"column:price"`
-	Quantity  int64     `gorm:"column:quantity"`
-	Status    int64     `gorm:"column:status"`
-	OrderID   string    `gorm:"column:order_id;index:idx_traderecord"`
-	OrderTime time.Time `gorm:"column:order_time"`
-	BuyCost   int64     `gorm:"-"`
-	TradeTime time.Time `gorm:"-"`
+	gorm.Model `json:"-" swaggerignore:"true"`
+	StockNum   string    `gorm:"column:stock_num;index:idx_traderecord"`
+	StockName  string    `gorm:"column:stock_name"`
+	Action     int64     `gorm:"column:action"`
+	Price      float64   `gorm:"column:price"`
+	Quantity   int64     `gorm:"column:quantity"`
+	Status     int64     `gorm:"column:status"`
+	OrderID    string    `gorm:"column:order_id;index:idx_traderecord"`
+	OrderTime  time.Time `gorm:"column:order_time"`
+	BuyCost    int64     `gorm:"-"`
+	TradeTime  time.Time `gorm:"-"`
 }
 
 // Tabler Tabler

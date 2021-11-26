@@ -1,5 +1,22 @@
 basePath: /trade-bot
 definitions:
+  balance.Balance:
+    properties:
+      discount:
+        type: integer
+      forward:
+        type: integer
+      original_balance:
+        type: integer
+      reverse:
+        type: integer
+      total:
+        type: integer
+      trade_count:
+        type: integer
+      trade_day:
+        type: string
+    type: object
   bidask.BidAskProto:
     properties:
       bid_ask:
@@ -42,12 +59,84 @@ definitions:
       suspend:
         type: integer
     type: object
+  global.SystemSwitch:
+    properties:
+      buy:
+        type: boolean
+      buy_later:
+        type: boolean
+      mean_time_reverse_trade_stock_num:
+        type: integer
+      mean_time_trade_stock_num:
+        type: integer
+      sell:
+        type: boolean
+      sell_first:
+        type: boolean
+      use_bid_ask:
+        type: boolean
+    type: object
   handlers.ErrorResponse:
     properties:
-      attachment:
-        type: object
+      attachment: {}
       response:
         type: string
+    type: object
+  simulate.Result:
+    properties:
+      balance:
+        type: integer
+      cond:
+        $ref: '#/definitions/simulationcond.AnalyzeCondition'
+      cond_id:
+        type: integer
+      forward_balance:
+        type: integer
+      is_best_forward:
+        type: boolean
+      is_best_reverse:
+        type: boolean
+      positive_days:
+        type: integer
+      reverse_balance:
+        type: integer
+      total_days:
+        type: integer
+      total_loss:
+        type: integer
+      trade_count:
+        type: integer
+      trade_day:
+        type: string
+    type: object
+  simulationcond.AnalyzeCondition:
+    properties:
+      close_change_ratio_high:
+        type: number
+      close_change_ratio_low:
+        type: number
+      forward_out_in_ratio:
+        type: number
+      history_close_count:
+        type: integer
+      open_change_ratio:
+        type: number
+      reverse_out_in_ratio:
+        type: number
+      rsi_high:
+        type: number
+      rsi_low:
+        type: number
+      ticks_period_count:
+        type: integer
+      ticks_period_limit:
+        type: number
+      ticks_period_threshold:
+        type: number
+      trim_history_close_count:
+        type: boolean
+      volume_per_second:
+        type: integer
     type: object
   streamtick.StreamTickProto:
     properties:
@@ -129,23 +218,6 @@ definitions:
       stock_num:
         type: string
     type: object
-  tradebothandler.UpdateTradeBotSwitchBody:
-    properties:
-      enable_buy:
-        type: boolean
-      enable_buy_later:
-        type: boolean
-      enable_sell:
-        type: boolean
-      enable_sell_first:
-        type: boolean
-      mean_time_reverse_trade_stock_num:
-        type: integer
-      mean_time_trade_stock_num:
-        type: integer
-      use_bid_ask:
-        type: boolean
-    type: object
   tradeevent.EventProto:
     properties:
       event:
@@ -188,10 +260,10 @@ info:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   title: ToC Trader
-  version: 0.1.0
+  version: 1.4.0
 paths:
-  /condition:
-    get:
+  /balance:
+    delete:
       consumes:
       - application/json
       produces:
@@ -199,9 +271,123 @@ paths:
       responses:
         "200":
           description: ""
-      summary: GetTradeCondition
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: DeletaAllBalance
       tags:
-      - tradebot
+      - balance
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/balance.Balance'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: GetAllBalance
+      tags:
+      - balance
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Body
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/balance.Balance'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: ImportBalance
+      tags:
+      - balance
+  /condition:
+    delete:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: DeletaAllResultAndCond
+      tags:
+      - condition
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/simulate.Result'
+            type: array
+      summary: GetLatestTradeCondition
+      tags:
+      - condition
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Body
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/simulate.Result'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: ImpoprtTradeCondition
+      tags:
+      - condition
+  /condition/latest:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/simulationcond.AnalyzeCondition'
+            type: array
+      summary: GetLatestTradeCondition
+      tags:
+      - condition
   /data/bid-ask:
     post:
       consumes:
@@ -246,32 +432,6 @@ paths:
           schema:
             $ref: '#/definitions/handlers.ErrorResponse'
       summary: ReceiveStreamTick
-      tags:
-      - tradebot
-  /data/target:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: count
-        in: header
-        name: count
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/tradebothandler.TargetResponse'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-      summary: GetTarget
       tags:
       - tradebot
   /manual/buy-later:
@@ -328,7 +488,9 @@ paths:
       - application/json
       responses:
         "200":
-          description: ""
+          description: OK
+          schema:
+            $ref: '#/definitions/global.SystemSwitch'
       summary: GetTradeBotSwitch
       tags:
       - tradebot
@@ -341,7 +503,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/tradebothandler.UpdateTradeBotSwitchBody'
+          $ref: '#/definitions/global.SystemSwitch'
       produces:
       - application/json
       responses:
@@ -351,7 +513,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/handlers.ErrorResponse'
-      summary: UpdateTradeBotCondition
+      summary: UpdateTradeBotSwitch
       tags:
       - tradebot
   /system/restart:
@@ -395,6 +557,32 @@ paths:
       summary: UpdateSysparm
       tags:
       - mainsystem
+  /target:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: count
+        in: header
+        name: count
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/tradebothandler.TargetResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: GetTarget
+      tags:
+      - tradebot
   /trade-event:
     post:
       consumes:

@@ -24,6 +24,10 @@ func main() {
 		g := gin.New()
 		g.Use(routers.CorsMiddleware())
 		g.Use(gin.Recovery())
+		err := g.SetTrustedProxies(nil)
+		if err != nil {
+			logger.GetLogger().Panic(err)
+		}
 		routers.AddSwagger(g)
 		routers.InitRouters(g)
 		if err := g.Run(":" + global.HTTPPort); err != nil {

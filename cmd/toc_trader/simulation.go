@@ -14,6 +14,7 @@ import (
 
 func simulatationEntry() {
 	deployment := os.Getenv("DEPLOYMENT")
+	tmpChan := make(chan string)
 	var err error
 	if deployment != "docker" {
 		prompt := promptui.Prompt{
@@ -30,8 +31,7 @@ func simulatationEntry() {
 			simulateprocess.Simulate(ansArr[0], ansArr[1], ansArr[2], ansArr[3])
 		} else {
 			logger.GetLogger().Warn("Please run in container mode")
-			tmpChan := make(chan string)
-			tmpChan <- "stockHere"
+			<-tmpChan
 		}
 	} else {
 		global.ForwardCond, err = simulate.GetBestForwardCondByTradeDay(global.TradeDay, database.GetAgent())
@@ -57,10 +57,12 @@ func simulatationEntry() {
 			}
 		}
 		if global.ForwardCond.Model.ID == 0 || global.ReverseCond.Model.ID == 0 {
-			logger.GetLogger().Panic("no cond to trade")
+			logger.GetLogger().Warn("no cond to trade")
+			<-tmpChan
 		}
 		logger.GetLogger().Warnf("BestForward is %+v", global.ForwardCond)
 		logger.GetLogger().Warnf("BestReverse is %+v", global.ReverseCond)
+		simulateprocess.ClearAllNotBest()
 	}
 }
 

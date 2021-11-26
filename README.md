@@ -9,8 +9,6 @@
 
 ## Features
 
-![monitor_sample](./assets/monitor_sample.png "monitor_sample")
-
 [API Docs](http://toc-trader.tocraw.com:6670/swagger/index.html)
 
 ## Query Best Condition
@@ -30,6 +28,16 @@ order by (balance-total_loss)/trade_count DESC, rsi_low ASC;
 ```sh
 git fetch --prune --prune-tags origin
 git check-ignore *
+```
+
+### Result and Conditions Sample
+
+```json
+```
+
+### Balance Sample
+
+```json
 ```
 
 ### Trade Bot Service

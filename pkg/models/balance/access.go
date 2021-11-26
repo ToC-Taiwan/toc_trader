@@ -53,3 +53,20 @@ func InsertMultiRecord(recordArr []Balance, db *gorm.DB) error {
 	})
 	return err
 }
+
+// GetAllBalance GetAllBalance
+func GetAllBalance(db *gorm.DB) (data []Balance, err error) {
+	result := db.Model(&Balance{}).Where("id != 0").Find(&data)
+	return data, result.Error
+}
+
+// DeleteAll DeleteAll
+func DeleteAll(db *gorm.DB) error {
+	err := db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Not("id = 0").Unscoped().Delete(&Balance{}).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+	return err
+}

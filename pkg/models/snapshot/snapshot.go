@@ -5,7 +5,7 @@ import "gorm.io/gorm"
 
 // SnapShot SnapShot
 type SnapShot struct {
-	gorm.Model
+	gorm.Model      `json:"-" swaggerignore:"true"`
 	TS              int64   `gorm:"column:ts"`
 	Code            string  `gorm:"column:code"`
 	Exchange        string  `gorm:"column:exchange"`

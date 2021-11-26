@@ -10,19 +10,19 @@ import (
 
 // EntireTick EntireTick
 type EntireTick struct {
-	gorm.Model
-	StockNum  string  `gorm:"column:stock_num;index:idx_entiretick"`
-	Close     float64 `gorm:"column:close"`
-	TickType  int64   `gorm:"column:tick_type"`
-	Volume    int64   `gorm:"column:volume"`
-	BidPrice  float64 `gorm:"column:bid_price"`
-	BidVolume int64   `gorm:"column:bid_volume"`
-	AskPrice  float64 `gorm:"column:ask_price"`
-	AskVolume int64   `gorm:"column:ask_volume"`
-	TimeStamp int64   `gorm:"column:timestamp;index:idx_entiretick"`
-	Open      float64 `gorm:"column:open"`
-	High      float64 `gorm:"column:high"`
-	Low       float64 `gorm:"column:low"`
+	gorm.Model `json:"-" swaggerignore:"true"`
+	StockNum   string  `gorm:"column:stock_num;index:idx_entiretick"`
+	Close      float64 `gorm:"column:close"`
+	TickType   int64   `gorm:"column:tick_type"`
+	Volume     int64   `gorm:"column:volume"`
+	BidPrice   float64 `gorm:"column:bid_price"`
+	BidVolume  int64   `gorm:"column:bid_volume"`
+	AskPrice   float64 `gorm:"column:ask_price"`
+	AskVolume  int64   `gorm:"column:ask_volume"`
+	TimeStamp  int64   `gorm:"column:timestamp;index:idx_entiretick"`
+	Open       float64 `gorm:"column:open"`
+	High       float64 `gorm:"column:high"`
+	Low        float64 `gorm:"column:low"`
 }
 
 // Tabler Tabler

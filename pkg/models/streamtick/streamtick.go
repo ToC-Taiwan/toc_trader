@@ -6,21 +6,9 @@ import (
 	"gorm.io/gorm"
 )
 
-// Old Old
-type Old struct {
-	gorm.Model
-	StockNum  string  `gorm:"column:stock_num"`
-	AmountSum float64 `gorm:"column:amount_sum"`
-	Close     float64 `gorm:"column:close"`
-	TickType  int64   `gorm:"column:tick_type"`
-	VolumeSum int64   `gorm:"column:volume_sum"`
-	Volume    int64   `gorm:"column:volume"`
-	TimeStamp int64   `gorm:"column:timestamp"`
-}
-
 // StreamTick StreamTick
 type StreamTick struct {
-	gorm.Model
+	gorm.Model      `json:"-" swaggerignore:"true"`
 	StockNum        string  `gorm:"column:stock_num;index:idx_streamtick"`
 	TimeStamp       int64   `gorm:"column:timestamp;index:idx_streamtick"`
 	Open            float64 `gorm:"column:open"`

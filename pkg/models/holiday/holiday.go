@@ -5,8 +5,8 @@ import "gorm.io/gorm"
 
 // Holiday Holiday
 type Holiday struct {
-	gorm.Model
-	TimeStamp int64 `gorm:"column:timestamp;uniqueIndex"`
+	gorm.Model `json:"-" swaggerignore:"true"`
+	TimeStamp  int64 `gorm:"column:timestamp;uniqueIndex"`
 }
 
 // Tabler Tabler

@@ -3,7 +3,7 @@ module gitlab.tocraw.com/root/toc_trader
 go 1.17
 
 require (
-	github.com/gin-gonic/gin v1.7.4
+	github.com/gin-gonic/gin v1.7.7
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/lib/pq v1.10.4
 	github.com/manifoldco/promptui v0.9.0
@@ -18,7 +18,7 @@ require (
 	github.com/vbauerster/mpb/v7 v7.1.5
 	google.golang.org/protobuf v1.27.1
 	gorm.io/driver/postgres v1.2.2
-	gorm.io/driver/sqlite v1.2.4
+	gorm.io/driver/sqlite v1.2.6
 	gorm.io/gorm v1.22.3
 )
 
