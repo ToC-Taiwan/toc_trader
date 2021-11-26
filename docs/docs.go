@@ -36,7 +36,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "balance"
+                    "Balance"
                 ],
                 "summary": "GetAllBalance",
                 "responses": {
@@ -65,7 +65,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "balance"
+                    "Balance"
                 ],
                 "summary": "ImportBalance",
                 "parameters": [
@@ -102,7 +102,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "balance"
+                    "Balance"
                 ],
                 "summary": "DeletaAllBalance",
                 "responses": {
@@ -127,7 +127,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "condition"
+                    "TradeCondition"
                 ],
                 "summary": "GetLatestTradeCondition",
                 "responses": {
@@ -150,7 +150,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "condition"
+                    "TradeCondition"
                 ],
                 "summary": "ImpoprtTradeCondition",
                 "parameters": [
@@ -181,7 +181,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "condition"
+                    "TradeCondition"
                 ],
                 "summary": "DeletaAllResultAndCond",
                 "responses": {
@@ -206,7 +206,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "condition"
+                    "TradeCondition"
                 ],
                 "summary": "GetLatestTradeCondition",
                 "responses": {
@@ -231,7 +231,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "tradebot"
+                    "Data"
                 ],
                 "summary": "ReceiveBidAsk",
                 "parameters": [
@@ -267,7 +267,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "tradebot"
+                    "Data"
                 ],
                 "summary": "ReceiveStreamTick",
                 "parameters": [
@@ -303,7 +303,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "tradebot"
+                    "ManualTrade"
                 ],
                 "summary": "ManualBuyLaterStock",
                 "parameters": [
@@ -313,7 +313,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/tradebothandler.ManualBuyLaterBody"
+                            "$ref": "#/definitions/manualtradehandler.ManualBuyLaterBody"
                         }
                     }
                 ],
@@ -339,7 +339,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "tradebot"
+                    "ManualTrade"
                 ],
                 "summary": "ManualSellStock",
                 "parameters": [
@@ -349,63 +349,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/tradebothandler.ManualSellBody"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": ""
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/switch": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "tradebot"
-                ],
-                "summary": "GetTradeBotSwitch",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/global.SystemSwitch"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "tradebot"
-                ],
-                "summary": "UpdateTradeBotSwitch",
-                "parameters": [
-                    {
-                        "description": "Body",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/global.SystemSwitch"
+                            "$ref": "#/definitions/manualtradehandler.ManualSellBody"
                         }
                     }
                 ],
@@ -431,7 +375,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "mainsystem"
+                    "MainSystem"
                 ],
                 "summary": "Restart",
                 "responses": {
@@ -456,7 +400,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "mainsystem"
+                    "MainSystem"
                 ],
                 "summary": "UpdateSysparm",
                 "parameters": [
@@ -495,7 +439,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "tradebot"
+                    "Target"
                 ],
                 "summary": "GetTarget",
                 "parameters": [
@@ -513,7 +457,7 @@ var doc = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/tradebothandler.TargetResponse"
+                                "$ref": "#/definitions/targethandler.TargetResponse"
                             }
                         }
                     },
@@ -535,7 +479,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "tradeevent"
+                    "TradeEvent"
                 ],
                 "summary": "ReciveTradeEvent",
                 "parameters": [
@@ -571,7 +515,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "traderecord"
+                    "TradeRecord"
                 ],
                 "summary": "UpdateTradeRecord",
                 "parameters": [
@@ -582,6 +526,62 @@ var doc = `{
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/traderecord.TradeRecordArrProto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/trade/switch": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "MainSystem"
+                ],
+                "summary": "GetTradeBotSwitch",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/global.SystemSwitch"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "MainSystem"
+                ],
+                "summary": "UpdateTradeBotSwitch",
+                "parameters": [
+                    {
+                        "description": "Body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/global.SystemSwitch"
                         }
                     }
                 ],
@@ -721,6 +721,28 @@ var doc = `{
             "properties": {
                 "attachment": {},
                 "response": {
+                    "type": "string"
+                }
+            }
+        },
+        "manualtradehandler.ManualBuyLaterBody": {
+            "type": "object",
+            "properties": {
+                "price": {
+                    "type": "number"
+                },
+                "stock_num": {
+                    "type": "string"
+                }
+            }
+        },
+        "manualtradehandler.ManualSellBody": {
+            "type": "object",
+            "properties": {
+                "price": {
+                    "type": "number"
+                },
+                "stock_num": {
                     "type": "string"
                 }
             }
@@ -900,29 +922,7 @@ var doc = `{
                 }
             }
         },
-        "tradebothandler.ManualBuyLaterBody": {
-            "type": "object",
-            "properties": {
-                "price": {
-                    "type": "number"
-                },
-                "stock_num": {
-                    "type": "string"
-                }
-            }
-        },
-        "tradebothandler.ManualSellBody": {
-            "type": "object",
-            "properties": {
-                "price": {
-                    "type": "number"
-                },
-                "stock_num": {
-                    "type": "string"
-                }
-            }
-        },
-        "tradebothandler.TargetResponse": {
+        "targethandler.TargetResponse": {
             "type": "object",
             "properties": {
                 "close": {

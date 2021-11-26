@@ -82,6 +82,20 @@ definitions:
       response:
         type: string
     type: object
+  manualtradehandler.ManualBuyLaterBody:
+    properties:
+      price:
+        type: number
+      stock_num:
+        type: string
+    type: object
+  manualtradehandler.ManualSellBody:
+    properties:
+      price:
+        type: number
+      stock_num:
+        type: string
+    type: object
   simulate.Result:
     properties:
       balance:
@@ -197,21 +211,7 @@ definitions:
       value:
         type: string
     type: object
-  tradebothandler.ManualBuyLaterBody:
-    properties:
-      price:
-        type: number
-      stock_num:
-        type: string
-    type: object
-  tradebothandler.ManualSellBody:
-    properties:
-      price:
-        type: number
-      stock_num:
-        type: string
-    type: object
-  tradebothandler.TargetResponse:
+  targethandler.TargetResponse:
     properties:
       close:
         type: number
@@ -277,7 +277,7 @@ paths:
             $ref: '#/definitions/handlers.ErrorResponse'
       summary: DeletaAllBalance
       tags:
-      - balance
+      - Balance
     get:
       consumes:
       - application/json
@@ -296,7 +296,7 @@ paths:
             $ref: '#/definitions/handlers.ErrorResponse'
       summary: GetAllBalance
       tags:
-      - balance
+      - Balance
     post:
       consumes:
       - application/json
@@ -320,7 +320,7 @@ paths:
             $ref: '#/definitions/handlers.ErrorResponse'
       summary: ImportBalance
       tags:
-      - balance
+      - Balance
   /condition:
     delete:
       consumes:
@@ -336,7 +336,7 @@ paths:
             $ref: '#/definitions/handlers.ErrorResponse'
       summary: DeletaAllResultAndCond
       tags:
-      - condition
+      - TradeCondition
     get:
       consumes:
       - application/json
@@ -351,7 +351,7 @@ paths:
             type: array
       summary: GetLatestTradeCondition
       tags:
-      - condition
+      - TradeCondition
     post:
       consumes:
       - application/json
@@ -371,7 +371,7 @@ paths:
           description: ""
       summary: ImpoprtTradeCondition
       tags:
-      - condition
+      - TradeCondition
   /condition/latest:
     get:
       consumes:
@@ -387,7 +387,7 @@ paths:
             type: array
       summary: GetLatestTradeCondition
       tags:
-      - condition
+      - TradeCondition
   /data/bid-ask:
     post:
       consumes:
@@ -410,7 +410,7 @@ paths:
             $ref: '#/definitions/handlers.ErrorResponse'
       summary: ReceiveBidAsk
       tags:
-      - tradebot
+      - Data
   /data/streamtick:
     post:
       consumes:
@@ -433,7 +433,7 @@ paths:
             $ref: '#/definitions/handlers.ErrorResponse'
       summary: ReceiveStreamTick
       tags:
-      - tradebot
+      - Data
   /manual/buy-later:
     post:
       consumes:
@@ -444,7 +444,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/tradebothandler.ManualBuyLaterBody'
+          $ref: '#/definitions/manualtradehandler.ManualBuyLaterBody'
       produces:
       - application/json
       responses:
@@ -456,7 +456,7 @@ paths:
             $ref: '#/definitions/handlers.ErrorResponse'
       summary: ManualBuyLaterStock
       tags:
-      - tradebot
+      - ManualTrade
   /manual/sell:
     post:
       consumes:
@@ -467,7 +467,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/tradebothandler.ManualSellBody'
+          $ref: '#/definitions/manualtradehandler.ManualSellBody'
       produces:
       - application/json
       responses:
@@ -479,43 +479,7 @@ paths:
             $ref: '#/definitions/handlers.ErrorResponse'
       summary: ManualSellStock
       tags:
-      - tradebot
-  /switch:
-    get:
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/global.SystemSwitch'
-      summary: GetTradeBotSwitch
-      tags:
-      - tradebot
-    put:
-      consumes:
-      - application/json
-      parameters:
-      - description: Body
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/global.SystemSwitch'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-      summary: UpdateTradeBotSwitch
-      tags:
-      - tradebot
+      - ManualTrade
   /system/restart:
     get:
       consumes:
@@ -531,7 +495,7 @@ paths:
             type: string
       summary: Restart
       tags:
-      - mainsystem
+      - MainSystem
   /system/sysparm:
     post:
       consumes:
@@ -556,7 +520,7 @@ paths:
             $ref: '#/definitions/handlers.ErrorResponse'
       summary: UpdateSysparm
       tags:
-      - mainsystem
+      - MainSystem
   /target:
     get:
       consumes:
@@ -574,7 +538,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/tradebothandler.TargetResponse'
+              $ref: '#/definitions/targethandler.TargetResponse'
             type: array
         "500":
           description: Internal Server Error
@@ -582,7 +546,7 @@ paths:
             $ref: '#/definitions/handlers.ErrorResponse'
       summary: GetTarget
       tags:
-      - tradebot
+      - Target
   /trade-event:
     post:
       consumes:
@@ -605,7 +569,7 @@ paths:
             $ref: '#/definitions/handlers.ErrorResponse'
       summary: ReciveTradeEvent
       tags:
-      - tradeevent
+      - TradeEvent
   /trade-record:
     post:
       consumes:
@@ -628,5 +592,41 @@ paths:
             $ref: '#/definitions/handlers.ErrorResponse'
       summary: UpdateTradeRecord
       tags:
-      - traderecord
+      - TradeRecord
+  /trade/switch:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/global.SystemSwitch'
+      summary: GetTradeBotSwitch
+      tags:
+      - MainSystem
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/global.SystemSwitch'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: UpdateTradeBotSwitch
+      tags:
+      - MainSystem
 swagger: "2.0"

@@ -6,6 +6,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"gitlab.tocraw.com/root/toc_trader/pkg/handlers/mainsystemhandler"
+	"gitlab.tocraw.com/root/toc_trader/pkg/handlers/manualtradehandler"
+	"gitlab.tocraw.com/root/toc_trader/pkg/handlers/targethandler"
 	"gitlab.tocraw.com/root/toc_trader/pkg/handlers/tradebalancehandler"
 	"gitlab.tocraw.com/root/toc_trader/pkg/handlers/tradebothandler"
 	"gitlab.tocraw.com/root/toc_trader/pkg/handlers/tradecondhandler"
@@ -22,6 +24,8 @@ func InitRouters(router *gin.Engine) {
 	traderecordhandler.AddHandlers(mainRoute)
 	tradebalancehandler.AddHandlers(mainRoute)
 	tradecondhandler.AddHandlers(mainRoute)
+	manualtradehandler.AddHandlers(mainRoute)
+	targethandler.AddHandlers(mainRoute)
 }
 
 // CorsMiddleware CorsMiddleware

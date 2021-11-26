@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v1.4.0 (2021-11-26)
+
+### New feature
+
+- **simulate**: :truck: change flow to debug can choose n, add round to rsi and ticks period limit([`3acb824`](https://gitlab.tocraw.com/root/toc_trader/commit/3acb824d0c9d29f32a5d8dd3c0a8684b17a6cbe5)) (@TimHsu@M1BP-20210907)
+- **balance**: :beers: add balance, resualt, cond api, all gorm.Model add json tag, modify some api([`eca7f40`](https://gitlab.tocraw.com/root/toc_trader/commit/eca7f40916753359834137b31f552c98bd3da3fa)) (@TimHsu@M1BP-20210907)
+- **simulate**: :pushpin: change the lowest tick per second to 20([`c9f0357`](https://gitlab.tocraw.com/root/toc_trader/commit/c9f0357875d4018063a15d570f19fc7554579839)) (@TimHsu@M1BP-20210907)
+
+### Bugs fixed
+
+- **logger**: :building_construction: fix wrong log file name([`3ff9ac1`](https://gitlab.tocraw.com/root/toc_trader/commit/3ff9ac100bd39897fde69339b79ce5008409ca4c)) (@TimHsu@M1BP-20210907)
+
 ## v1.3.0 (2021-11-24)
 
 ### New feature

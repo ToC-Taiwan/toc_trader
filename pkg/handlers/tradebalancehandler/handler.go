@@ -23,7 +23,7 @@ func AddHandlers(group *gin.RouterGroup) {
 
 // GetAllBalance GetAllBalance
 // @Summary GetAllBalance
-// @tags balance
+// @tags Balance
 // @accept json
 // @produce json
 // @success 200 {object} []balance.Balance
@@ -48,7 +48,7 @@ func GetAllBalance(c *gin.Context) {
 
 // ImportBalance ImportBalance
 // @Summary ImportBalance
-// @tags balance
+// @tags Balance
 // @accept json
 // @produce json
 // @param body body []balance.Balance{} true "Body"
@@ -87,7 +87,7 @@ func ImportBalance(c *gin.Context) {
 
 // DeletaAllBalance DeletaAllBalance
 // @Summary DeletaAllBalance
-// @tags balance
+// @tags Balance
 // @accept json
 // @produce json
 // @success 200

@@ -21,7 +21,7 @@ func AddHandlers(group *gin.RouterGroup) {
 
 // ReciveTradeEvent ReciveTradeEvent
 // @Summary ReciveTradeEvent
-// @tags tradeevent
+// @tags TradeEvent
 // @accept json
 // @produce json
 // @param body body tradeevent.EventProto true "Body"

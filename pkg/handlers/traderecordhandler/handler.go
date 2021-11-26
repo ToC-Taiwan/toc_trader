@@ -20,7 +20,7 @@ func AddHandlers(group *gin.RouterGroup) {
 
 // UpdateTradeRecord UpdateTradeRecord
 // @Summary UpdateTradeRecord
-// @tags traderecord
+// @tags TradeRecord
 // @accept json
 // @produce json
 // @param body body traderecord.TradeRecordArrProto true "Body"

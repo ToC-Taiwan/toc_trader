@@ -27,7 +27,7 @@ func AddHandlers(group *gin.RouterGroup) {
 
 // GetLatestTradeCondition GetLatestTradeCondition
 // @Summary GetLatestTradeCondition
-// @tags condition
+// @tags TradeCondition
 // @accept json
 // @produce json
 // @success 200 {object} []simulationcond.AnalyzeCondition
@@ -42,7 +42,7 @@ func GetLatestTradeCondition(c *gin.Context) {
 
 // GetAllBestTradeCondition GetAllBestTradeCondition
 // @Summary GetLatestTradeCondition
-// @tags condition
+// @tags TradeCondition
 // @accept json
 // @produce json
 // @success 200 {object} []simulate.Result
@@ -71,7 +71,7 @@ func GetAllBestTradeCondition(c *gin.Context) {
 
 // ImpoprtTradeCondition ImpoprtTradeCondition
 // @Summary ImpoprtTradeCondition
-// @tags condition
+// @tags TradeCondition
 // @accept json
 // @produce json
 // @param body body []simulate.Result{} true "Body"
@@ -116,7 +116,7 @@ func ImpoprtTradeCondition(c *gin.Context) {
 
 // DeletaAllResultAndCond DeletaAllResultAndCond
 // @Summary DeletaAllResultAndCond
-// @tags condition
+// @tags TradeCondition
 // @accept json
 // @produce json
 // @success 200
