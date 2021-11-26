@@ -13,9 +13,9 @@ import (
 )
 
 func simulatationEntry() {
-	deployment := os.Getenv("DEPLOYMENT")
-	tmpChan := make(chan string)
 	var err error
+	tmpChan := make(chan string)
+	deployment := os.Getenv("DEPLOYMENT")
 	if deployment != "docker" {
 		prompt := promptui.Prompt{
 			Label: "Simulate?(y/n)",
@@ -25,45 +25,47 @@ func simulatationEntry() {
 		if err != nil {
 			logger.GetLogger().Panic(err)
 		}
-
 		if result == "y" {
 			ansArr := simulationPrompt()
 			simulateprocess.Simulate(ansArr[0], ansArr[1], ansArr[2], ansArr[3])
-		} else {
-			logger.GetLogger().Warn("Please run in container mode")
 			<-tmpChan
 		}
-	} else {
+	}
+	getConds()
+}
+
+func getConds() {
+	var err error
+	tmpChan := make(chan string)
+	global.ForwardCond, err = simulate.GetBestForwardCondByTradeDay(global.TradeDay, database.GetAgent())
+	if err != nil {
+		logger.GetLogger().Panic(err)
+	}
+	if global.ForwardCond.Model.ID == 0 {
+		simulateprocess.Simulate("a", "n", "n", "2")
 		global.ForwardCond, err = simulate.GetBestForwardCondByTradeDay(global.TradeDay, database.GetAgent())
 		if err != nil {
 			logger.GetLogger().Panic(err)
 		}
-		if global.ForwardCond.Model.ID == 0 {
-			simulateprocess.Simulate("a", "n", "n", "2")
-			global.ForwardCond, err = simulate.GetBestForwardCondByTradeDay(global.TradeDay, database.GetAgent())
-			if err != nil {
-				logger.GetLogger().Panic(err)
-			}
-		}
+	}
+	global.ReverseCond, err = simulate.GetBestReverseCondByTradeDay(global.TradeDay, database.GetAgent())
+	if err != nil {
+		logger.GetLogger().Panic(err)
+	}
+	if global.ReverseCond.Model.ID == 0 {
+		simulateprocess.Simulate("b", "n", "n", "2")
 		global.ReverseCond, err = simulate.GetBestReverseCondByTradeDay(global.TradeDay, database.GetAgent())
 		if err != nil {
 			logger.GetLogger().Panic(err)
 		}
-		if global.ReverseCond.Model.ID == 0 {
-			simulateprocess.Simulate("b", "n", "n", "2")
-			global.ReverseCond, err = simulate.GetBestReverseCondByTradeDay(global.TradeDay, database.GetAgent())
-			if err != nil {
-				logger.GetLogger().Panic(err)
-			}
-		}
-		if global.ForwardCond.Model.ID == 0 || global.ReverseCond.Model.ID == 0 {
-			logger.GetLogger().Warn("no cond to trade")
-			<-tmpChan
-		}
-		logger.GetLogger().Warnf("BestForward is %+v", global.ForwardCond)
-		logger.GetLogger().Warnf("BestReverse is %+v", global.ReverseCond)
-		simulateprocess.ClearAllNotBest()
 	}
+	if global.ForwardCond.Model.ID == 0 || global.ReverseCond.Model.ID == 0 {
+		logger.GetLogger().Warn("no cond to trade")
+		<-tmpChan
+	}
+	logger.GetLogger().Warnf("BestForward is %+v", global.ForwardCond)
+	logger.GetLogger().Warnf("BestReverse is %+v", global.ReverseCond)
+	simulateprocess.ClearAllNotBest()
 }
 
 func simulationPrompt() []string {

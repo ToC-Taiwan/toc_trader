@@ -532,9 +532,9 @@ func generateForwardConds(historyCount int) []*simulationcond.AnalyzeCondition {
 									CloseChangeRatioLow:   float64(g),
 									CloseChangeRatioHigh:  float64(h),
 									OpenChangeRatio:       3,
-									RsiHigh:               i,
+									RsiHigh:               math.Round(i*10) / 10,
 									TicksPeriodThreshold:  float64(o),
-									TicksPeriodLimit:      float64(o) * 1.3,
+									TicksPeriodLimit:      math.Round(float64(o)*1.3*10) / 10,
 									TicksPeriodCount:      p,
 									VolumePerSecond:       int64(v),
 								}
@@ -566,9 +566,9 @@ func generateReverseConds(historyCount int) []*simulationcond.AnalyzeCondition {
 									CloseChangeRatioLow:   float64(g),
 									CloseChangeRatioHigh:  float64(h),
 									OpenChangeRatio:       3,
-									RsiLow:                k,
+									RsiLow:                math.Round(k*10) / 10,
 									TicksPeriodThreshold:  float64(o),
-									TicksPeriodLimit:      float64(o) * 1.3,
+									TicksPeriodLimit:      math.Round(float64(o)*1.3*10) / 10,
 									TicksPeriodCount:      p,
 									VolumePerSecond:       int64(v),
 								}
