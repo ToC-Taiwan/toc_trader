@@ -83,7 +83,7 @@ func FetchLastCloseByStockArrDateArr(stockNumArr, dateArr []string) (stockLastCl
 	if err != nil {
 		return stockLastCloseMap, err
 	} else if resp.StatusCode() != http.StatusOK {
-		return stockLastCloseMap, errors.New("FetchKbarByDateRange api fail")
+		return stockLastCloseMap, errors.New("FetchLastCloseByStockArrDateArr api fail")
 	}
 	res := *resp.Result().(*[]sinopacsrv.LastCloseWithStockAndDate)
 	for _, v := range res {
