@@ -6,6 +6,7 @@ import (
 
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/analyzestreamtick"
+	"gitlab.tocraw.com/root/toc_trader/pkg/modules/biasrate"
 )
 
 var (
@@ -41,4 +42,17 @@ func SellFirstAgent(ch chan *analyzestreamtick.AnalyzeStreamTick) {
 			}
 		}
 	}
+}
+
+// GetQuantityByTradeDay GetQuantityByTradeDay
+func GetQuantityByTradeDay(stockNum, tradeDay string) int64 {
+	var quantity int64 = 2
+	biasRate := biasrate.StockBiasRateMap.GetBiasRate(stockNum, tradeDay)
+	if biasRate < 10 && biasRate > -10 {
+		quantity = 1
+	}
+	if biasRate == 0 {
+		return 0
+	}
+	return quantity
 }

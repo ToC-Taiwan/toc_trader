@@ -768,6 +768,9 @@ var doc = `{
                 "is_best_reverse": {
                     "type": "boolean"
                 },
+                "negative_days": {
+                    "type": "integer"
+                },
                 "positive_days": {
                     "type": "integer"
                 },

@@ -38,6 +38,35 @@ git check-ignore *
 ### Balance Sample
 
 ```json
+[
+  {
+    "trade_day": "2021-11-24T08:00:00+08:00",
+    "trade_count": 4,
+    "forward": 709,
+    "reverse": 0,
+    "original_balance": 709,
+    "discount": 229,
+    "total": 938
+  },
+  {
+    "trade_day": "2021-11-25T08:00:00+08:00",
+    "trade_count": 7,
+    "forward": 0,
+    "reverse": 783,
+    "original_balance": 783,
+    "discount": 424,
+    "total": 1207
+  },
+  {
+    "trade_day": "2021-11-26T08:00:00+08:00",
+    "trade_count": 3,
+    "forward": -450,
+    "reverse": 819,
+    "original_balance": 369,
+    "discount": 139,
+    "total": 508
+  }
+]
 ```
 
 ### Trade Bot Service

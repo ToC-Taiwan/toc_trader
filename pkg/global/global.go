@@ -12,8 +12,6 @@ const (
 	ExitSignal int = 1
 	// TradeYear TradeYear
 	TradeYear int64 = 2021
-	// OneTimeQuantity OneTimeQuantity
-	OneTimeQuantity int64 = 1
 	// LongTimeLayout LongTimeLayout
 	LongTimeLayout string = "2006-01-02 15:04:05"
 	// ShortTimeLayout ShortTimeLayout

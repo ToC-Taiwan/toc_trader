@@ -32,13 +32,18 @@ var ManualSellMap tradeRecordMutexMap
 
 // BuyBot BuyBot
 func BuyBot(analyzeTick *analyzestreamtick.AnalyzeStreamTick) {
-	buyCost := GetStockBuyCost(analyzeTick.Close, global.OneTimeQuantity)
+	quantity := GetQuantityByTradeDay(analyzeTick.StockNum, global.TradeDay.Format(global.ShortTimeLayout))
+	if quantity == 0 {
+		logger.Log.Warnf("%s quantity is 0", analyzeTick.StockNum)
+		return
+	}
+	buyCost := GetStockBuyCost(analyzeTick.Close, quantity)
 	if BuyOrderMap.GetCount() < global.TradeSwitch.MeanTimeTradeStockNum && TradeQuota-buyCost > 0 {
-		if order, err := PlaceOrder(BuyAction, analyzeTick.StockNum, global.OneTimeQuantity, analyzeTick.Close); err != nil {
+		if order, err := PlaceOrder(BuyAction, analyzeTick.StockNum, quantity, analyzeTick.Close); err != nil {
 			logger.GetLogger().WithFields(map[string]interface{}{
 				"Msg":      err,
 				"StockNum": analyzeTick.StockNum,
-				"Quantity": global.OneTimeQuantity,
+				"Quantity": quantity,
 				"Price":    analyzeTick.Close,
 			}).Error("Buy fail")
 		} else if order.OrderID != "" && order.Status != traderecord.Failed {
@@ -46,7 +51,7 @@ func BuyBot(analyzeTick *analyzestreamtick.AnalyzeStreamTick) {
 			record := traderecord.TradeRecord{
 				StockNum:  analyzeTick.StockNum,
 				Price:     analyzeTick.Close,
-				Quantity:  global.OneTimeQuantity,
+				Quantity:  quantity,
 				Action:    int64(BuyAction),
 				BuyCost:   buyCost,
 				TradeTime: time.Unix(0, analyzeTick.TimeStamp),
@@ -72,21 +77,22 @@ func SellBot(ch chan *streamtick.StreamTick, cond simulationcond.AnalyzeConditio
 		}
 		if !SellOrderMap.CheckStockExist(tick.StockNum) {
 			originalOrderClose := BuyOrderMap.GetClose(tick.StockNum)
+			quantity := GetQuantityByTradeDay(tick.StockNum, global.TradeDay.Format(global.ShortTimeLayout))
 			sellPrice := GetSellPrice(tick, BuyOrderMap.GetTradeTime(tick.StockNum), *historyClosePtr, originalOrderClose, maxClose, cond)
 			if sellPrice == 0 {
 				continue
-			} else if order, err := PlaceOrder(SellAction, tick.StockNum, global.OneTimeQuantity, sellPrice); err != nil {
+			} else if order, err := PlaceOrder(SellAction, tick.StockNum, quantity, sellPrice); err != nil {
 				logger.GetLogger().WithFields(map[string]interface{}{
 					"Msg":      err,
 					"Stock":    tick.StockNum,
-					"Quantity": global.OneTimeQuantity,
+					"Quantity": quantity,
 					"Price":    sellPrice,
 				}).Error("Sell fail")
 			} else if order.OrderID != "" && order.Status != traderecord.Failed {
 				record := traderecord.TradeRecord{
 					StockNum:  tick.StockNum,
 					Price:     sellPrice,
-					Quantity:  global.OneTimeQuantity,
+					Quantity:  quantity,
 					Action:    int64(SellAction),
 					TradeTime: time.Unix(0, tick.TimeStamp),
 					OrderID:   order.OrderID,

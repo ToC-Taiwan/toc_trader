@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/go-resty/resty/v2"
 	"gitlab.tocraw.com/root/toc_trader/external/sinopacsrv"
 	"gitlab.tocraw.com/root/toc_trader/init/sysparminit"
 	"gitlab.tocraw.com/root/toc_trader/internal/database"
@@ -19,6 +20,7 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/entiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/snapshot"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/volumerank"
+	"gitlab.tocraw.com/root/toc_trader/pkg/modules/biasrate"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/fetchentiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/importbasic"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/subscribe"
@@ -152,7 +154,8 @@ func UpdateStockCloseMapByDate(stockNumArr []string, dateArr []time.Time) (noClo
 		logger.GetLogger().WithFields(map[string]interface{}{
 			"Date": date.Format(global.ShortTimeLayout),
 		}).Infof("Update Stock Close")
-		resp, err := restful.GetClient().R().
+		var resp *resty.Response
+		resp, err = restful.GetClient().R().
 			SetHeader("X-Date", date.Format(global.ShortTimeLayout)).
 			SetBody(stockArr).
 			SetResult(&[]sinopacsrv.StockLastCount{}).
@@ -167,12 +170,14 @@ func UpdateStockCloseMapByDate(stockNumArr []string, dateArr []time.Time) (noClo
 			if len(val.Close) != 0 {
 				global.StockCloseByDateMap.Set(val.Date, val.Code, val.Close[0])
 			} else {
-				tmpClose, err := entiretick.GetLastCloseByDate(val.Code, val.Date, database.GetAgent())
+				var tmpClose float64
+				tmpClose, err = entiretick.GetLastCloseByDate(val.Code, val.Date, database.GetAgent())
 				if err != nil {
 					return noCloseArr, err
 				}
 				if tmpClose == 0 {
-					res, err := fetchentiretick.FetchByDate(val.Code, val.Date)
+					var res []*entiretick.EntireTick
+					res, err = fetchentiretick.FetchByDate(val.Code, val.Date)
 					if err != nil {
 						return noCloseArr, err
 					}
@@ -182,7 +187,7 @@ func UpdateStockCloseMapByDate(stockNumArr []string, dateArr []time.Time) (noClo
 						continue
 					} else {
 						fetchSaveLock.Lock()
-						if err := entiretick.InsertMultiRecord(res, database.GetAgent()); err != nil {
+						if err = entiretick.InsertMultiRecord(res, database.GetAgent()); err != nil {
 							return noCloseArr, err
 						}
 						fetchSaveLock.Unlock()
@@ -259,6 +264,10 @@ func AddTop10RankTarget() {
 		} else if time.Now().After(global.TradeDay.Add(1*time.Hour + 10*time.Minute)) {
 			count = len(newTargetArr)
 			if count != 0 {
+				if err := biasrate.GetBiasRateByStockNumAndDate(newTargetArr, global.TradeDay); err != nil {
+					logger.GetLogger().Error(err)
+					continue
+				}
 				SubscribeTarget(&newTargetArr)
 				global.TargetArr = append(global.TargetArr, newTargetArr...)
 			}

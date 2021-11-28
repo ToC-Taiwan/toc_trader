@@ -92,16 +92,38 @@ func DeleteAllNotBest(db *gorm.DB) error {
 
 // GetBestForwardSimulateResultByTradeDay GetBestForwardSimulateResultByTradeDay
 func GetBestForwardSimulateResultByTradeDay(tradeDay time.Time, db *gorm.DB) (cond Result, err error) {
-	var beforeSort []Result
+	var resultA, resultB []Result
 	err = db.Preload("Cond").
 		Where("trade_day = ?", tradeDay).
 		Where("positive_days = total_days").
 		Where("trade_count != positive_days").
 		Where("forward_balance != 0").
 		Order("balance/trade_count desc").
-		Find(&beforeSort).Error
+		Find(&resultA).Error
 	if err != nil {
 		return cond, err
+	}
+	err = db.Preload("Cond").
+		Where("trade_day = ?", tradeDay).
+		Where("negative_days = 0").
+		Where("forward_balance != 0").
+		Order("balance/trade_count desc").
+		Find(&resultB).Error
+	if err != nil {
+		return cond, err
+	}
+	var beforeSort []Result
+	switch {
+	case len(resultA) != 0 && len(resultB) != 0:
+		if resultA[0].Balance > resultB[0].Balance {
+			beforeSort = resultA
+		} else {
+			beforeSort = resultB
+		}
+	case len(resultA) == 0 && len(resultB) != 0:
+		beforeSort = resultB
+	case len(resultA) != 0 && len(resultB) == 0:
+		beforeSort = resultA
 	}
 	if len(beforeSort) == 0 {
 		return cond, err
@@ -124,16 +146,38 @@ func GetBestForwardSimulateResultByTradeDay(tradeDay time.Time, db *gorm.DB) (co
 
 // GetBestReverseSimulateResultByTradeDay GetBestReverseSimulateResultByTradeDay
 func GetBestReverseSimulateResultByTradeDay(tradeDay time.Time, db *gorm.DB) (cond Result, err error) {
-	var beforeSort []Result
+	var resultA, resultB []Result
 	err = db.Preload("Cond").
 		Where("trade_day = ?", tradeDay).
 		Where("positive_days = total_days").
 		Where("trade_count != positive_days").
 		Where("reverse_balance != 0").
 		Order("balance/trade_count desc").
-		Find(&beforeSort).Error
+		Find(&resultA).Error
 	if err != nil {
 		return cond, err
+	}
+	err = db.Preload("Cond").
+		Where("trade_day = ?", tradeDay).
+		Where("negative_days = 0").
+		Where("reverse_balance != 0").
+		Order("balance/trade_count desc").
+		Find(&resultB).Error
+	if err != nil {
+		return cond, err
+	}
+	var beforeSort []Result
+	switch {
+	case len(resultA) != 0 && len(resultB) != 0:
+		if resultA[0].Balance > resultB[0].Balance {
+			beforeSort = resultA
+		} else {
+			beforeSort = resultB
+		}
+	case len(resultA) == 0 && len(resultB) != 0:
+		beforeSort = resultB
+	case len(resultA) != 0 && len(resultB) == 0:
+		beforeSort = resultA
 	}
 	if len(beforeSort) == 0 {
 		return cond, err

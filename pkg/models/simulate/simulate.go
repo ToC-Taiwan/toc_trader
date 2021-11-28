@@ -17,6 +17,7 @@ type Result struct {
 	TotalLoss      int64                           `gorm:"column:total_loss;" json:"total_loss"`
 	TradeCount     int64                           `gorm:"column:trade_count;" json:"trade_count"`
 	PositiveDays   int64                           `gorm:"column:positive_days;" json:"positive_days"`
+	NegativeDays   int64                           `gorm:"column:negative_days;" json:"negative_days"`
 	TotalDays      int64                           `gorm:"column:total_days;" json:"total_days"`
 	IsBestForward  bool                            `gorm:"column:is_best_forward;" json:"is_best_forward"`
 	IsBestReverse  bool                            `gorm:"column:is_best_reverse;" json:"is_best_reverse"`

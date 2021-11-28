@@ -86,3 +86,12 @@ type SinopacHealthStatus struct {
 	UpTimeMin   int64  `json:"up_time_min"`
 	ServerToken string `json:"server_token"`
 }
+
+// LastCloseWithStockAndDate LastCloseWithStockAndDate
+type LastCloseWithStockAndDate struct {
+	StockNum string `json:"stock_num"`
+	CloseArr []struct {
+		Date  string  `json:"date"`
+		Close float64 `json:"close"`
+	} `json:"close_arr"`
+}

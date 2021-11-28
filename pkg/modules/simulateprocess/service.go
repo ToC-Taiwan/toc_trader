@@ -17,6 +17,7 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/entiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulate"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulationcond"
+	"gitlab.tocraw.com/root/toc_trader/pkg/modules/biasrate"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/choosetarget"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/fetchentiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/importbasic"
@@ -108,12 +109,14 @@ func Simulate(simType, discardOT, useDefault, dayCount string) {
 			targetArrMap.saveByDate(tradeDayArr[i-1].Format(global.ShortTimeLayout), targets)
 			tmp := []time.Time{tradeDayArr[i-1]}
 			fetchentiretick.FetchEntireTick(targets, tmp, global.BaseCond)
+			if err := biasrate.GetBiasRateByStockNumAndDate(targets, tradeDayArr[i-1]); err != nil {
+				logger.GetLogger().Panic(err)
+			}
 			storeAllEntireTick(targets, tmp)
 		}
 	}
 	simulateDayArr = tradeDayArr
-	logger.GetLogger().Info("Fetch Done")
-	logger.GetLogger().Info("Start Simulate")
+	logger.GetLogger().Info("Fetch Done, Start Simulate")
 
 	resultChan = make(chan simulate.Result)
 	totalTimesChan = make(chan int)
@@ -230,11 +233,15 @@ func SearchTradePoint(tradeDayArr []time.Time, cond simulationcond.AnalyzeCondit
 func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.AnalyzeEntireTick, cond simulationcond.AnalyzeCondition, wg *sync.WaitGroup) {
 	defer wg.Done()
 	var forwardBalance, reverseBalance, totalLoss int64
-	var tradeCount, positiveCount int64
+	var tradeCount, positiveCount, negativeCount int64
 	for date, analyzeMapArr := range analyzeMapMap {
 		sellTimeStamp := make(map[string]int64)
 		var dateForwardBalance, dateReverseBalance int64
 		for stockNum, v := range analyzeMapArr[0] {
+			quantity := tradebot.GetQuantityByTradeDay(stockNum, date)
+			if quantity == 0 {
+				continue
+			}
 			ticks := allTickMap.getAllTicksByStockNumAndDate(stockNum, date)
 			endTradeInTime := getLastTradeInTimeByEntireTickTimeStamp(ticks[0].TimeStamp)
 			endTradeOutTime := getLastTradeOutTimeByEntireTickTimeStamp(ticks[0].TimeStamp)
@@ -269,9 +276,9 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 					}
 				}
 			}
-			buyCost := tradebot.GetStockBuyCost(buyPrice, global.OneTimeQuantity)
-			sellCost := tradebot.GetStockSellCost(sellPrice, global.OneTimeQuantity)
-			back := tradebot.GetStockTradeFeeDiscount(buyPrice, global.OneTimeQuantity) + tradebot.GetStockTradeFeeDiscount(sellPrice, global.OneTimeQuantity)
+			buyCost := tradebot.GetStockBuyCost(buyPrice, quantity)
+			sellCost := tradebot.GetStockSellCost(sellPrice, quantity)
+			back := tradebot.GetStockTradeFeeDiscount(buyPrice, quantity) + tradebot.GetStockTradeFeeDiscount(sellPrice, quantity)
 			tmpBalance := (sellCost - buyCost + back)
 			forwardBalance += tmpBalance
 			dateForwardBalance += tmpBalance
@@ -279,18 +286,20 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 				totalLoss += tmpBalance
 			}
 			if useGlobal && tmpBalance != 0 {
-				buyTime := time.Unix(0, v.TimeStamp).Add(-8 * time.Hour)
-				sellTime := time.Unix(0, sellTimeStamp[v.StockNum]).Add(-8 * time.Hour)
 				logger.GetLogger().WithFields(map[string]interface{}{
-					"Balance": tmpBalance,
-					"Name":    global.AllStockNameMap.GetName(v.StockNum),
-					"BuyAt":   buyTime.Format(global.LongTimeLayout)[11:],
-					"SellAt":  sellTime.Format(global.LongTimeLayout)[11:],
+					"Balance":      tmpBalance,
+					"Name":         global.AllStockNameMap.GetName(v.StockNum),
+					"Quantity":     quantity,
+					"TotalTime(s)": (sellTimeStamp[v.StockNum] - v.TimeStamp) / 1000 / 1000 / 1000,
 				}).Warn("Forward Balance")
 			}
 		}
 		sellTimeStamp = make(map[string]int64)
 		for stockNum, v := range analyzeMapArr[1] {
+			quantity := tradebot.GetQuantityByTradeDay(stockNum, date)
+			if quantity == 0 {
+				continue
+			}
 			ticks := allTickMap.getAllTicksByStockNumAndDate(stockNum, date)
 			endTradeInTime := getLastTradeInTimeByEntireTickTimeStamp(ticks[0].TimeStamp)
 			endTradeOutTime := getLastTradeOutTimeByEntireTickTimeStamp(ticks[0].TimeStamp)
@@ -325,9 +334,9 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 					}
 				}
 			}
-			buyCost := tradebot.GetStockBuyCost(buyLaterPrice, global.OneTimeQuantity)
-			sellCost := tradebot.GetStockSellCost(sellFirstPrice, global.OneTimeQuantity)
-			back := tradebot.GetStockTradeFeeDiscount(buyLaterPrice, global.OneTimeQuantity) + tradebot.GetStockTradeFeeDiscount(sellFirstPrice, global.OneTimeQuantity)
+			buyCost := tradebot.GetStockBuyCost(buyLaterPrice, quantity)
+			sellCost := tradebot.GetStockSellCost(sellFirstPrice, quantity)
+			back := tradebot.GetStockTradeFeeDiscount(buyLaterPrice, quantity) + tradebot.GetStockTradeFeeDiscount(sellFirstPrice, quantity)
 			tmpBalance := (sellCost - buyCost + back)
 			reverseBalance += tmpBalance
 			dateReverseBalance += tmpBalance
@@ -335,18 +344,18 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 				totalLoss += tmpBalance
 			}
 			if useGlobal && tmpBalance != 0 {
-				sellFirstTime := time.Unix(0, v.TimeStamp).Add(-8 * time.Hour)
-				buyLaterTime := time.Unix(0, sellTimeStamp[v.StockNum]).Add(-8 * time.Hour)
 				logger.GetLogger().WithFields(map[string]interface{}{
-					"Balance":     tmpBalance,
-					"Name":        global.AllStockNameMap.GetName(v.StockNum),
-					"SellFirstAt": sellFirstTime.Format(global.LongTimeLayout)[11:],
-					"BuyLaterAt":  buyLaterTime.Format(global.LongTimeLayout)[11:],
+					"Balance":      tmpBalance,
+					"Name":         global.AllStockNameMap.GetName(v.StockNum),
+					"Quantity":     quantity,
+					"TotalTime(s)": (sellTimeStamp[v.StockNum] - v.TimeStamp) / 1000 / 1000 / 1000,
 				}).Warn("Reverse Balance")
 			}
 		}
 		if dateForwardBalance+dateReverseBalance > 0 {
 			positiveCount++
+		} else if dateForwardBalance+dateReverseBalance < 0 {
+			negativeCount++
 		}
 		if useGlobal {
 			logger.GetLogger().WithFields(map[string]interface{}{
@@ -364,6 +373,7 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 		TradeDay:       global.TradeDay,
 		Cond:           cond,
 		PositiveDays:   positiveCount,
+		NegativeDays:   negativeCount,
 		TotalDays:      int64(len(analyzeMapMap)),
 	}
 	resultChan <- tmp

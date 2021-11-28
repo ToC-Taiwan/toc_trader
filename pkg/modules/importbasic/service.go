@@ -165,6 +165,23 @@ func GetLastNTradeDay(n int64) (lastTradeDayArr []time.Time, err error) {
 	return lastTradeDayArr, err
 }
 
+// GetLastNTradeDayByDate GetLastNTradeDayByDate
+func GetLastNTradeDayByDate(tradeDate time.Time, n int64) (lastTradeDayArr []time.Time, err error) {
+	var tmp time.Time
+	for {
+		if len(lastTradeDayArr) == int(n) {
+			break
+		}
+		tmp, err = GetLastTradeDayTime(tradeDate)
+		if err != nil {
+			return lastTradeDayArr, err
+		}
+		lastTradeDayArr = append(lastTradeDayArr, tmp)
+		tradeDate = tmp
+	}
+	return lastTradeDayArr, err
+}
+
 // GetNextTradeDayTime GetNextTradeDayTime
 func GetNextTradeDayTime(nowTime time.Time) (tradeDay time.Time, err error) {
 	tmp := time.Date(nowTime.Year(), nowTime.Month(), nowTime.Day(), 0, 0, 0, 0, time.UTC)

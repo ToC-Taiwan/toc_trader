@@ -10,6 +10,7 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/stock"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/targetstock"
+	"gitlab.tocraw.com/root/toc_trader/pkg/modules/biasrate"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/choosetarget"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/fetchentiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/importbasic"
@@ -76,22 +77,27 @@ func TradeProcess() {
 			"Name": global.AllStockNameMap.GetName(v),
 		}).Infof("Volume Rank")
 	}
-	// UnSubscribeAll first
-	choosetarget.UnSubscribeAll()
-	// Simtrade collect
-	go subscribe.SimTradeCollector(len(global.TargetArr) * 3)
-	// Subscribe all target
-	choosetarget.SubscribeTarget(&global.TargetArr)
+	// Fill BiasRate Map
+	if err = biasrate.GetBiasRateByStockNumAndDate(global.TargetArr, global.TradeDay); err != nil {
+		logger.GetLogger().Panic(err)
+	}
 	// fetch entiretick
 	fetchentiretick.FetchEntireTick(global.TargetArr, []time.Time{global.LastTradeDay}, global.BaseCond)
-
 	// Fetch Kbar
 	kbarTradeDayArr, err := importbasic.GetLastNTradeDay(sysparminit.GlobalSettings.GetKbarPeriod())
 	if err != nil {
 		logger.GetLogger().Panic(err)
 	}
 	fetchentiretick.FetchKbar(global.TargetArr, kbarTradeDayArr[len(kbarTradeDayArr)-1], kbarTradeDayArr[0])
-	logger.GetLogger().Info("FetchEntireTick and Kbar Done")
+	// Done Fetch
+	logger.GetLogger().Info("FetchEntireTick and FetchKbar Done")
+
+	// UnSubscribeAll first
+	choosetarget.UnSubscribeAll()
+	// Simtrade collect
+	go subscribe.SimTradeCollector(len(global.TargetArr) * 3)
+	// Subscribe all target
+	choosetarget.SubscribeTarget(&global.TargetArr)
 
 	// Background get trade record
 	go tradebot.CheckOrderStatusLoop()
@@ -102,5 +108,5 @@ func TradeProcess() {
 	// Add Top Rank Targets
 	go choosetarget.AddTop10RankTarget()
 
-	logger.GetLogger().Info("Background Tasks Started")
+	logger.GetLogger().Info("TradeProcess Success Started")
 }

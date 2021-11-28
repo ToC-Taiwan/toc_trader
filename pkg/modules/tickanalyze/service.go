@@ -84,3 +84,15 @@ func GetReverseRSIStatus(input []float64, rsiLowLimit float64) bool {
 	}
 	return float64(result)/float64(part) < rsiLowLimit
 }
+
+// GenerareMAByCount GenerareMAByCount
+func GenerareMAByCount(input []float64, n int) (lastMa float64, err error) {
+	if len(input) == 0 || len(input) == 1 {
+		return 0, errors.New("input is empty or length is 1")
+	}
+	maArr := talib.Ma(input, n, talib.SMA)
+	if len(maArr) == 0 {
+		return 0, errors.New("no ma")
+	}
+	return maArr[len(maArr)-1], err
+}
