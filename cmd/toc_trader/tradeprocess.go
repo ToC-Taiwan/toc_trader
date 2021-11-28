@@ -10,7 +10,6 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/stock"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/targetstock"
-	"gitlab.tocraw.com/root/toc_trader/pkg/modules/biasrate"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/choosetarget"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/fetchentiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/importbasic"
@@ -70,6 +69,13 @@ func TradeProcess() {
 	if len(global.TargetArr) == 0 {
 		logger.GetLogger().Panic("No target")
 	}
+	// UnSubscribeAll first
+	choosetarget.UnSubscribeAll()
+	// Simtrade collect
+	go subscribe.SimTradeCollector()
+	// Subscribe all target
+	choosetarget.SubscribeTarget(&global.TargetArr)
+	// list targets
 	for i, v := range global.TargetArr {
 		logger.GetLogger().WithFields(map[string]interface{}{
 			"Date": global.LastTradeDay.Format(global.ShortTimeLayout),
@@ -77,11 +83,8 @@ func TradeProcess() {
 			"Name": global.AllStockNameMap.GetName(v),
 		}).Infof("Volume Rank")
 	}
-	// Fill BiasRate Map
-	if err = biasrate.GetBiasRateByStockNumAndDate(global.TargetArr, global.TradeDay); err != nil {
-		logger.GetLogger().Panic(err)
-	}
 	// fetch entiretick
+	logger.GetLogger().Info("FetchEntireTick and FetchKbar")
 	fetchentiretick.FetchEntireTick(global.TargetArr, []time.Time{global.LastTradeDay}, global.BaseCond)
 	// Fetch Kbar
 	kbarTradeDayArr, err := importbasic.GetLastNTradeDay(sysparminit.GlobalSettings.GetKbarPeriod())
@@ -89,16 +92,7 @@ func TradeProcess() {
 		logger.GetLogger().Panic(err)
 	}
 	fetchentiretick.FetchKbar(global.TargetArr, kbarTradeDayArr[len(kbarTradeDayArr)-1], kbarTradeDayArr[0])
-	// Done Fetch
 	logger.GetLogger().Info("FetchEntireTick and FetchKbar Done")
-
-	// UnSubscribeAll first
-	choosetarget.UnSubscribeAll()
-	// Simtrade collect
-	go subscribe.SimTradeCollector(len(global.TargetArr) * 3)
-	// Subscribe all target
-	choosetarget.SubscribeTarget(&global.TargetArr)
-
 	// Background get trade record
 	go tradebot.CheckOrderStatusLoop()
 	// Init quota and tradeday order map
@@ -107,6 +101,5 @@ func TradeProcess() {
 	go choosetarget.TSEProcess()
 	// Add Top Rank Targets
 	go choosetarget.AddTop10RankTarget()
-
 	logger.GetLogger().Info("TradeProcess Success Started")
 }

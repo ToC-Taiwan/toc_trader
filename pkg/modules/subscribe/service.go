@@ -189,8 +189,8 @@ func UnSubscribeAll(dataType TickType) {
 }
 
 // SimTradeCollector SimTradeCollector
-func SimTradeCollector(buffer int) {
-	SimTradeChannel = make(chan int, buffer)
+func SimTradeCollector() {
+	SimTradeChannel = make(chan int)
 	printMinute := time.Now().Minute()
 	var count int
 	for {

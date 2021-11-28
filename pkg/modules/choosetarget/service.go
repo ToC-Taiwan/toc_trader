@@ -70,6 +70,11 @@ func SubscribeTarget(targetArr *[]string) {
 		}
 		*targetArr = subArr
 	}
+	// Fill BiasRate Map
+	if err = biasrate.GetBiasRateByStockNumAndDate(*targetArr, global.TradeDay); err != nil {
+		logger.GetLogger().Error(err)
+		return
+	}
 	subscribe.SubStreamTick(*targetArr)
 }
 
@@ -264,10 +269,6 @@ func AddTop10RankTarget() {
 		} else if time.Now().After(global.TradeDay.Add(1*time.Hour + 10*time.Minute)) {
 			count = len(newTargetArr)
 			if count != 0 {
-				if err := biasrate.GetBiasRateByStockNumAndDate(newTargetArr, global.TradeDay); err != nil {
-					logger.GetLogger().Error(err)
-					continue
-				}
 				SubscribeTarget(&newTargetArr)
 				global.TargetArr = append(global.TargetArr, newTargetArr...)
 			}

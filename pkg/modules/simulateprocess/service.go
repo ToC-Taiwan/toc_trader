@@ -240,6 +240,7 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 		for stockNum, v := range analyzeMapArr[0] {
 			quantity := tradebot.GetQuantityByTradeDay(stockNum, date)
 			if quantity == 0 {
+				logger.GetLogger().Warnf("%s on %s quantity is 0", stockNum, date)
 				continue
 			}
 			ticks := allTickMap.getAllTicksByStockNumAndDate(stockNum, date)
@@ -298,6 +299,7 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 		for stockNum, v := range analyzeMapArr[1] {
 			quantity := tradebot.GetQuantityByTradeDay(stockNum, date)
 			if quantity == 0 {
+				logger.GetLogger().Warnf("%s on %s quantity is 0", stockNum, date)
 				continue
 			}
 			ticks := allTickMap.getAllTicksByStockNumAndDate(stockNum, date)
