@@ -531,7 +531,7 @@ func generateForwardConds(historyCount int) []*simulationcond.AnalyzeCondition {
 	var conds []*simulationcond.AnalyzeCondition
 	var i float64
 	for m := 95; m >= 85; m -= 5 {
-		for g := -2; g <= -2; g++ {
+		for g := 0; g <= 0; g++ {
 			for h := 6; h >= 6; h-- {
 				for i = 0.9; math.Round(i*10)/10 >= 0.7; i -= 0.1 {
 					for o := 12; o >= 4; o -= 4 {
@@ -543,7 +543,7 @@ func generateForwardConds(historyCount int) []*simulationcond.AnalyzeCondition {
 									ForwardOutInRatio:     float64(m),
 									CloseChangeRatioLow:   float64(g),
 									CloseChangeRatioHigh:  float64(h),
-									OpenChangeRatio:       3,
+									OpenChangeRatio:       4,
 									RsiHigh:               math.Round(i*10) / 10,
 									TicksPeriodThreshold:  float64(o),
 									TicksPeriodLimit:      math.Round(float64(o)*1.3*10) / 10,
@@ -565,7 +565,7 @@ func generateReverseConds(historyCount int) []*simulationcond.AnalyzeCondition {
 	var conds []*simulationcond.AnalyzeCondition
 	var k float64
 	for u := 5; u <= 15; u += 5 {
-		for g := 0; g <= 0; g++ {
+		for g := -5; g <= -5; g++ {
 			for h := 4; h >= 4; h-- {
 				for k = 0.3; math.Round(k*10)/10 >= 0.1; k -= 0.1 {
 					for o := 12; o >= 4; o -= 4 {
@@ -577,7 +577,7 @@ func generateReverseConds(historyCount int) []*simulationcond.AnalyzeCondition {
 									ReverseOutInRatio:     float64(u),
 									CloseChangeRatioLow:   float64(g),
 									CloseChangeRatioHigh:  float64(h),
-									OpenChangeRatio:       3,
+									OpenChangeRatio:       4,
 									RsiLow:                math.Round(k*10) / 10,
 									TicksPeriodThreshold:  float64(o),
 									TicksPeriodLimit:      math.Round(float64(o)*1.3*10) / 10,

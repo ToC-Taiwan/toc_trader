@@ -1,5 +1,5 @@
 # build-stage
-FROM golang:1.17.2-bullseye as build-stage
+FROM golang:1.17.3-bullseye as build-stage
 USER root
 
 ENV GO111MODULE="on"

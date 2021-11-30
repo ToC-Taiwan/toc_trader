@@ -10,10 +10,11 @@ import (
 
 // Target Target
 type Target struct {
-	gorm.Model   `json:"-" swaggerignore:"true"`
-	LastTradeDay time.Time   `gorm:"column:last_trade_day"`
-	Stock        stock.Stock `gorm:"foreignKey:StockID"`
-	StockID      int64
+	gorm.Model `json:"-" swaggerignore:"true"`
+	TradeDay   time.Time   `gorm:"column:trade_day"`
+	Rank       int64       `gorm:"column:rank"`
+	StockID    int64       `gorm:"column:stock_id"`
+	Stock      stock.Stock `gorm:"foreignKey:StockID"`
 }
 
 // TableName TableName

@@ -33,7 +33,7 @@ func TradeProcess() {
 	// Chekc if is in debug mode and simulation
 	simulatationEntry()
 	// check db targets and save if no record in db
-	dbTarget, err := targetstock.GetTargetByTime(global.LastTradeDay, database.GetAgent())
+	dbTarget, err := targetstock.GetTargetByTime(global.TradeDay, database.GetAgent())
 	if err != nil {
 		logger.GetLogger().Panic(err)
 	}
@@ -56,10 +56,11 @@ func TradeProcess() {
 		if err != nil {
 			logger.GetLogger().Panic(err)
 		}
-		for _, v := range targetStockArr {
+		for i, v := range targetStockArr {
 			savedTarget = append(savedTarget, targetstock.Target{
-				LastTradeDay: global.LastTradeDay,
-				Stock:        v,
+				TradeDay: global.TradeDay,
+				Stock:    v,
+				Rank:     int64(i) + 1,
 			})
 		}
 		if err = targetstock.InsertMultiRecord(savedTarget, database.GetAgent()); err != nil {

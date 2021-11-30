@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	tradeInWaitTime  time.Duration = 30 * time.Second
+	tradeInWaitTime  time.Duration = 15 * time.Second
 	tradeOutWaitTime time.Duration = 45 * time.Second
 )
 
@@ -18,7 +18,7 @@ var (
 func BuyAgent(ch chan *analyzestreamtick.AnalyzeStreamTick) {
 	for {
 		analyzeTick := <-ch
-		if BuyOrderMap.CheckStockExist(analyzeTick.StockNum) || FilledBuyOrderMap.CheckStockExist(analyzeTick.StockNum) || SellFirstOrderMap.CheckStockExist(analyzeTick.StockNum) {
+		if checkAlreadyTraded(analyzeTick.StockNum) {
 			continue
 		}
 		if IsBuyPoint(analyzeTick, global.ForwardCond) {
@@ -33,7 +33,7 @@ func BuyAgent(ch chan *analyzestreamtick.AnalyzeStreamTick) {
 func SellFirstAgent(ch chan *analyzestreamtick.AnalyzeStreamTick) {
 	for {
 		analyzeTick := <-ch
-		if SellFirstOrderMap.CheckStockExist(analyzeTick.StockNum) || FilledSellFirstOrderMap.CheckStockExist(analyzeTick.StockNum) || BuyOrderMap.CheckStockExist(analyzeTick.StockNum) {
+		if checkAlreadyTraded(analyzeTick.StockNum) {
 			continue
 		}
 		if IsSellFirstPoint(analyzeTick, global.ReverseCond) {
@@ -44,6 +44,16 @@ func SellFirstAgent(ch chan *analyzestreamtick.AnalyzeStreamTick) {
 	}
 }
 
+func checkAlreadyTraded(stockNum string) bool {
+	if BuyOrderMap.CheckStockExist(stockNum) || FilledBuyOrderMap.CheckStockExist(stockNum) {
+		return true
+	}
+	if SellFirstOrderMap.CheckStockExist(stockNum) || FilledSellFirstOrderMap.CheckStockExist(stockNum) {
+		return true
+	}
+	return false
+}
+
 // GetQuantityByTradeDay GetQuantityByTradeDay
 func GetQuantityByTradeDay(stockNum, tradeDay string) int64 {
 	var quantity int64 = 2
@@ -51,8 +61,8 @@ func GetQuantityByTradeDay(stockNum, tradeDay string) int64 {
 	if biasRate < 10 && biasRate > -10 {
 		quantity = 1
 	}
-	if biasRate == 0 {
-		return 0
-	}
+	// if biasRate == 0 {
+	// 	return 0
+	// }
 	return quantity
 }

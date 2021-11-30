@@ -262,7 +262,7 @@ func AddTop10RankTarget() {
 			continue
 		}
 		var count int
-		if newTargetArr, err := GetTopTarget(10); err != nil {
+		if newTargetArr, err := GetTopTarget(3); err != nil {
 			logger.GetLogger().Error(err)
 			continue
 			// Start from 9:10 every 30 seconds

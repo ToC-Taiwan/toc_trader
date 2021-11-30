@@ -3,7 +3,7 @@
 [![pipeline status](https://gitlab.tocraw.com/root/toc_trader/badges/main/pipeline.svg)](https://gitlab.tocraw.com/root/toc_trader/-/commits/main)
 [![coverage report](https://gitlab.tocraw.com/root/toc_trader/badges/main/coverage.svg)](https://gitlab.tocraw.com/root/toc_trader/-/commits/main)
 [![Maintained](https://img.shields.io/badge/Maintained-yes-green)](https://gitlab.tocraw.com/root/toc_trader)
-[![Go](https://img.shields.io/badge/Go-1.17.2-blue?logo=go&logoColor=blue)](https://golang.org)
+[![Go](https://img.shields.io/badge/Go-1.17.3-blue?logo=go&logoColor=blue)](https://golang.org)
 [![OS](https://img.shields.io/badge/OS-Linux-orange?logo=linux&logoColor=orange)](https://www.linux.org/)
 [![Container](https://img.shields.io/badge/Container-Docker-blue?logo=docker&logoColor=blue)](https://www.docker.com/)
 
@@ -65,6 +65,24 @@ git check-ignore *
     "original_balance": 369,
     "discount": 139,
     "total": 508
+  },
+  {
+    "trade_day": "2021-11-29T08:00:00+08:00",
+    "trade_count": 3,
+    "forward": 12,
+    "reverse": -309,
+    "original_balance": -297,
+    "discount": 123,
+    "total": -174
+  },
+  {
+    "trade_day": "2021-11-30T08:00:00+08:00",
+    "trade_count": 9,
+    "forward": -1896,
+    "reverse": 13,
+    "original_balance": -1883,
+    "discount": 474,
+    "total": -1409
   }
 ]
 ```
