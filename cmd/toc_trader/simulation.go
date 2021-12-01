@@ -42,7 +42,7 @@ func getConds() {
 		logger.GetLogger().Panic(err)
 	}
 	if global.ForwardCond.Model.ID == 0 {
-		simulateprocess.Simulate("a", "n", "n", "1")
+		simulateprocess.Simulate("a", "n", "n", "2")
 		global.ForwardCond, err = simulate.GetBestForwardCondByTradeDay(global.TradeDay, database.GetAgent())
 		if err != nil {
 			logger.GetLogger().Panic(err)
@@ -53,7 +53,7 @@ func getConds() {
 		logger.GetLogger().Panic(err)
 	}
 	if global.ReverseCond.Model.ID == 0 {
-		simulateprocess.Simulate("b", "n", "n", "1")
+		simulateprocess.Simulate("b", "n", "n", "2")
 		global.ReverseCond, err = simulate.GetBestReverseCondByTradeDay(global.TradeDay, database.GetAgent())
 		if err != nil {
 			logger.GetLogger().Panic(err)
@@ -63,8 +63,22 @@ func getConds() {
 		logger.GetLogger().Warn("no cond to trade")
 		<-tmpChan
 	}
-	logger.GetLogger().Warnf("BestForward is %+v", global.ForwardCond)
-	logger.GetLogger().Warnf("BestReverse is %+v", global.ReverseCond)
+	forwardResult, err := simulate.GetResultByCond(int(global.ForwardCond.ID), database.GetAgent())
+	if err != nil {
+		logger.GetLogger().Panic(err)
+	}
+	reverseResult, err := simulate.GetResultByCond(int(global.ReverseCond.ID), database.GetAgent())
+	if err != nil {
+		logger.GetLogger().Panic(err)
+	}
+	if float64(forwardResult.Balance)/float64(reverseResult.Balance) < 0.5 {
+		global.TradeSwitch.Buy = false
+		logger.GetLogger().Warn("TradeSwitch Buy is OFF")
+	}
+	if float64(forwardResult.Balance)/float64(reverseResult.Balance) > 2 {
+		global.TradeSwitch.SellFirst = false
+		logger.GetLogger().Warn("TradeSwitch SellFirst is OFF")
+	}
 	simulateprocess.ClearAllNotBest()
 }
 

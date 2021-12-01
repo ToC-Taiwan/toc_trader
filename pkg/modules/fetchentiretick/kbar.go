@@ -113,3 +113,24 @@ func FetchKbarByDateRange(stockNum string, start, end time.Time, saveCh chan *kb
 	}
 	return err
 }
+
+// FetchTSEKbarByDate FetchTSEKbarByDate
+func FetchTSEKbarByDate(date time.Time) (err error) {
+	stockAndDateArr := FetchKbarBody{
+		StartDate: date.Format(global.ShortTimeLayout),
+		EndDate:   date.Format(global.ShortTimeLayout),
+	}
+	resp, err := restful.GetClient().R().
+		SetBody(stockAndDateArr).
+		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/history/kbar/tse")
+	if err != nil {
+		return err
+	} else if resp.StatusCode() != http.StatusOK {
+		return errors.New("FetchTSEKbarByDateRange api fail")
+	}
+	res := kbar.KbarArrProto{}
+	if err = proto.Unmarshal(resp.Body(), &res); err != nil {
+		return err
+	}
+	return err
+}

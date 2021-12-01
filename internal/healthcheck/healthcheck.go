@@ -18,7 +18,7 @@ func AskSinopacSRVRestart() error {
 	if err != nil {
 		return err
 	} else if resp.StatusCode() != http.StatusOK {
-		return errors.New("askSinopacSRVRestart api fail")
+		return errors.New("AskSinopacSRVRestart api fail")
 	}
 	res := *resp.Result().(*sinopacsrv.OrderResponse)
 	if res.Status != "success" {
@@ -40,7 +40,7 @@ func GetSinopacSRVToken() (token string, err error) {
 	if err != nil {
 		return token, err
 	} else if resp.StatusCode() != http.StatusOK {
-		return token, errors.New("CheckSinopacSRVStatus api fail")
+		return token, errors.New("GetSinopacSRVToken api fail")
 	}
 	res := *resp.Result().(*sinopacsrv.SinopacHealthStatus)
 	return res.ServerToken, err

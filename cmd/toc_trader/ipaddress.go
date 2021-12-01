@@ -21,7 +21,7 @@ func sendHostIP(ip string) error {
 		logger.GetLogger().Error(err)
 		return err
 	} else if resp.StatusCode() != http.StatusOK {
-		logger.GetLogger().Error("SendCurrentIP api fail")
+		logger.GetLogger().Error("sendHostIP api fail")
 		return err
 	}
 	res := *resp.Result().(*sinopacsrv.OrderResponse)

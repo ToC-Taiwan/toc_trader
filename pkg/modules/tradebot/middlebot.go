@@ -58,7 +58,7 @@ func checkAlreadyTraded(stockNum string) bool {
 func GetQuantityByTradeDay(stockNum, tradeDay string) int64 {
 	var quantity int64 = 2
 	biasRate := biasrate.StockBiasRateMap.GetBiasRate(stockNum, tradeDay)
-	if biasRate < 10 && biasRate > -10 {
+	if biasRate < 20 && biasRate > -20 {
 		quantity = 1
 	}
 	// if biasRate == 0 {

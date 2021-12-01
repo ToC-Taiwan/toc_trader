@@ -92,38 +92,16 @@ func DeleteAllNotBest(db *gorm.DB) error {
 
 // GetBestForwardSimulateResultByTradeDay GetBestForwardSimulateResultByTradeDay
 func GetBestForwardSimulateResultByTradeDay(tradeDay time.Time, db *gorm.DB) (cond Result, err error) {
-	var resultA, resultB []Result
+	var beforeSort []Result
 	err = db.Preload("Cond").
 		Where("trade_day = ?", tradeDay).
 		Where("positive_days = total_days").
 		Where("trade_count != positive_days").
 		Where("forward_balance != 0").
 		Order("balance-total_loss desc").
-		Find(&resultA).Error
+		Find(&beforeSort).Error
 	if err != nil {
 		return cond, err
-	}
-	err = db.Preload("Cond").
-		Where("trade_day = ?", tradeDay).
-		Where("negative_days = 0").
-		Where("forward_balance != 0").
-		Order("balance-total_loss desc").
-		Find(&resultB).Error
-	if err != nil {
-		return cond, err
-	}
-	var beforeSort []Result
-	switch {
-	case len(resultA) != 0 && len(resultB) != 0:
-		if resultA[0].Balance > resultB[0].Balance {
-			beforeSort = resultA
-		} else {
-			beforeSort = resultB
-		}
-	case len(resultA) == 0 && len(resultB) != 0:
-		beforeSort = resultB
-	case len(resultA) != 0 && len(resultB) == 0:
-		beforeSort = resultA
 	}
 	if len(beforeSort) == 0 {
 		return cond, err
@@ -146,38 +124,16 @@ func GetBestForwardSimulateResultByTradeDay(tradeDay time.Time, db *gorm.DB) (co
 
 // GetBestReverseSimulateResultByTradeDay GetBestReverseSimulateResultByTradeDay
 func GetBestReverseSimulateResultByTradeDay(tradeDay time.Time, db *gorm.DB) (cond Result, err error) {
-	var resultA, resultB []Result
+	var beforeSort []Result
 	err = db.Preload("Cond").
 		Where("trade_day = ?", tradeDay).
 		Where("positive_days = total_days").
 		Where("trade_count != positive_days").
 		Where("reverse_balance != 0").
 		Order("balance-total_loss desc").
-		Find(&resultA).Error
+		Find(&beforeSort).Error
 	if err != nil {
 		return cond, err
-	}
-	err = db.Preload("Cond").
-		Where("trade_day = ?", tradeDay).
-		Where("negative_days = 0").
-		Where("reverse_balance != 0").
-		Order("balance-total_loss desc").
-		Find(&resultB).Error
-	if err != nil {
-		return cond, err
-	}
-	var beforeSort []Result
-	switch {
-	case len(resultA) != 0 && len(resultB) != 0:
-		if resultA[0].Balance > resultB[0].Balance {
-			beforeSort = resultA
-		} else {
-			beforeSort = resultB
-		}
-	case len(resultA) == 0 && len(resultB) != 0:
-		beforeSort = resultB
-	case len(resultA) != 0 && len(resultB) == 0:
-		beforeSort = resultA
 	}
 	if len(beforeSort) == 0 {
 		return cond, err
@@ -249,6 +205,15 @@ func GetAllBestForwardResultAndCond(db *gorm.DB) (data []Result, err error) {
 // GetAllBestReverseResultAndCond GetAllBestReverseResultAndCond
 func GetAllBestReverseResultAndCond(db *gorm.DB) (data []Result, err error) {
 	err = db.Preload("Cond").Where("is_best_reverse = true").Find(&data).Error
+	if err != nil {
+		return data, err
+	}
+	return data, err
+}
+
+// GetResultByCond GetResultByCond
+func GetResultByCond(condID int, db *gorm.DB) (data Result, err error) {
+	err = db.Model(&Result{}).Where("cond_id = ?", condID).Find(&data).Error
 	if err != nil {
 		return data, err
 	}

@@ -211,11 +211,32 @@ var TSE001 *snapshot.SnapShot
 
 // TSEProcess TSEProcess
 func TSEProcess() {
+	lastClose, err := GetTSE001CloseByDate(global.LastTradeDay)
+	if err != nil {
+		logger.GetLogger().Error(err)
+	}
+	logger.GetLogger().Warnf("LastTradeDay %s TSE001 last close is %.2f", global.LastTradeDay.Format(global.ShortTimeLayout), lastClose)
 	TSE001 = &snapshot.SnapShot{}
 	for {
 		tse := <-TSEChannel
 		TSE001 = tse
 	}
+}
+
+// GetTSE001CloseByDate GetTSE001CloseByDate
+func GetTSE001CloseByDate(date time.Time) (close float64, err error) {
+	var resp *resty.Response
+	resp, err = restful.GetClient().R().
+		SetHeader("X-Date", date.Format(global.ShortTimeLayout)).
+		SetResult(&[]sinopacsrv.StockLastCount{}).
+		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/history/lastcount/tse")
+	if err != nil {
+		return close, err
+	} else if resp.StatusCode() != http.StatusOK {
+		return close, errors.New("UpdateStockCloseMapByDate api fail")
+	}
+	stockLastCountArr := *resp.Result().(*[]sinopacsrv.StockLastCount)
+	return stockLastCountArr[0].Close[0], err
 }
 
 // GetVolumeRankByDate GetVolumeRankByDate

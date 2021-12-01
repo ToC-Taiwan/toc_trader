@@ -83,6 +83,15 @@ git check-ignore *
     "original_balance": -1883,
     "discount": 474,
     "total": -1409
+  },
+  {
+    "trade_day": "2021-12-01T08:00:00+08:00",
+    "trade_count": 15,
+    "forward": -3378,
+    "reverse": -4961,
+    "original_balance": -8339,
+    "discount": 1007,
+    "total": -7332
   }
 ]
 ```

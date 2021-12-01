@@ -13,3 +13,9 @@ type FetchKbarBody struct {
 	StartDate string `json:"start_date"`
 	EndDate   string `json:"end_date"`
 }
+
+// FetchTSEKbarBody FetchTSEKbarBody
+type FetchTSEKbarBody struct {
+	StartDate string `json:"start_date"`
+	EndDate   string `json:"end_date"`
+}
