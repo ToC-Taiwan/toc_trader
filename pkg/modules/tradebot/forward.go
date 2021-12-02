@@ -32,7 +32,7 @@ var ManualSellMap tradeRecordMutexMap
 
 // BuyBot BuyBot
 func BuyBot(analyzeTick *analyzestreamtick.AnalyzeStreamTick) {
-	quantity := GetQuantityByTradeDay(analyzeTick.StockNum, global.TradeDay.Format(global.ShortTimeLayout))
+	quantity := GetQuantityByTradeDay(analyzeTick.StockNum, global.TradeDay.Format(global.ShortTimeLayout), global.ForwardTrade)
 	if quantity == 0 {
 		logger.Log.Warnf("%s quantity is 0", analyzeTick.StockNum)
 		return
@@ -77,7 +77,7 @@ func SellBot(ch chan *streamtick.StreamTick, cond simulationcond.AnalyzeConditio
 		}
 		if !SellOrderMap.CheckStockExist(tick.StockNum) {
 			originalOrderClose := BuyOrderMap.GetClose(tick.StockNum)
-			quantity := GetQuantityByTradeDay(tick.StockNum, global.TradeDay.Format(global.ShortTimeLayout))
+			quantity := GetQuantityByTradeDay(tick.StockNum, global.TradeDay.Format(global.ShortTimeLayout), global.ForwardTrade)
 			sellPrice := GetSellPrice(tick, BuyOrderMap.GetTradeTime(tick.StockNum), *historyClosePtr, originalOrderClose, maxClose, cond)
 			if sellPrice == 0 {
 				continue

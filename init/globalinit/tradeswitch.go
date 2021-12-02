@@ -14,8 +14,8 @@ func init() {
 		SellFirst:                    true,
 		BuyLater:                     true,
 		UseBidAsk:                    false,
-		MeanTimeTradeStockNum:        25,
-		MeanTimeReverseTradeStockNum: 25,
+		MeanTimeTradeStockNum:        3,
+		MeanTimeReverseTradeStockNum: 3,
 	}
 
 	deployment := os.Getenv("DEPLOYMENT")

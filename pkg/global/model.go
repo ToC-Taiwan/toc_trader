@@ -11,3 +11,13 @@ type SystemSwitch struct {
 	MeanTimeTradeStockNum        int  `json:"mean_time_trade_stock_num"`
 	MeanTimeReverseTradeStockNum int  `json:"mean_time_reverse_trade_stock_num"`
 }
+
+// TradeType TradeType
+type TradeType int64
+
+const (
+	// ForwardTrade ForwardTrade
+	ForwardTrade TradeType = iota + 1
+	// ReverseTrade ReverseTrade
+	ReverseTrade
+)

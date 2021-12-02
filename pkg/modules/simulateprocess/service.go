@@ -109,7 +109,7 @@ func Simulate(simType, discardOT, useDefault, dayCount string) {
 			targetArrMap.saveByDate(tradeDayArr[i-1].Format(global.ShortTimeLayout), targets)
 			tmp := []time.Time{tradeDayArr[i-1]}
 			fetchentiretick.FetchEntireTick(targets, tmp, global.BaseCond)
-			if err := biasrate.GetBiasRateByStockNumAndDate(targets, tradeDayArr[i-1]); err != nil {
+			if err := biasrate.GetBiasRateByStockNumAndDate(targets, tradeDayArr[i-1], 7); err != nil {
 				logger.GetLogger().Panic(err)
 			}
 			storeAllEntireTick(targets, tmp)
@@ -238,7 +238,7 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 		sellTimeStamp := make(map[string]int64)
 		var dateForwardBalance, dateReverseBalance int64
 		for stockNum, v := range analyzeMapArr[0] {
-			quantity := tradebot.GetQuantityByTradeDay(stockNum, date)
+			quantity := tradebot.GetQuantityByTradeDay(stockNum, date, global.ForwardTrade)
 			if quantity == 0 {
 				logger.GetLogger().Warnf("%s on %s quantity is 0", stockNum, date)
 				continue
@@ -297,7 +297,7 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 		}
 		sellTimeStamp = make(map[string]int64)
 		for stockNum, v := range analyzeMapArr[1] {
-			quantity := tradebot.GetQuantityByTradeDay(stockNum, date)
+			quantity := tradebot.GetQuantityByTradeDay(stockNum, date, global.ReverseTrade)
 			if quantity == 0 {
 				logger.GetLogger().Warnf("%s on %s quantity is 0", stockNum, date)
 				continue
@@ -529,12 +529,11 @@ func ClearAllSimulation() {
 
 func generateForwardConds(historyCount int) []*simulationcond.AnalyzeCondition {
 	var conds []*simulationcond.AnalyzeCondition
-	var i float64
 	for m := 95; m >= 85; m -= 5 {
-		for i = 0.9; math.Round(i*10)/10 >= 0.7; i -= 0.1 {
+		for i := 0.9; math.Round(i*10)/10 >= 0.7; i -= 0.1 {
 			for o := 12; o >= 4; o -= 4 {
 				for p := 4; p >= 2; p-- {
-					for v := 100; v >= 10; v -= 15 {
+					for v := 100; v >= 70; v -= 15 {
 						cond := simulationcond.AnalyzeCondition{
 							TrimHistoryCloseCount: true,
 							HistoryCloseCount:     int64(historyCount),
@@ -559,12 +558,11 @@ func generateForwardConds(historyCount int) []*simulationcond.AnalyzeCondition {
 
 func generateReverseConds(historyCount int) []*simulationcond.AnalyzeCondition {
 	var conds []*simulationcond.AnalyzeCondition
-	var k float64
 	for u := 5; u <= 15; u += 5 {
-		for k = 0.3; math.Round(k*10)/10 >= 0.1; k -= 0.1 {
+		for k := 0.3; math.Round(k*10)/10 >= 0.1; k -= 0.1 {
 			for o := 12; o >= 4; o -= 4 {
 				for p := 4; p >= 2; p-- {
-					for v := 100; v >= 10; v -= 15 {
+					for v := 100; v >= 70; v -= 15 {
 						cond := simulationcond.AnalyzeCondition{
 							TrimHistoryCloseCount: true,
 							HistoryCloseCount:     int64(historyCount),

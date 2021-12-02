@@ -71,7 +71,7 @@ func SubscribeTarget(targetArr *[]string) {
 		*targetArr = subArr
 	}
 	// Fill BiasRate Map
-	if err = biasrate.GetBiasRateByStockNumAndDate(*targetArr, global.TradeDay); err != nil {
+	if err = biasrate.GetBiasRateByStockNumAndDate(*targetArr, global.TradeDay, 7); err != nil {
 		logger.GetLogger().Error(err)
 		return
 	}

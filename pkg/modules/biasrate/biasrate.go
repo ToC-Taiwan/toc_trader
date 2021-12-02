@@ -19,12 +19,13 @@ import (
 var StockBiasRateMap MutexCache
 
 // GetBiasRateByStockNumAndDate GetBiasRateByStockNumAndDate
-func GetBiasRateByStockNumAndDate(stockNumArr []string, date time.Time) (err error) {
+func GetBiasRateByStockNumAndDate(stockNumArr []string, date time.Time, n int64) (err error) {
 	logger.GetLogger().WithFields(map[string]interface{}{
 		"TradeDay":   date.Format(global.ShortTimeLayout),
 		"StockCount": len(stockNumArr),
-	}).Info("GetBiasRateByStockNumAndDate")
-	tradeDayArr, err := importbasic.GetLastNTradeDayByDate(date, 20)
+		"Days":       n,
+	}).Infof("Get %d Day BiasRate", n)
+	tradeDayArr, err := importbasic.GetLastNTradeDayByDate(date, n)
 	if err != nil {
 		logger.GetLogger().Panic(err)
 	}
@@ -54,10 +55,6 @@ func GetBiasRateByStockNumAndDate(stockNumArr []string, date time.Time) (err err
 func GetBiasRate(lastCloseMap map[string][]float64) (result map[string]float64, err error) {
 	result = make(map[string]float64)
 	for stock, closeArr := range lastCloseMap {
-		if len(closeArr) < 20 {
-			logger.GetLogger().Warnf("%s has lower than 20 close", stock)
-		}
-
 		var ma float64
 		ma, err = tickanalyze.GenerareMAByCount(closeArr, len(closeArr))
 		if err != nil {
