@@ -42,7 +42,7 @@ func getConds() {
 		logger.GetLogger().Panic(err)
 	}
 	if global.ForwardCond.Model.ID == 0 {
-		simulateprocess.Simulate("a", "n", "n", "2")
+		simulateprocess.Simulate("a", "n", "n", "1")
 		global.ForwardCond, err = simulate.GetBestForwardCondByTradeDay(global.TradeDay, database.GetAgent())
 		if err != nil {
 			logger.GetLogger().Panic(err)
@@ -53,7 +53,7 @@ func getConds() {
 		logger.GetLogger().Panic(err)
 	}
 	if global.ReverseCond.Model.ID == 0 {
-		simulateprocess.Simulate("b", "n", "n", "2")
+		simulateprocess.Simulate("b", "n", "n", "1")
 		global.ReverseCond, err = simulate.GetBestReverseCondByTradeDay(global.TradeDay, database.GetAgent())
 		if err != nil {
 			logger.GetLogger().Panic(err)

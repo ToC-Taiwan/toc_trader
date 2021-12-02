@@ -11,7 +11,7 @@ import (
 
 var (
 	tradeInWaitTime  time.Duration = 15 * time.Second
-	tradeOutWaitTime time.Duration = 45 * time.Second
+	tradeOutWaitTime time.Duration = 30 * time.Second
 )
 
 // BuyAgent BuyAgent

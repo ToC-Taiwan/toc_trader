@@ -7,7 +7,6 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/init/sysparminit"
 	"gitlab.tocraw.com/root/toc_trader/internal/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/analyzeentiretick"
-	"gitlab.tocraw.com/root/toc_trader/pkg/models/analyzestreamtick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/balance"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/bidask"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/entiretick"
@@ -56,7 +55,6 @@ func GetAgent() *gorm.DB {
 	err = Agent.AutoMigrate(
 		&balance.Balance{},
 		&analyzeentiretick.AnalyzeEntireTick{},
-		&analyzestreamtick.AnalyzeStreamTick{},
 		&bidask.BidAsk{},
 		&entiretick.EntireTick{},
 		&holiday.Holiday{},

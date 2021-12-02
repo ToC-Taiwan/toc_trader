@@ -144,9 +144,9 @@ func GetSellPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyClose
 			sellPrice = tick.Close
 		}
 	}
-	holdTime := 30 * int64(time.Minute)
+	holdTime := 45 * int64(time.Minute)
 	if sellPrice == 0 && tradeTime.Add(time.Duration(holdTime)).Before(tickTimeUnix) {
-		if tick.Close < stockutil.GetNewClose(maxClose, -1) && tick.Close > originalOrderClose {
+		if tick.Close < stockutil.GetNewClose(maxClose, -2) && tick.Close > originalOrderClose {
 			sellPrice = tick.Close
 		}
 	}

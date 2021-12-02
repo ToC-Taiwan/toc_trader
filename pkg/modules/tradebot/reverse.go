@@ -144,9 +144,9 @@ func GetBuyLaterPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyC
 			buyPrice = tick.Close
 		}
 	}
-	holdTime := 30 * int64(time.Minute)
+	holdTime := 45 * int64(time.Minute)
 	if buyPrice == 0 && tradeTime.Add(time.Duration(holdTime)).Before(tickTimeUnix) {
-		if tick.Close > stockutil.GetNewClose(minClose, 1) && tick.Close < originalOrderClose {
+		if tick.Close > stockutil.GetNewClose(minClose, 2) && tick.Close < originalOrderClose {
 			buyPrice = tick.Close
 		}
 	}
