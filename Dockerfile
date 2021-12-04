@@ -10,7 +10,7 @@ RUN mkdir build_space
 WORKDIR /build_space
 COPY . .
 WORKDIR /build_space/cmd
-RUN go build
+RUN go build -o toc_trader
 
 # production-stage
 FROM debian:bullseye as production-stage
