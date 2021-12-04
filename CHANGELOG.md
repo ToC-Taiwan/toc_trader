@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## Unreleased (2021-12-03)
+
+### New feature
+
+- **biasrate**: :zap: remove switch by simulation, change quantity method by biasrate([`f5287cd`](https://gitlab.tocraw.com/root/toc_trader/commit/f5287cde238c917d1422aa3b9b20c3bbbdc1c07f)) (@TimHsu@M1BP-20210907)
+- **simulation**: :boom: modify ticks per sec step to 15, simulate 1 day, at least 2 ticks to tradeout([`669e4b7`](https://gitlab.tocraw.com/root/toc_trader/commit/669e4b788f16cdca4d9cd688c122734720a84da2)) (@TimHsu@M1BP-20210907)
+- **tradebot**: :bookmark: decide forward or reverse by simulation result, change biasrate limit to +-20([`9166431`](https://gitlab.tocraw.com/root/toc_trader/commit/916643139ed5eae8a8182f035dff24552857a38c)) (@TimHsu@M1BP-20210907)
+- **simulation**: :bento: change to 1 day, target last tradey to trade day, query balance-total_loss desc([`e0097a8`](https://gitlab.tocraw.com/root/toc_trader/commit/e0097a8676e4a0f1856097de203e23ec0eea4170)) (@TimHsu@M1BP-20210907)
+- **biasrate**: :beers: fix wrong panic message([`568b882`](https://gitlab.tocraw.com/root/toc_trader/commit/568b882a0973563f9b6e78442fb62700b1956e8b)) (@TimHsu@M1BP-20210907)
+- **biasrate**: :fire: add biasrate to decide quantity, add negative days, modify best query way([`a9e3b74`](https://gitlab.tocraw.com/root/toc_trader/commit/a9e3b74481d3767164ce931b388141d57ee37aca)) (@TimHsu@M1BP-20210907)
+- **handler**: :zap: extract some api to self package([`c8afc37`](https://gitlab.tocraw.com/root/toc_trader/commit/c8afc378db9d8e047326abd81e2852258d96a2ba)) (@TimHsu@M1BP-20210907)
+
+### Bugs fixed
+
+- **tradeprocess**: :triangular_flag_on_post: fix no close in tickprocess, should subscribe before fetchentiretick([`8610ad4`](https://gitlab.tocraw.com/root/toc_trader/commit/8610ad4d42af936207a73c63cd61f1e58d89c1b9)) (@TimHsu@M1BP-20210907)
+
 ## v1.4.0 (2021-11-26)
 
 ### New feature

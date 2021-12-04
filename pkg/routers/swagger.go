@@ -12,16 +12,16 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/init/sysparminit"
 )
 
-// AddSwagger AddSwagger
+// addSwagger addSwagger
 // @title ToC Trader
 // @version 1.4.0
 // @description API docs for ToC Trader
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 // @BasePath /trade-bot
-func AddSwagger(router *gin.Engine) {
+func addSwagger(router *gin.Engine) {
 	deployment := os.Getenv("DEPLOYMENT")
-	docs.SwaggerInfo.Host = "172.20.10.222:" + sysparminit.GlobalSettings.GetHTTPPort()
+	docs.SwaggerInfo.Host = "toc-trader.tocraw.com:" + sysparminit.GlobalSettings.GetHTTPPort()
 	if deployment != "docker" {
 		docs.SwaggerInfo.Host = "127.0.0.1:" + sysparminit.GlobalSettings.GetHTTPPort()
 	}

@@ -33,7 +33,7 @@ go-build-test:
         - main
     stage: test
     script:
-        - go build -o toc_trader ./cmd/toc_trader/
+        - go build -o toc_trader ./cmd
 
 go-test:
     image: golang:1.17.3-bullseye

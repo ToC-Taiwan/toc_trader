@@ -35,28 +35,6 @@ func (EntireTick) TableName() string {
 	return "tick_entire"
 }
 
-// ProtoToEntireTick ProtoToEntireTick
-func (c *EntireTickProto) ProtoToEntireTick(stockNum string) (tick *EntireTick, err error) {
-	// var tickType int64
-	// if c.Close == c.AskPrice {
-	// 	tickType = 1
-	// } else {
-	// 	tickType = 2
-	// }
-	tmp := EntireTick{
-		StockNum:  stockNum,
-		Close:     c.Close,
-		TickType:  c.TickType,
-		Volume:    c.Volume,
-		TimeStamp: c.Ts,
-		AskPrice:  c.AskPrice,
-		AskVolume: c.AskVolume,
-		BidPrice:  c.BidPrice,
-		BidVolume: c.BidVolume,
-	}
-	return &tmp, err
-}
-
 // PtrArr PtrArr
 type PtrArr []*EntireTick
 

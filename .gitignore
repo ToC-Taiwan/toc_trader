@@ -138,4 +138,3 @@ go_test_result
 configs/global.db
 !.gitkeep
 toc_trader
-!cmd/toc_trader

@@ -4,7 +4,6 @@ package traderecord
 import (
 	"time"
 
-	"gitlab.tocraw.com/root/toc_trader/pkg/global"
 	"gorm.io/gorm"
 )
 
@@ -66,29 +65,3 @@ const (
 	// Filling Filling
 	Filling string = "Filling"
 )
-
-// ToTradeRecordFromProto ToTradeRecordFromProto
-func (c *TradeRecordArrProto) ToTradeRecordFromProto() (record []*TradeRecord, err error) {
-	for _, v := range c.Data {
-		var orderTime time.Time
-		name := global.AllStockNameMap.GetName(v.Code)
-		orderTime, err = time.ParseInLocation(global.LongTimeLayout, v.OrderTime, time.Local)
-		if err != nil {
-			return record, err
-		}
-		status := StatusListMap[v.Status]
-		action := ActionListMap[v.Action]
-		tmp := TradeRecord{
-			StockNum:  v.Code,
-			StockName: name,
-			Action:    action,
-			Price:     v.Price,
-			Quantity:  v.Quantity,
-			Status:    status,
-			OrderID:   v.Id,
-			OrderTime: orderTime,
-		}
-		record = append(record, &tmp)
-	}
-	return record, err
-}

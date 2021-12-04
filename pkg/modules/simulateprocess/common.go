@@ -4,7 +4,7 @@ package simulateprocess
 import (
 	"time"
 
-	"gitlab.tocraw.com/root/toc_trader/pkg/global"
+	"gitlab.tocraw.com/root/toc_trader/global"
 )
 
 func getLastTradeOutTimeByEntireTickTimeStamp(timeStamp int64) int64 {

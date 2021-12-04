@@ -4,8 +4,8 @@ package globalinit
 import (
 	"time"
 
-	"gitlab.tocraw.com/root/toc_trader/internal/logger"
-	"gitlab.tocraw.com/root/toc_trader/pkg/global"
+	"gitlab.tocraw.com/root/toc_trader/global"
+	"gitlab.tocraw.com/root/toc_trader/pkg/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/importbasic"
 )
 

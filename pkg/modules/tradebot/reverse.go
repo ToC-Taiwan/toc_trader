@@ -4,15 +4,16 @@ package tradebot
 import (
 	"time"
 
-	"gitlab.tocraw.com/root/toc_trader/internal/database"
-	"gitlab.tocraw.com/root/toc_trader/internal/logger"
-	"gitlab.tocraw.com/root/toc_trader/internal/stockutil"
-	"gitlab.tocraw.com/root/toc_trader/pkg/global"
+	"gitlab.tocraw.com/root/toc_trader/global"
+	"gitlab.tocraw.com/root/toc_trader/pkg/database"
+	"gitlab.tocraw.com/root/toc_trader/pkg/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/analyzestreamtick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulationcond"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/streamtick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/traderecord"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tickanalyze"
+	"gitlab.tocraw.com/root/toc_trader/pkg/sinopacapi"
+	"gitlab.tocraw.com/root/toc_trader/pkg/utils"
 )
 
 // SellFirstOrderMap SellFirstOrderMap
@@ -34,28 +35,36 @@ var ManualBuyLaterMap tradeRecordMutexMap
 func SellFirstBot(analyzeTick *analyzestreamtick.AnalyzeStreamTick) {
 	quantity := GetQuantityByTradeDay(analyzeTick.StockNum, global.TradeDay.Format(global.ShortTimeLayout), global.ReverseTrade)
 	if quantity == 0 {
-		logger.Log.Warnf("%s quantity is 0", analyzeTick.StockNum)
+		logger.GetLogger().Warnf("%s quantity is 0", analyzeTick.StockNum)
 		return
 	}
 	buyCost := GetStockBuyCost(analyzeTick.Close, quantity)
 	if SellFirstOrderMap.GetCount() < global.TradeSwitch.MeanTimeReverseTradeStockNum && TradeQuota-buyCost > 0 {
-		if order, err := PlaceOrder(SellFirstAction, analyzeTick.StockNum, quantity, analyzeTick.Close); err != nil {
+		newOrder := sinopacapi.Order{
+			StockNum:  analyzeTick.StockNum,
+			Price:     analyzeTick.Close,
+			Quantity:  quantity,
+			OrderID:   "",
+			Action:    sinopacapi.ActionSellFirst,
+			TradeTime: time.Unix(0, analyzeTick.TimeStamp),
+		}
+		if orderRes, err := sinopacapi.GetAgent().PlaceOrder(newOrder); err != nil {
 			logger.GetLogger().WithFields(map[string]interface{}{
 				"Msg":      err,
 				"StockNum": analyzeTick.StockNum,
 				"Quantity": quantity,
 				"Price":    analyzeTick.Close,
 			}).Error("Sell First fail")
-		} else if order.OrderID != "" && order.Status != traderecord.Failed {
+		} else if orderRes.OrderID != "" && orderRes.Status != traderecord.Failed {
 			TradeQuota -= buyCost
 			record := traderecord.TradeRecord{
 				StockNum:  analyzeTick.StockNum,
 				Price:     analyzeTick.Close,
 				Quantity:  quantity,
-				Action:    int64(BuyAction),
+				Action:    int64(sinopacapi.ActionSellFirst),
 				BuyCost:   buyCost,
 				TradeTime: time.Unix(0, analyzeTick.TimeStamp),
-				OrderID:   order.OrderID,
+				OrderID:   orderRes.OrderID,
 			}
 			SellFirstOrderMap.Set(record)
 			go CheckSellFirstOrderStatus(record)
@@ -81,21 +90,30 @@ func BuyLaterBot(ch chan *streamtick.StreamTick, cond simulationcond.AnalyzeCond
 			buyPrice := GetBuyLaterPrice(tick, SellFirstOrderMap.GetTradeTime(tick.StockNum), *historyClosePrt, originalOrderClose, minClose, cond)
 			if buyPrice == 0 {
 				continue
-			} else if order, err := PlaceOrder(BuyAction, tick.StockNum, quantity, buyPrice); err != nil {
+			}
+			newOrder := sinopacapi.Order{
+				StockNum:  tick.StockNum,
+				Price:     buyPrice,
+				Quantity:  quantity,
+				OrderID:   "",
+				Action:    sinopacapi.ActionBuy,
+				TradeTime: time.Unix(0, tick.TimeStamp),
+			}
+			if orderRes, err := sinopacapi.GetAgent().PlaceOrder(newOrder); err != nil {
 				logger.GetLogger().WithFields(map[string]interface{}{
 					"Msg":      err,
 					"Stock":    tick.StockNum,
 					"Quantity": quantity,
 					"Price":    buyPrice,
 				}).Error("Buy Later fail")
-			} else if order.OrderID != "" && order.Status != traderecord.Failed {
+			} else if orderRes.OrderID != "" && orderRes.Status != traderecord.Failed {
 				record := traderecord.TradeRecord{
 					StockNum:  tick.StockNum,
 					Price:     buyPrice,
 					Quantity:  quantity,
-					Action:    int64(SellAction),
+					Action:    int64(sinopacapi.ActionBuy),
 					TradeTime: time.Unix(0, tick.TimeStamp),
-					OrderID:   order.OrderID,
+					OrderID:   orderRes.OrderID,
 				}
 				BuyLaterOrderMap.Set(record)
 				go CheckBuyLaterOrderStatus(record)
@@ -121,7 +139,7 @@ func IsSellFirstPoint(analyzeTick *analyzestreamtick.AnalyzeStreamTick, cond sim
 
 // GetBuyLaterPrice GetBuyLaterPrice
 func GetBuyLaterPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyClose []float64, originalOrderClose, minClose float64, cond simulationcond.AnalyzeCondition) float64 {
-	if tick.Close <= stockutil.GetMinByOpen(tick.Open) {
+	if tick.Close <= utils.GetMinByOpen(tick.Open) {
 		return tick.Close
 	}
 	tickTimeUnix := time.Unix(0, tick.TimeStamp)
@@ -146,7 +164,7 @@ func GetBuyLaterPrice(tick *streamtick.StreamTick, tradeTime time.Time, historyC
 	}
 	holdTime := 45 * int64(time.Minute)
 	if buyPrice == 0 && tradeTime.Add(time.Duration(holdTime)).Before(tickTimeUnix) {
-		if tick.Close > stockutil.GetNewClose(minClose, 2) && tick.Close < originalOrderClose {
+		if tick.Close > utils.GetNewClose(minClose, 2) && tick.Close < originalOrderClose {
 			buyPrice = tick.Close
 		}
 	}
@@ -178,7 +196,7 @@ func CheckSellFirstOrderStatus(record traderecord.TradeRecord) {
 			return
 		}
 		if record.TradeTime.Add(tradeInWaitTime).Before(time.Now()) {
-			if err := Cancel(record.OrderID); err != nil {
+			if err := sinopacapi.GetAgent().CancelOrder(record.OrderID); err != nil {
 				logger.GetLogger().WithFields(map[string]interface{}{
 					"StockNum": order.StockNum,
 					"Name":     order.StockName,
@@ -222,7 +240,7 @@ func CheckBuyLaterOrderStatus(record traderecord.TradeRecord) {
 			return
 		}
 		if record.TradeTime.Add(tradeOutWaitTime).Before(time.Now()) {
-			if err := Cancel(record.OrderID); err != nil {
+			if err := sinopacapi.GetAgent().CancelOrder(record.OrderID); err != nil {
 				logger.GetLogger().WithFields(map[string]interface{}{
 					"StockNum": order.StockNum,
 					"Name":     order.StockName,

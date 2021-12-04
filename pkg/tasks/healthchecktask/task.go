@@ -6,8 +6,8 @@ import (
 	"runtime/debug"
 	"sync"
 
-	"gitlab.tocraw.com/root/toc_trader/internal/healthcheck"
-	"gitlab.tocraw.com/root/toc_trader/internal/logger"
+	"gitlab.tocraw.com/root/toc_trader/pkg/logger"
+	"gitlab.tocraw.com/root/toc_trader/pkg/sinopacapi"
 )
 
 var lock sync.Mutex
@@ -30,7 +30,7 @@ func Run() {
 		}
 	}()
 	defer lock.Unlock()
-	if err = healthcheck.AskSinopacSRVRestart(); err != nil {
+	if err = sinopacapi.GetAgent().RestartSinopacSRV(); err != nil {
 		logger.GetLogger().Panic(err)
 	}
 }

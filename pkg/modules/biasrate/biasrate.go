@@ -2,17 +2,14 @@
 package biasrate
 
 import (
-	"errors"
-	"net/http"
 	"time"
 
-	"gitlab.tocraw.com/root/toc_trader/external/sinopacsrv"
-	"gitlab.tocraw.com/root/toc_trader/internal/common"
-	"gitlab.tocraw.com/root/toc_trader/internal/logger"
-	"gitlab.tocraw.com/root/toc_trader/internal/restful"
-	"gitlab.tocraw.com/root/toc_trader/pkg/global"
+	"gitlab.tocraw.com/root/toc_trader/global"
+	"gitlab.tocraw.com/root/toc_trader/pkg/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/importbasic"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tickanalyze"
+	"gitlab.tocraw.com/root/toc_trader/pkg/sinopacapi"
+	"gitlab.tocraw.com/root/toc_trader/pkg/utils"
 )
 
 // StockBiasRateMap StockBiasRateMap
@@ -33,7 +30,7 @@ func GetBiasRateByStockNumAndDate(stockNumArr []string, date time.Time, n int64)
 	for _, date := range tradeDayArr {
 		dateArr = append(dateArr, date.Format(global.ShortTimeLayout))
 	}
-	lastCloseMap, err := FetchLastCloseByStockArrDateArr(stockNumArr, dateArr)
+	lastCloseMap, err := sinopacapi.GetAgent().FetchLastCloseByStockArrDateArr(stockNumArr, dateArr)
 	if err != nil {
 		return err
 	}
@@ -60,35 +57,8 @@ func GetBiasRate(lastCloseMap map[string][]float64) (result map[string]float64, 
 		if err != nil {
 			return result, err
 		}
-		biasRate := common.Round(100*(closeArr[len(closeArr)-1]-ma)/ma, 2)
+		biasRate := utils.Round(100*(closeArr[len(closeArr)-1]-ma)/ma, 2)
 		result[stock] = biasRate
 	}
 	return result, err
-}
-
-// FetchLastCloseByStockArrDateArr FetchLastCloseByStockArrDateArr
-func FetchLastCloseByStockArrDateArr(stockNumArr, dateArr []string) (stockLastCloseMap map[string][]float64, err error) {
-	stockLastCloseMap = make(map[string][]float64)
-	stockAndDateArr := FetchLastCloseBody{
-		StockNumArr: stockNumArr,
-		DateArr:     dateArr,
-	}
-	resp, err := restful.GetClient().R().
-		SetBody(stockAndDateArr).
-		SetResult(&[]sinopacsrv.LastCloseWithStockAndDate{}).
-		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/history/lastcount/multi-date")
-	if err != nil {
-		return stockLastCloseMap, err
-	} else if resp.StatusCode() != http.StatusOK {
-		return stockLastCloseMap, errors.New("FetchLastCloseByStockArrDateArr api fail")
-	}
-	res := *resp.Result().(*[]sinopacsrv.LastCloseWithStockAndDate)
-	for _, v := range res {
-		var tmp []float64
-		for k := len(v.CloseArr) - 1; k >= 0; k-- {
-			tmp = append(tmp, v.CloseArr[k].Close)
-		}
-		stockLastCloseMap[v.StockNum] = tmp
-	}
-	return stockLastCloseMap, err
 }

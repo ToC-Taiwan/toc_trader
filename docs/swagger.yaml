@@ -17,48 +17,6 @@ definitions:
       trade_day:
         type: string
     type: object
-  bidask.BidAskProto:
-    properties:
-      bid_ask:
-        $ref: '#/definitions/bidask.BidAskProto_BidAskData'
-      exchange:
-        type: string
-    type: object
-  bidask.BidAskProto_BidAskData:
-    properties:
-      ask_price:
-        items:
-          type: number
-        type: array
-      ask_volume:
-        items:
-          type: integer
-        type: array
-      bid_price:
-        items:
-          type: number
-        type: array
-      bid_volume:
-        items:
-          type: integer
-        type: array
-      code:
-        type: string
-      date_time:
-        type: string
-      diff_ask_vol:
-        items:
-          type: integer
-        type: array
-      diff_bid_vol:
-        items:
-          type: integer
-        type: array
-      simtrade:
-        type: integer
-      suspend:
-        type: integer
-    type: object
   global.SystemSwitch:
     properties:
       buy:
@@ -154,14 +112,67 @@ definitions:
       volume_per_second:
         type: integer
     type: object
-  streamtick.StreamTickProto:
+  sinopacapi.BidAskProto:
+    properties:
+      bid_ask:
+        $ref: '#/definitions/sinopacapi.BidAskProto_BidAskData'
+      exchange:
+        type: string
+    type: object
+  sinopacapi.BidAskProto_BidAskData:
+    properties:
+      ask_price:
+        items:
+          type: number
+        type: array
+      ask_volume:
+        items:
+          type: integer
+        type: array
+      bid_price:
+        items:
+          type: number
+        type: array
+      bid_volume:
+        items:
+          type: integer
+        type: array
+      code:
+        type: string
+      date_time:
+        type: string
+      diff_ask_vol:
+        items:
+          type: integer
+        type: array
+      diff_bid_vol:
+        items:
+          type: integer
+        type: array
+      simtrade:
+        type: integer
+      suspend:
+        type: integer
+    type: object
+  sinopacapi.EventProto:
+    properties:
+      event:
+        type: string
+      event_code:
+        type: integer
+      info:
+        type: string
+      resp_code:
+        type: integer
+    type: object
+  sinopacapi.StreamTickProto:
     properties:
       exchange:
         type: string
       tick:
-        $ref: '#/definitions/streamtick.StreamTickProto_TickData'
+        $ref: '#/definitions/sinopacapi.StreamTickProto_TickData'
     type: object
-  streamtick.StreamTickProto_TickData:
+  sinopacapi.StreamTickProto_TickData:
     properties:
       amount:
         type: number
@@ -206,39 +217,14 @@ definitions:
       volume:
         type: integer
     type: object
-  sysparm.Parameters:
-    properties:
-      key:
-        type: string
-      value:
-        type: string
-    type: object
-  targethandler.TargetResponse:
-    properties:
-      close:
-        type: number
-      stock_num:
-        type: string
-    type: object
-  tradeevent.EventProto:
-    properties:
-      event:
-        type: string
-      event_code:
-        type: integer
-      info:
-        type: string
-      resp_code:
-        type: integer
-    type: object
-  traderecord.TradeRecordArrProto:
+  sinopacapi.TradeRecordArrProto:
     properties:
       data:
         items:
-          $ref: '#/definitions/traderecord.TradeRecordProto'
+          $ref: '#/definitions/sinopacapi.TradeRecordProto'
         type: array
     type: object
-  traderecord.TradeRecordProto:
+  sinopacapi.TradeRecordProto:
     properties:
       action:
         type: string
@@ -253,6 +239,20 @@ definitions:
       quantity:
         type: integer
       status:
+        type: string
+    type: object
+  sysparm.Parameters:
+    properties:
+      key:
+        type: string
+      value:
+        type: string
+    type: object
+  targethandler.TargetResponse:
+    properties:
+      close:
+        type: number
+      stock_num:
         type: string
     type: object
 info:
@@ -400,7 +400,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/bidask.BidAskProto'
+          $ref: '#/definitions/sinopacapi.BidAskProto'
       produces:
       - application/json
       responses:
@@ -423,7 +423,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/streamtick.StreamTickProto'
+          $ref: '#/definitions/sinopacapi.StreamTickProto'
       produces:
       - application/json
       responses:
@@ -559,7 +559,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/tradeevent.EventProto'
+          $ref: '#/definitions/sinopacapi.EventProto'
       produces:
       - application/json
       responses:
@@ -582,7 +582,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/traderecord.TradeRecordArrProto'
+          $ref: '#/definitions/sinopacapi.TradeRecordArrProto'
       produces:
       - application/json
       responses:

@@ -2,30 +2,22 @@
 package choosetarget
 
 import (
-	"errors"
-	"net/http"
 	"sort"
-	"strconv"
 	"sync"
 	"time"
 
-	"github.com/go-resty/resty/v2"
-	"gitlab.tocraw.com/root/toc_trader/external/sinopacsrv"
+	"gitlab.tocraw.com/root/toc_trader/global"
 	"gitlab.tocraw.com/root/toc_trader/init/sysparminit"
-	"gitlab.tocraw.com/root/toc_trader/internal/database"
-	"gitlab.tocraw.com/root/toc_trader/internal/healthcheck"
-	"gitlab.tocraw.com/root/toc_trader/internal/logger"
-	"gitlab.tocraw.com/root/toc_trader/internal/restful"
-	"gitlab.tocraw.com/root/toc_trader/pkg/global"
+	"gitlab.tocraw.com/root/toc_trader/pkg/database"
+	"gitlab.tocraw.com/root/toc_trader/pkg/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/entiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/snapshot"
-	"gitlab.tocraw.com/root/toc_trader/pkg/models/volumerank"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/biasrate"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/fetchentiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/importbasic"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/subscribe"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot"
-	"google.golang.org/protobuf/proto"
+	"gitlab.tocraw.com/root/toc_trader/pkg/sinopacapi"
 )
 
 // TSEChannel TSEChannel
@@ -44,10 +36,9 @@ func SubscribeTarget(targetArr *[]string) {
 	for {
 		noCloseArr, err = UpdateStockCloseMapByDate(*targetArr, global.LastTradeDayArr)
 		if errorTimes >= 5 {
-			if err = healthcheck.AskSinopacSRVRestart(); err != nil && tradebot.BuyOrderMap.GetCount() != 0 && tradebot.SellFirstOrderMap.GetCount() != 0 {
-				logger.GetLogger().Fatal(err)
+			if err = sinopacapi.GetAgent().RestartSinopacSRV(); err != nil && tradebot.BuyOrderMap.GetCount() != 0 && tradebot.SellFirstOrderMap.GetCount() != 0 {
+				logger.GetLogger().Panic(err)
 			}
-			return
 		}
 		if err != nil {
 			logger.GetLogger().Error(err)
@@ -75,61 +66,78 @@ func SubscribeTarget(targetArr *[]string) {
 		logger.GetLogger().Error(err)
 		return
 	}
-	subscribe.SubStreamTick(*targetArr)
+	subscribe.SubStockStreamTick(*targetArr)
 }
 
-// UnSubscribeAll UnSubscribeAll
-func UnSubscribeAll() {
+// UnSubscribeAllFromSinopac UnSubscribeAllFromSinopac
+func UnSubscribeAllFromSinopac() (err error) {
 	// subscribe.UnSubscribeAll(subscribe.BidAsk)
-	subscribe.UnSubscribeAll(subscribe.StreamType)
+	return subscribe.UnSubscribeStockAllByType(sinopacapi.StreamType)
 }
 
 // GetTopTarget GetTopTarget
 func GetTopTarget(count int) (targetArr []string, err error) {
-	resp, err := restful.GetClient().R().
-		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/basic/update/snapshot")
+	var res []*sinopacapi.SnapShotProto
+	res, err = sinopacapi.GetAgent().FetchAllSnapShot()
 	if err != nil {
 		return targetArr, err
-	} else if resp.StatusCode() != http.StatusOK {
-		return targetArr, errors.New("GetTopTarget api fail")
 	}
-	body := snapshot.SnapShotArrProto{}
-	if err = proto.Unmarshal(resp.Body(), &body); err != nil {
-		logger.GetLogger().Error(err)
-		return targetArr, err
-	}
-	var rank []*snapshot.SnapShot
+	var rank []*sinopacapi.SnapShotProto
 	blackStockMap := sysparminit.GlobalSettings.GetBlackStockMap()
 	blackCategoryMap := sysparminit.GlobalSettings.GetBlackCategoryMap()
 	conditionArr := sysparminit.GlobalSettings.GetTargetCondArr()
 	for _, condition := range conditionArr {
-		for _, v := range body.Data {
-			if v.Code == "001" {
-				TSEChannel <- v.ToSnapShotFromProto()
+		for _, v := range res {
+			if v.GetCode() == "001" {
+				tmp := &snapshot.SnapShot{
+					TS:              v.GetTs(),
+					Code:            v.GetCode(),
+					Exchange:        v.GetExchange(),
+					Open:            v.GetOpen(),
+					High:            v.GetHigh(),
+					Low:             v.GetLow(),
+					Close:           v.GetClose(),
+					TickType:        v.GetTickType(),
+					ChangePrice:     v.GetChangePrice(),
+					ChangeRate:      v.GetChangeRate(),
+					ChangeType:      v.GetChangeType(),
+					AveragePrice:    v.GetAveragePrice(),
+					Volume:          v.GetVolume(),
+					TotalVolume:     v.GetTotalVolume(),
+					Amount:          v.GetAmount(),
+					TotalAmount:     v.GetTotalAmount(),
+					YesterdayVolume: v.GetYesterdayVolume(),
+					BuyPrice:        v.GetBuyPrice(),
+					BuyVolume:       v.GetBuyVolume(),
+					SellPrice:       v.GetSellPrice(),
+					SellVolume:      v.GetSellVolume(),
+					VolumeRatio:     v.GetVolumeRatio(),
+				}
+				TSEChannel <- tmp
 				continue
 			}
-			if !importbasic.AllStockDetailMap.CheckIsDayTrade(v.Code) {
+			if !importbasic.AllStockDetailMap.CheckIsDayTrade(v.GetCode()) {
 				continue
 			}
-			if _, ok := blackStockMap[v.Code]; ok {
+			if _, ok := blackStockMap[v.GetCode()]; ok {
 				continue
 			}
-			if _, ok := blackCategoryMap[importbasic.AllStockDetailMap.GetCategory(v.Code)]; ok {
+			if _, ok := blackCategoryMap[importbasic.AllStockDetailMap.GetCategory(v.GetCode())]; ok {
 				continue
 			}
-			if count == -1 && v.TotalVolume < condition.LimitVolume {
+			if count == -1 && v.GetTotalVolume() < condition.LimitVolume {
 				continue
 			}
-			if v.Close > condition.LimitPriceLow && v.Close < condition.LimitPriceHigh {
-				rank = append(rank, v.ToSnapShotFromProto())
+			if v.GetClose() > condition.LimitPriceLow && v.GetClose() < condition.LimitPriceHigh {
+				rank = append(rank, v)
 			}
 		}
 	}
-	if len(rank) == 0 {
+	if len(rank) < 2 {
 		return targetArr, err
 	}
 	sort.Slice(rank, func(i, j int) bool {
-		return rank[i].TotalVolume > rank[j].TotalVolume
+		return rank[i].GetTotalVolume() > rank[j].GetTotalVolume()
 	})
 	targetMap := make(map[string]bool)
 	for _, target := range global.TargetArr {
@@ -152,55 +160,52 @@ var fetchSaveLock sync.Mutex
 
 // UpdateStockCloseMapByDate UpdateStockCloseMapByDate
 func UpdateStockCloseMapByDate(stockNumArr []string, dateArr []time.Time) (noCloseArr []string, err error) {
-	stockArr := FetchLastCountBody{
-		StockNumArr: stockNumArr,
+	stockCloseMap, needFetch, err := sinopacapi.GetAgent().FetchStockCloseMapByStockDateArr(stockNumArr, dateArr)
+	if err != nil {
+		return noCloseArr, err
 	}
-	for _, date := range dateArr {
-		logger.GetLogger().WithFields(map[string]interface{}{
-			"Date": date.Format(global.ShortTimeLayout),
-		}).Infof("Update Stock Close")
-		var resp *resty.Response
-		resp, err = restful.GetClient().R().
-			SetHeader("X-Date", date.Format(global.ShortTimeLayout)).
-			SetBody(stockArr).
-			SetResult(&[]sinopacsrv.StockLastCount{}).
-			Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/history/lastcount")
-		if err != nil {
-			return noCloseArr, err
-		} else if resp.StatusCode() != http.StatusOK {
-			return noCloseArr, errors.New("UpdateStockCloseMapByDate api fail")
-		}
-		stockLastCountArr := *resp.Result().(*[]sinopacsrv.StockLastCount)
-		for _, val := range stockLastCountArr {
-			if len(val.Close) != 0 {
-				global.StockCloseByDateMap.Set(val.Date, val.Code, val.Close[0])
-			} else {
-				var tmpClose float64
-				tmpClose, err = entiretick.GetLastCloseByDate(val.Code, val.Date, database.GetAgent())
+	for _, stock := range needFetch {
+		for _, date := range dateArr {
+			var tmpClose float64
+			tmpClose, err = entiretick.GetLastCloseByDate(stock, date.Format(global.ShortTimeLayout), database.GetAgent())
+			if err != nil {
+				return noCloseArr, err
+			}
+			if tmpClose == 0 {
+				var res []*entiretick.EntireTick
+				res, err = fetchentiretick.FetchByDate(stock, date.Format(global.ShortTimeLayout))
 				if err != nil {
 					return noCloseArr, err
 				}
-				if tmpClose == 0 {
-					var res []*entiretick.EntireTick
-					res, err = fetchentiretick.FetchByDate(val.Code, val.Date)
-					if err != nil {
+				if len(res) == 0 {
+					noCloseArr = append(noCloseArr, stock)
+					logger.GetLogger().Warnf("%s cannot fetch %s close", stock, date.Format(global.ShortTimeLayout))
+					break
+				} else {
+					fetchSaveLock.Lock()
+					if err = entiretick.InsertMultiRecord(res, database.GetAgent()); err != nil {
 						return noCloseArr, err
 					}
-					if len(res) == 0 {
-						noCloseArr = append(noCloseArr, val.Code)
-						logger.GetLogger().Warnf("%s cannot fetch %s close", val.Code, val.Date)
-						continue
-					} else {
-						fetchSaveLock.Lock()
-						if err = entiretick.InsertMultiRecord(res, database.GetAgent()); err != nil {
-							return noCloseArr, err
-						}
-						fetchSaveLock.Unlock()
-						tmpClose = res[len(res)-1].Close
-					}
+					fetchSaveLock.Unlock()
+					tmpClose = res[len(res)-1].Close
 				}
-				global.StockCloseByDateMap.Set(val.Date, val.Code, tmpClose)
 			}
+			global.StockCloseByDateMap.Set(date.Format(global.ShortTimeLayout), stock, tmpClose)
+			logger.GetLogger().WithFields(map[string]interface{}{
+				"Date":  date.Format(global.ShortTimeLayout),
+				"Stock": stock,
+				"Close": tmpClose,
+			}).Infof("Fetch And Update Stock Close")
+		}
+	}
+	for stock, dateMap := range stockCloseMap {
+		for date, close := range dateMap {
+			logger.GetLogger().WithFields(map[string]interface{}{
+				"Date":  date,
+				"Stock": stock,
+				"Close": close,
+			}).Infof("Update Stock Close")
+			global.StockCloseByDateMap.Set(date, stock, close)
 		}
 	}
 	return noCloseArr, err
@@ -211,7 +216,7 @@ var TSE001 *snapshot.SnapShot
 
 // TSEProcess TSEProcess
 func TSEProcess() {
-	lastClose, err := GetTSE001CloseByDate(global.LastTradeDay)
+	lastClose, err := sinopacapi.GetAgent().FetchTSE001CloseByDate(global.LastTradeDay)
 	if err != nil {
 		logger.GetLogger().Error(err)
 	}
@@ -223,53 +228,27 @@ func TSEProcess() {
 	}
 }
 
-// GetTSE001CloseByDate GetTSE001CloseByDate
-func GetTSE001CloseByDate(date time.Time) (close float64, err error) {
-	var resp *resty.Response
-	resp, err = restful.GetClient().R().
-		SetHeader("X-Date", date.Format(global.ShortTimeLayout)).
-		SetResult(&[]sinopacsrv.StockLastCount{}).
-		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/history/lastcount/tse")
-	if err != nil {
-		return close, err
-	} else if resp.StatusCode() != http.StatusOK {
-		return close, errors.New("UpdateStockCloseMapByDate api fail")
-	}
-	stockLastCountArr := *resp.Result().(*[]sinopacsrv.StockLastCount)
-	return stockLastCountArr[0].Close[0], err
-}
-
 // GetVolumeRankByDate GetVolumeRankByDate
 func GetVolumeRankByDate(date string, count int64) (rankArr []string, err error) {
-	resp, err := restful.GetClient().R().
-		SetHeader("X-Count", strconv.FormatInt(count, 10)).
-		SetHeader("X-Date", date).
-		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/trade/volumerank")
+	res, err := sinopacapi.GetAgent().FetchVolumeRankByDate(date, count)
 	if err != nil {
-		return rankArr, err
-	} else if resp.StatusCode() != http.StatusOK {
-		return rankArr, errors.New("GetVolumeRankByDate api fail")
-	}
-	body := volumerank.VolumeRankArrProto{}
-	if err = proto.Unmarshal(resp.Body(), &body); err != nil {
-		logger.GetLogger().Error(err)
 		return rankArr, err
 	}
 	blackStockMap := sysparminit.GlobalSettings.GetBlackStockMap()
 	blackCategoryMap := sysparminit.GlobalSettings.GetBlackCategoryMap()
 	conditionArr := sysparminit.GlobalSettings.GetTargetCondArr()
-	for _, v := range body.Data {
+	for _, v := range res {
 		if !importbasic.AllStockDetailMap.CheckIsDayTrade(v.Code) {
 			continue
 		}
-		if _, ok := blackStockMap[v.Code]; ok {
+		if _, ok := blackStockMap[v.GetCode()]; ok {
 			continue
 		}
-		if _, ok := blackCategoryMap[importbasic.AllStockDetailMap.GetCategory(v.Code)]; ok {
+		if _, ok := blackCategoryMap[importbasic.AllStockDetailMap.GetCategory(v.GetCode())]; ok {
 			continue
 		}
-		if v.TotalVolume > conditionArr[0].LimitVolume && v.Close > conditionArr[0].LimitPriceLow && v.Close < conditionArr[0].LimitPriceHigh {
-			rankArr = append(rankArr, v.Code)
+		if v.GetTotalVolume() > conditionArr[0].LimitVolume && v.GetClose() > conditionArr[0].LimitPriceLow && v.GetClose() < conditionArr[0].LimitPriceHigh {
+			rankArr = append(rankArr, v.GetCode())
 		}
 	}
 	return rankArr, err

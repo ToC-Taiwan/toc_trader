@@ -3,21 +3,19 @@ package fetchentiretick
 
 import (
 	"errors"
-	"net/http"
 	"runtime/debug"
 	"sync"
 	"time"
 
-	"gitlab.tocraw.com/root/toc_trader/internal/database"
-	"gitlab.tocraw.com/root/toc_trader/internal/logger"
-	"gitlab.tocraw.com/root/toc_trader/internal/restful"
-	"gitlab.tocraw.com/root/toc_trader/pkg/global"
+	"gitlab.tocraw.com/root/toc_trader/global"
+	"gitlab.tocraw.com/root/toc_trader/pkg/database"
+	"gitlab.tocraw.com/root/toc_trader/pkg/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/kbar"
-	"google.golang.org/protobuf/proto"
+	"gitlab.tocraw.com/root/toc_trader/pkg/sinopacapi"
 )
 
-// FetchKbar FetchKbar
-func FetchKbar(stockNumArr []string, start, end time.Time) {
+// GetAndSaveKbar GetAndSaveKbar
+func GetAndSaveKbar(stockNumArr []string, start, end time.Time) {
 	var err error
 	defer func() {
 		if r := recover(); r != nil {
@@ -54,8 +52,21 @@ func FetchKbar(stockNumArr []string, start, end time.Time) {
 					"From":     start.Format(global.ShortTimeLayout),
 					"To":       end.Format(global.ShortTimeLayout),
 				}).Info("Fetching Kbar")
-				if err = FetchKbarByDateRange(stockNum, start, end, saveCh); err != nil {
+				if data, err := sinopacapi.GetAgent().FetchKbarByDateRange(stockNum, start, end); err != nil {
 					logger.GetLogger().Panic(err)
+				} else {
+					for _, v := range data {
+						tmp := &kbar.Kbar{
+							StockNum:  stockNum,
+							TimeStamp: v.GetTs(),
+							Close:     v.GetClose(),
+							Open:      v.GetOpen(),
+							High:      v.GetHigh(),
+							Low:       v.GetLow(),
+							Volume:    v.GetVolume(),
+						}
+						saveCh <- tmp
+					}
 				}
 			} else {
 				logger.GetLogger().WithFields(map[string]interface{}{
@@ -87,50 +98,4 @@ func kbarSaver(saveCh chan *kbar.Kbar) {
 			tmp = []*kbar.Kbar{}
 		}
 	}
-}
-
-// FetchKbarByDateRange FetchKbarByDateRange
-func FetchKbarByDateRange(stockNum string, start, end time.Time, saveCh chan *kbar.Kbar) (err error) {
-	stockAndDateArr := FetchKbarBody{
-		StockNum:  stockNum,
-		StartDate: start.Format(global.ShortTimeLayout),
-		EndDate:   end.Format(global.ShortTimeLayout),
-	}
-	resp, err := restful.GetClient().R().
-		SetBody(stockAndDateArr).
-		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/history/kbar")
-	if err != nil {
-		return err
-	} else if resp.StatusCode() != http.StatusOK {
-		return errors.New("FetchKbarByDateRange api fail")
-	}
-	res := kbar.KbarArrProto{}
-	if err = proto.Unmarshal(resp.Body(), &res); err != nil {
-		return err
-	}
-	for _, v := range res.Data {
-		saveCh <- v.ProtoToKbar(stockNum)
-	}
-	return err
-}
-
-// FetchTSEKbarByDate FetchTSEKbarByDate
-func FetchTSEKbarByDate(date time.Time) (err error) {
-	stockAndDateArr := FetchKbarBody{
-		StartDate: date.Format(global.ShortTimeLayout),
-		EndDate:   date.Format(global.ShortTimeLayout),
-	}
-	resp, err := restful.GetClient().R().
-		SetBody(stockAndDateArr).
-		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/history/kbar/tse")
-	if err != nil {
-		return err
-	} else if resp.StatusCode() != http.StatusOK {
-		return errors.New("FetchTSEKbarByDateRange api fail")
-	}
-	res := kbar.KbarArrProto{}
-	if err = proto.Unmarshal(resp.Body(), &res); err != nil {
-		return err
-	}
-	return err
 }

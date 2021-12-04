@@ -2,46 +2,55 @@
 package importbasic
 
 import (
-	"net/http"
 	"time"
 
-	"gitlab.tocraw.com/root/toc_trader/external/sinopacsrv"
-	"gitlab.tocraw.com/root/toc_trader/internal/database"
-	"gitlab.tocraw.com/root/toc_trader/internal/logger"
-	"gitlab.tocraw.com/root/toc_trader/internal/restful"
-	"gitlab.tocraw.com/root/toc_trader/pkg/global"
+	"gitlab.tocraw.com/root/toc_trader/global"
+	"gitlab.tocraw.com/root/toc_trader/pkg/database"
+	"gitlab.tocraw.com/root/toc_trader/pkg/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/holiday"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/stock"
+	"gitlab.tocraw.com/root/toc_trader/pkg/sinopacapi"
 )
 
 // AllStockDetailMap AllStockDetailMap
 var AllStockDetailMap stock.MutexStruct
 
 // ImportAllStock ImportAllStock
-func ImportAllStock() {
-	var err error
-	allStockNumInDB, err := stock.GetAllStockNum(database.GetAgent())
+func ImportAllStock() (err error) {
+	var allStockNumInDB []string
+	allStockNumInDB, err = stock.GetAllStockNum(database.GetAgent())
 	if err != nil {
-		logger.GetLogger().Panic(err)
+		return err
 	}
+
 	existMap := make(map[string]bool)
 	for _, v := range allStockNumInDB {
 		existMap[v] = true
 	}
-	// Get stock detail from Sinopac SRV
-	resp, err := restful.GetClient().R().
-		SetResult(&[]sinopacsrv.FetchStockBody{}).
-		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/basic/importstock")
+
+	var res []sinopacapi.FetchStockBody
+	res, err = sinopacapi.GetAgent().FetchAllStockDetail()
 	if err != nil {
-		logger.GetLogger().Panic(err)
-	} else if resp.StatusCode() != http.StatusOK {
-		logger.GetLogger().Panic("ImportAllStock api fail")
+		return err
 	}
-	res := *resp.Result().(*[]sinopacsrv.FetchStockBody)
 	var importStock, already int64
 	var insertArr []stock.Stock
 	for _, v := range res {
-		stock := v.ToStock()
+		var dayTradeBool bool
+		if v.DayTrade == "Yes" {
+			dayTradeBool = true
+		} else {
+			continue
+		}
+		global.AllStockNameMap.Set(v.Code, v.Name)
+		stock := stock.Stock{
+			StockNum:  v.Code,
+			StockName: v.Name,
+			StockType: v.Exchange,
+			DayTrade:  dayTradeBool,
+			LastClose: v.Close,
+			Category:  v.Category,
+		}
 		// Save detail in map
 		AllStockDetailMap.Set(stock)
 		if existMap[v.Code] {
@@ -51,13 +60,14 @@ func ImportAllStock() {
 			importStock++
 		}
 	}
-	if err := stock.InsertMultiRecord(insertArr, database.GetAgent()); err != nil {
-		logger.GetLogger().Panic(err)
+	if err = stock.InsertMultiRecord(insertArr, database.GetAgent()); err != nil {
+		return err
 	}
 	logger.GetLogger().WithFields(map[string]interface{}{
 		"Imported":     importStock,
 		"AlreadyExist": already,
 	}).Info("Import Stock Status")
+	return err
 }
 
 // ImportHoliday ImportHoliday

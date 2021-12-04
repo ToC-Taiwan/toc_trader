@@ -21,13 +21,3 @@ type Tabler interface {
 func (EventResponse) TableName() string {
 	return "trade_event"
 }
-
-// ToEventResponse ToEventResponse
-func (c *EventProto) ToEventResponse() EventResponse {
-	return EventResponse{
-		Event:     c.Event,
-		EventCode: c.EventCode,
-		Info:      c.Info,
-		Response:  c.RespCode,
-	}
-}

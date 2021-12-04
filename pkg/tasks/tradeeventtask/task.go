@@ -6,7 +6,7 @@ import (
 	"runtime/debug"
 	"sync"
 
-	"gitlab.tocraw.com/root/toc_trader/internal/logger"
+	"gitlab.tocraw.com/root/toc_trader/pkg/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tradeeventprocess"
 )
 

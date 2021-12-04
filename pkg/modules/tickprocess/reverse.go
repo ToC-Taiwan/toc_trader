@@ -3,14 +3,14 @@ package tickprocess
 
 import (
 	"github.com/markcheno/go-quote"
-	"gitlab.tocraw.com/root/toc_trader/internal/common"
-	"gitlab.tocraw.com/root/toc_trader/internal/logger"
-	"gitlab.tocraw.com/root/toc_trader/pkg/global"
+	"gitlab.tocraw.com/root/toc_trader/global"
+	"gitlab.tocraw.com/root/toc_trader/pkg/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/analyzestreamtick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulationcond"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/streamtick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tickanalyze"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot"
+	"gitlab.tocraw.com/root/toc_trader/pkg/utils"
 )
 
 // ReverseTickProcess ReverseTickProcess
@@ -37,7 +37,7 @@ func ReverseTickProcess(lastClose float64, cond simulationcond.AnalyzeCondition,
 			tradeSwitch = MissingTicksStatus.CheckByStockNum(tick.StockNum)
 		}
 		if openChangeRatio == 0 && tick.Open != 0 {
-			openChangeRatio = common.Round((tick.Open - lastClose), 2)
+			openChangeRatio = utils.Round((tick.Open - lastClose), 2)
 		}
 		tmpArr = append(tmpArr, tick)
 		if tradebot.SellFirstOrderMap.CheckStockExist(tick.StockNum) && tradebot.FilledSellFirstOrderMap.CheckStockExist(tick.StockNum) {
@@ -78,12 +78,12 @@ func ReverseTickProcess(lastClose float64, cond simulationcond.AnalyzeCondition,
 				continue
 			}
 
-			closeDiff := common.Round((unSavedTicks.GetLastClose() - lastSaveLastClose), 2)
+			closeDiff := utils.Round((unSavedTicks.GetLastClose() - lastSaveLastClose), 2)
 			if lastSaveLastClose == 0 {
 				closeDiff = 0
 			}
 			lastSaveLastClose = unSavedTicks.GetLastClose()
-			unSavedTicksInOutRatio := common.Round((100 * (float64(outSum) / float64(outSum+inSum))), 2)
+			unSavedTicksInOutRatio := utils.Round((100 * (float64(outSum) / float64(outSum+inSum))), 2)
 			analyze := analyzestreamtick.AnalyzeStreamTick{
 				TimeStamp:        tick.TimeStamp,
 				StockNum:         tick.StockNum,

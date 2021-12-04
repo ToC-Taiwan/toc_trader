@@ -4,8 +4,8 @@ package sysparm
 import (
 	"encoding/json"
 
-	"gitlab.tocraw.com/root/toc_trader/internal/common"
-	"gitlab.tocraw.com/root/toc_trader/internal/logger"
+	"gitlab.tocraw.com/root/toc_trader/pkg/logger"
+	"gitlab.tocraw.com/root/toc_trader/pkg/utils"
 )
 
 // GlobalSettingMap GlobalSettingMap
@@ -18,7 +18,7 @@ func (c GlobalSettingMap) GetRunMode() string {
 
 // GetResetParm GetResetParm
 func (c GlobalSettingMap) GetResetParm() bool {
-	reset, err := common.StrToInt64(c["reset"])
+	reset, err := utils.StrToInt64(c["reset"])
 	if err != nil {
 		logger.GetLogger().Panic(err)
 	}
@@ -65,7 +65,7 @@ func (c GlobalSettingMap) GetDBTimeZone() string {
 
 // GetKbarPeriod GetKbarPeriod
 func (c GlobalSettingMap) GetKbarPeriod() int64 {
-	tmp, err := common.StrToInt64(c["kbar_period"])
+	tmp, err := utils.StrToInt64(c["kbar_period"])
 	if err != nil {
 		logger.GetLogger().Panic(err)
 	}

@@ -2,7 +2,7 @@
 package globalinit
 
 import (
-	"gitlab.tocraw.com/root/toc_trader/pkg/global"
+	"gitlab.tocraw.com/root/toc_trader/global"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulationcond"
 )
 

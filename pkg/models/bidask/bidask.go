@@ -4,7 +4,6 @@ package bidask
 import (
 	"sort"
 
-	"gitlab.tocraw.com/root/toc_trader/internal/common"
 	"gorm.io/gorm"
 )
 
@@ -64,50 +63,4 @@ func (c *BidAsk) IsBestBid() bool {
 		return tmpArr[i] > tmpArr[j]
 	})
 	return tmpArr[0] == c.BidVolume1
-}
-
-// ToBidAsk ToBidAsk
-func (c *BidAskProto_BidAskData) ToBidAsk() (result *BidAsk, err error) {
-	timeStamp, err := common.MicroDateTimeToTimeStamp(c.DateTime)
-	if err != nil {
-		return result, err
-	}
-	tmp := BidAsk{
-		StockNum:    c.Code,
-		TimeStamp:   timeStamp,
-		BidPrice1:   c.BidPrice[4],
-		BidVolume1:  c.BidVolume[4],
-		DiffBidVol1: c.DiffBidVol[4],
-		BidPrice2:   c.BidPrice[3],
-		BidVolume2:  c.BidVolume[3],
-		DiffBidVol2: c.DiffBidVol[3],
-		BidPrice3:   c.BidPrice[2],
-		BidVolume3:  c.BidVolume[2],
-		DiffBidVol3: c.DiffBidVol[2],
-		BidPrice4:   c.BidPrice[1],
-		BidVolume4:  c.BidVolume[1],
-		DiffBidVol4: c.DiffBidVol[1],
-		BidPrice5:   c.BidPrice[0],
-		BidVolume5:  c.BidVolume[0],
-		DiffBidVol5: c.DiffBidVol[0],
-
-		AskPrice1:   c.AskPrice[0],
-		AskVolume1:  c.AskVolume[0],
-		DiffAskVol1: c.DiffAskVol[0],
-		AskPrice2:   c.AskPrice[1],
-		AskVolume2:  c.AskVolume[1],
-		DiffAskVol2: c.DiffAskVol[1],
-		AskPrice3:   c.AskPrice[2],
-		AskVolume3:  c.AskVolume[2],
-		DiffAskVol3: c.DiffAskVol[2],
-		AskPrice4:   c.AskPrice[3],
-		AskVolume4:  c.AskVolume[3],
-		DiffAskVol4: c.DiffAskVol[3],
-		AskPrice5:   c.AskPrice[4],
-		AskVolume5:  c.AskVolume[4],
-		DiffAskVol5: c.DiffAskVol[4],
-		Suspend:     c.Suspend,
-		Simtrade:    c.Simtrade,
-	}
-	return &tmp, err
 }

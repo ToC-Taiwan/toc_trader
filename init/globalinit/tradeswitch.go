@@ -4,7 +4,7 @@ package globalinit
 import (
 	"os"
 
-	"gitlab.tocraw.com/root/toc_trader/pkg/global"
+	"gitlab.tocraw.com/root/toc_trader/global"
 )
 
 func init() {

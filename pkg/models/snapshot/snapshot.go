@@ -29,32 +29,3 @@ type SnapShot struct {
 	SellVolume      int64   `gorm:"column:sell_volume"`
 	VolumeRatio     float64 `gorm:"column:volume_ratio"`
 }
-
-// ToSnapShotFromProto ToSnapShotFromProto
-func (c *SnapShotProto) ToSnapShotFromProto() *SnapShot {
-	tmp := SnapShot{
-		TS:              c.Ts,
-		Code:            c.Code,
-		Exchange:        c.Exchange,
-		Open:            c.Open,
-		High:            c.High,
-		Low:             c.Low,
-		Close:           c.Close,
-		TickType:        c.TickType,
-		ChangePrice:     c.ChangePrice,
-		ChangeRate:      c.ChangeRate,
-		ChangeType:      c.ChangeType,
-		AveragePrice:    c.AveragePrice,
-		Volume:          c.Volume,
-		TotalVolume:     c.TotalVolume,
-		Amount:          c.Amount,
-		TotalAmount:     c.TotalAmount,
-		YesterdayVolume: c.YesterdayVolume,
-		BuyPrice:        c.BuyPrice,
-		BuyVolume:       c.BuyVolume,
-		SellPrice:       c.SellPrice,
-		SellVolume:      c.SellVolume,
-		VolumeRatio:     c.VolumeRatio,
-	}
-	return &tmp
-}

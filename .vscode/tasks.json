@@ -14,7 +14,7 @@
         {
             "label": "Build",
             "type": "shell",
-            "command": "go build -gcflags=all=\"-N -l\" ./cmd/toc_trader/"
+            "command": "go build -gcflags=all=\"-N -l\" -o toc_trader ./cmd"
         },
         {
             "label": "Start local postgres",

@@ -7,7 +7,7 @@ import (
 	_ "github.com/lib/pq" // postgres driver for "database/sql"
 
 	"gitlab.tocraw.com/root/toc_trader/init/sysparminit"
-	"gitlab.tocraw.com/root/toc_trader/internal/logger"
+	"gitlab.tocraw.com/root/toc_trader/pkg/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/parameters"
 )
 

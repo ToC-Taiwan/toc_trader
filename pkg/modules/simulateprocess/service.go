@@ -9,10 +9,9 @@ import (
 
 	"github.com/vbauerster/mpb/v7"
 	"github.com/vbauerster/mpb/v7/decor"
-	"gitlab.tocraw.com/root/toc_trader/internal/common"
-	"gitlab.tocraw.com/root/toc_trader/internal/database"
-	"gitlab.tocraw.com/root/toc_trader/internal/logger"
-	"gitlab.tocraw.com/root/toc_trader/pkg/global"
+	"gitlab.tocraw.com/root/toc_trader/global"
+	"gitlab.tocraw.com/root/toc_trader/pkg/database"
+	"gitlab.tocraw.com/root/toc_trader/pkg/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/analyzeentiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/entiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulate"
@@ -23,6 +22,7 @@ import (
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/importbasic"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tickprocess"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot"
+	"gitlab.tocraw.com/root/toc_trader/pkg/utils"
 )
 
 var (
@@ -60,7 +60,7 @@ func Simulate(simType, discardOT, useDefault, dayCount string) {
 	if useDefault == "y" {
 		useGlobal = true
 	}
-	n, err := common.StrToInt64(dayCount)
+	n, err := utils.StrToInt64(dayCount)
 	if err != nil {
 		logger.GetLogger().Panic(err)
 	}
@@ -103,7 +103,7 @@ func Simulate(simType, discardOT, useDefault, dayCount string) {
 				logger.GetLogger().WithFields(map[string]interface{}{
 					"Date": date.Format(global.ShortTimeLayout),
 					"Rank": i + 1,
-					"Name": global.AllStockNameMap.GetName(v),
+					"Name": global.AllStockNameMap.GetValueByKey(v),
 				}).Infof("Volume Rank")
 			}
 			targetArrMap.saveByDate(tradeDayArr[i-1].Format(global.ShortTimeLayout), targets)
@@ -289,7 +289,7 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 			if useGlobal && tmpBalance != 0 {
 				logger.GetLogger().WithFields(map[string]interface{}{
 					"Balance":      tmpBalance,
-					"Name":         global.AllStockNameMap.GetName(v.StockNum),
+					"Name":         global.AllStockNameMap.GetValueByKey(v.StockNum),
 					"Quantity":     quantity,
 					"TotalTime(s)": (sellTimeStamp[v.StockNum] - v.TimeStamp) / 1000 / 1000 / 1000,
 				}).Warn("Forward Balance")
@@ -348,7 +348,7 @@ func GetBalance(analyzeMapMap map[string][]map[string]*analyzeentiretick.Analyze
 			if useGlobal && tmpBalance != 0 {
 				logger.GetLogger().WithFields(map[string]interface{}{
 					"Balance":      tmpBalance,
-					"Name":         global.AllStockNameMap.GetName(v.StockNum),
+					"Name":         global.AllStockNameMap.GetValueByKey(v.StockNum),
 					"Quantity":     quantity,
 					"TotalTime(s)": (sellTimeStamp[v.StockNum] - v.TimeStamp) / 1000 / 1000 / 1000,
 				}).Warn("Reverse Balance")

@@ -241,7 +241,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/bidask.BidAskProto"
+                            "$ref": "#/definitions/sinopacapi.BidAskProto"
                         }
                     }
                 ],
@@ -277,7 +277,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/streamtick.StreamTickProto"
+                            "$ref": "#/definitions/sinopacapi.StreamTickProto"
                         }
                     }
                 ],
@@ -489,7 +489,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/tradeevent.EventProto"
+                            "$ref": "#/definitions/sinopacapi.EventProto"
                         }
                     }
                 ],
@@ -525,7 +525,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/traderecord.TradeRecordArrProto"
+                            "$ref": "#/definitions/sinopacapi.TradeRecordArrProto"
                         }
                     }
                 ],
@@ -623,70 +623,6 @@ var doc = `{
                 },
                 "trade_day": {
                     "type": "string"
-                }
-            }
-        },
-        "bidask.BidAskProto": {
-            "type": "object",
-            "properties": {
-                "bid_ask": {
-                    "$ref": "#/definitions/bidask.BidAskProto_BidAskData"
-                },
-                "exchange": {
-                    "type": "string"
-                }
-            }
-        },
-        "bidask.BidAskProto_BidAskData": {
-            "type": "object",
-            "properties": {
-                "ask_price": {
-                    "type": "array",
-                    "items": {
-                        "type": "number"
-                    }
-                },
-                "ask_volume": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "bid_price": {
-                    "type": "array",
-                    "items": {
-                        "type": "number"
-                    }
-                },
-                "bid_volume": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "code": {
-                    "type": "string"
-                },
-                "date_time": {
-                    "type": "string"
-                },
-                "diff_ask_vol": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "diff_bid_vol": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "simtrade": {
-                    "type": "integer"
-                },
-                "suspend": {
-                    "type": "integer"
                 }
             }
         },
@@ -835,18 +771,99 @@ var doc = `{
                 }
             }
         },
-        "streamtick.StreamTickProto": {
+        "sinopacapi.BidAskProto": {
+            "type": "object",
+            "properties": {
+                "bid_ask": {
+                    "$ref": "#/definitions/sinopacapi.BidAskProto_BidAskData"
+                },
+                "exchange": {
+                    "type": "string"
+                }
+            }
+        },
+        "sinopacapi.BidAskProto_BidAskData": {
+            "type": "object",
+            "properties": {
+                "ask_price": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "ask_volume": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "bid_price": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "bid_volume": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "code": {
+                    "type": "string"
+                },
+                "date_time": {
+                    "type": "string"
+                },
+                "diff_ask_vol": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "diff_bid_vol": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "simtrade": {
+                    "type": "integer"
+                },
+                "suspend": {
+                    "type": "integer"
+                }
+            }
+        },
+        "sinopacapi.EventProto": {
+            "type": "object",
+            "properties": {
+                "event": {
+                    "type": "string"
+                },
+                "event_code": {
+                    "type": "integer"
+                },
+                "info": {
+                    "type": "string"
+                },
+                "resp_code": {
+                    "type": "integer"
+                }
+            }
+        },
+        "sinopacapi.StreamTickProto": {
             "type": "object",
             "properties": {
                 "exchange": {
                     "type": "string"
                 },
                 "tick": {
-                    "$ref": "#/definitions/streamtick.StreamTickProto_TickData"
+                    "$ref": "#/definitions/sinopacapi.StreamTickProto_TickData"
                 }
             }
         },
-        "streamtick.StreamTickProto_TickData": {
+        "sinopacapi.StreamTickProto_TickData": {
             "type": "object",
             "properties": {
                 "amount": {
@@ -914,57 +931,18 @@ var doc = `{
                 }
             }
         },
-        "sysparm.Parameters": {
-            "type": "object",
-            "properties": {
-                "key": {
-                    "type": "string"
-                },
-                "value": {
-                    "type": "string"
-                }
-            }
-        },
-        "targethandler.TargetResponse": {
-            "type": "object",
-            "properties": {
-                "close": {
-                    "type": "number"
-                },
-                "stock_num": {
-                    "type": "string"
-                }
-            }
-        },
-        "tradeevent.EventProto": {
-            "type": "object",
-            "properties": {
-                "event": {
-                    "type": "string"
-                },
-                "event_code": {
-                    "type": "integer"
-                },
-                "info": {
-                    "type": "string"
-                },
-                "resp_code": {
-                    "type": "integer"
-                }
-            }
-        },
-        "traderecord.TradeRecordArrProto": {
+        "sinopacapi.TradeRecordArrProto": {
             "type": "object",
             "properties": {
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/traderecord.TradeRecordProto"
+                        "$ref": "#/definitions/sinopacapi.TradeRecordProto"
                     }
                 }
             }
         },
-        "traderecord.TradeRecordProto": {
+        "sinopacapi.TradeRecordProto": {
             "type": "object",
             "properties": {
                 "action": {
@@ -986,6 +964,28 @@ var doc = `{
                     "type": "integer"
                 },
                 "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "sysparm.Parameters": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "targethandler.TargetResponse": {
+            "type": "object",
+            "properties": {
+                "close": {
+                    "type": "number"
+                },
+                "stock_num": {
                     "type": "string"
                 }
             }

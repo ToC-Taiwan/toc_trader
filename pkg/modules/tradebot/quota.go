@@ -5,9 +5,9 @@ import (
 	"math"
 	"time"
 
-	"gitlab.tocraw.com/root/toc_trader/internal/database"
-	"gitlab.tocraw.com/root/toc_trader/internal/logger"
-	"gitlab.tocraw.com/root/toc_trader/pkg/global"
+	"gitlab.tocraw.com/root/toc_trader/global"
+	"gitlab.tocraw.com/root/toc_trader/pkg/database"
+	"gitlab.tocraw.com/root/toc_trader/pkg/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/traderecord"
 )
 
@@ -36,7 +36,7 @@ func InitStartUpQuota() {
 			}
 			record := traderecord.TradeRecord{
 				StockNum:  v.StockNum,
-				StockName: global.AllStockNameMap.GetName(v.StockNum),
+				StockName: global.AllStockNameMap.GetValueByKey(v.StockNum),
 				Action:    v.Action,
 				Price:     v.Price,
 				Quantity:  v.Quantity,

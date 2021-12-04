@@ -2,7 +2,6 @@
 package streamtick
 
 import (
-	"gitlab.tocraw.com/root/toc_trader/internal/common"
 	"gorm.io/gorm"
 )
 
@@ -40,38 +39,6 @@ type Tabler interface {
 // TableName TableName
 func (StreamTick) TableName() string {
 	return "tick_stream"
-}
-
-// ProtoToStreamTick ProtoToStreamTick
-func (c *StreamTickProto) ProtoToStreamTick() (result *StreamTick, err error) {
-	timeStamp, err := common.MicroDateTimeToTimeStamp(c.Tick.DateTime)
-	if err != nil {
-		return result, err
-	}
-	tmp := StreamTick{
-		StockNum:        c.Tick.Code,
-		TimeStamp:       timeStamp,
-		Open:            c.Tick.Open,
-		AvgPrice:        c.Tick.AvgPrice,
-		Close:           c.Tick.Close,
-		High:            c.Tick.High,
-		Low:             c.Tick.Low,
-		Amount:          c.Tick.Amount,
-		AmountSum:       c.Tick.TotalAmount,
-		Volume:          c.Tick.Volume,
-		VolumeSum:       c.Tick.TotalVolume,
-		TickType:        c.Tick.TickType,
-		ChgType:         c.Tick.ChgType,
-		PriceChg:        c.Tick.PriceChg,
-		PctChg:          c.Tick.PctChg,
-		BidSideTotalVol: c.Tick.BidSideTotalVol,
-		AskSideTotalVol: c.Tick.AskSideTotalVol,
-		BidSideTotalCnt: c.Tick.BidSideTotalCnt,
-		AskSideTotalCnt: c.Tick.AskSideTotalCnt,
-		Suspend:         c.Tick.Suspend,
-		Simtrade:        c.Tick.Simtrade,
-	}
-	return &tmp, err
 }
 
 // PtrArr PtrArr

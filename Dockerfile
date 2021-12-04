@@ -9,7 +9,7 @@ WORKDIR /
 RUN mkdir build_space
 WORKDIR /build_space
 COPY . .
-WORKDIR /build_space/cmd/toc_trader
+WORKDIR /build_space/cmd
 RUN go build
 
 # production-stage
@@ -32,9 +32,7 @@ RUN apt update -y && \
 
 WORKDIR /toc_trader
 
-COPY --from=build-stage /build_space/cmd/toc_trader/toc_trader ./toc_trader
+COPY --from=build-stage /build_space/cmd/toc_trader ./toc_trader
 COPY --from=build-stage /build_space/scripts/docker-entrypoint.sh ./scripts/docker-entrypoint.sh
-
-WORKDIR /toc_trader/cmd/toc_trader
 
 ENTRYPOINT ["/toc_trader/scripts/docker-entrypoint.sh"]

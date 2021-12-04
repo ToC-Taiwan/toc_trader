@@ -7,13 +7,13 @@ import (
 	"sync"
 
 	"github.com/markcheno/go-quote"
-	"gitlab.tocraw.com/root/toc_trader/internal/common"
-	"gitlab.tocraw.com/root/toc_trader/internal/database"
-	"gitlab.tocraw.com/root/toc_trader/internal/logger"
+	"gitlab.tocraw.com/root/toc_trader/pkg/database"
+	"gitlab.tocraw.com/root/toc_trader/pkg/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/analyzeentiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/entiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/simulationcond"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tickanalyze"
+	"gitlab.tocraw.com/root/toc_trader/pkg/utils"
 )
 
 // TickProcess TickProcess
@@ -34,7 +34,7 @@ func TickProcess(stockNum string, lastClose float64, cond simulationcond.Analyze
 		}
 		// process tick
 		if high == 0 && low == 0 && open == 0 {
-			openChangeRatio = common.Round(100*(tick.Close-lastClose)/lastClose, 2)
+			openChangeRatio = utils.Round(100*(tick.Close-lastClose)/lastClose, 2)
 			high = tick.Close
 			low = tick.Close
 			open = tick.Close
@@ -70,7 +70,7 @@ func TickProcess(stockNum string, lastClose float64, cond simulationcond.Analyze
 		if unSavedTicks.GetCount() >= cond.TicksPeriodCount {
 			var outSum, inSum int64
 			var totalTime float64
-			closeChangeRatio := common.Round(100*(tick.Close-lastClose)/lastClose, 2)
+			closeChangeRatio := utils.Round(100*(tick.Close-lastClose)/lastClose, 2)
 			for _, v := range unSavedTicks.Get() {
 				input.Close = append(input.Close, v.GetAllCloseArr()...)
 				outSum += v.GetOutSum()
@@ -88,12 +88,12 @@ func TickProcess(stockNum string, lastClose float64, cond simulationcond.Analyze
 				logger.GetLogger().Errorf("GenerateRSI at EntireTickProcess Stock: %s, Err: %s", stockNum, err)
 				continue
 			}
-			closeDiff := common.Round((unSavedTicks.GetLastClose() - lastSaveLastClose), 2)
+			closeDiff := utils.Round((unSavedTicks.GetLastClose() - lastSaveLastClose), 2)
 			if lastSaveLastClose == 0 {
 				closeDiff = 0
 			}
 			lastSaveLastClose = unSavedTicks.GetLastClose()
-			unSavedTicksInOutRatio := common.Round(100*(float64(outSum)/float64(outSum+inSum)), 2)
+			unSavedTicksInOutRatio := utils.Round(100*(float64(outSum)/float64(outSum+inSum)), 2)
 			analyze := analyzeentiretick.AnalyzeEntireTick{
 				TimeStamp:        tick.TimeStamp,
 				StockNum:         stockNum,

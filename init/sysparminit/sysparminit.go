@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"gitlab.tocraw.com/root/toc_trader/internal/logger"
+	"gitlab.tocraw.com/root/toc_trader/pkg/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/sysparm"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"

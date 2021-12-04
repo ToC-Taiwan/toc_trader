@@ -4,19 +4,20 @@ package tradebot
 import (
 	"time"
 
-	"gitlab.tocraw.com/root/toc_trader/internal/database"
-	"gitlab.tocraw.com/root/toc_trader/internal/logger"
-	"gitlab.tocraw.com/root/toc_trader/pkg/global"
+	"gitlab.tocraw.com/root/toc_trader/global"
+	"gitlab.tocraw.com/root/toc_trader/pkg/database"
+	"gitlab.tocraw.com/root/toc_trader/pkg/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/balance"
+	"gitlab.tocraw.com/root/toc_trader/pkg/sinopacapi"
 )
 
-// CheckOrderStatusLoop CheckOrderStatusLoop
-func CheckOrderStatusLoop() {
+// CheckOrderStatus CheckOrderStatus
+func CheckOrderStatus() {
 	go showStatus()
 	go tradeSwitch()
 
 	for range time.Tick(1*time.Second + 500*time.Millisecond) {
-		if err := FetchOrderStatus(); err != nil {
+		if err := sinopacapi.GetAgent().FetchOrderStatus(); err != nil {
 			logger.GetLogger().Error(err)
 		}
 	}

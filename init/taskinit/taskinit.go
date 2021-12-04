@@ -3,7 +3,7 @@ package taskinit
 
 import (
 	"gitlab.tocraw.com/root/toc_trader/init/sysparminit"
-	"gitlab.tocraw.com/root/toc_trader/internal/logger"
+	"gitlab.tocraw.com/root/toc_trader/pkg/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/tasks/healthchecktask"
 	"gitlab.tocraw.com/root/toc_trader/pkg/tasks/tradeeventtask"
 

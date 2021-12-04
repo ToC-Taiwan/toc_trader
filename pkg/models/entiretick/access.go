@@ -4,7 +4,7 @@ package entiretick
 import (
 	"time"
 
-	"gitlab.tocraw.com/root/toc_trader/pkg/global"
+	"gitlab.tocraw.com/root/toc_trader/global"
 	"gorm.io/gorm"
 )
 

@@ -3,22 +3,19 @@ package subscribe
 
 import (
 	"errors"
-	"net/http"
 	"runtime/debug"
 	"sync"
 	"time"
 
-	"github.com/go-resty/resty/v2"
-	"gitlab.tocraw.com/root/toc_trader/external/sinopacsrv"
-	"gitlab.tocraw.com/root/toc_trader/internal/logger"
-	"gitlab.tocraw.com/root/toc_trader/internal/restful"
-	"gitlab.tocraw.com/root/toc_trader/pkg/global"
+	"gitlab.tocraw.com/root/toc_trader/global"
+	"gitlab.tocraw.com/root/toc_trader/pkg/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/entiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/streamtick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/bidaskprocess"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/fetchentiretick"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tickprocess"
 	"gitlab.tocraw.com/root/toc_trader/pkg/modules/tradebot"
+	"gitlab.tocraw.com/root/toc_trader/pkg/sinopacapi"
 )
 
 // ForwardStreamTickChannelMap ForwardStreamTickChannelMap
@@ -30,8 +27,8 @@ var ReverseStreamTickChannelMap streamTickChannelMapMutexStruct
 // SimTradeChannel SimTradeChannel
 var SimTradeChannel chan int
 
-// SubStreamTick SubStreamTick
-func SubStreamTick(stockArr []string) {
+// SubStockStreamTick SubStockStreamTick
+func SubStockStreamTick(stockArr []string) {
 	var err error
 	defer func() {
 		if r := recover(); r != nil {
@@ -46,7 +43,6 @@ func SubStreamTick(stockArr []string) {
 			logger.GetLogger().Error(err.Error() + "\n" + string(debug.Stack()))
 		}
 	}()
-
 	saveCh := make(chan []*streamtick.StreamTick, len(stockArr)*3)
 	go tickprocess.SaveStreamTicks(saveCh)
 	for _, stockNum := range stockArr {
@@ -93,27 +89,14 @@ func SubStreamTick(stockArr []string) {
 	for _, v := range stockArr {
 		tickprocess.MissingTicksStatus.SetDone(v)
 	}
-	stocks := subBody{
-		StockNumArr: stockArr,
-	}
-	var resp *resty.Response
-	resp, err = restful.GetClient().R().
-		SetBody(stocks).
-		SetResult(&sinopacsrv.OrderResponse{}).
-		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/subscribe/streamtick")
+	err = sinopacapi.GetAgent().SubStreamTick(stockArr)
 	if err != nil {
 		logger.GetLogger().Panic(err)
-	} else if resp.StatusCode() != http.StatusOK {
-		logger.GetLogger().Panic("SubStreamTick api fail")
-	}
-	res := *resp.Result().(*sinopacsrv.OrderResponse)
-	if res.Status != sinopacsrv.StatusSuccuss {
-		logger.GetLogger().Panic("Subscribe fail")
 	}
 }
 
-// SubBidAsk SubBidAsk
-func SubBidAsk(stockArr []string) {
+// SubStockBidAsk SubStockBidAsk
+func SubStockBidAsk(stockArr []string) {
 	var err error
 	defer func() {
 		if r := recover(); r != nil {
@@ -131,61 +114,19 @@ func SubBidAsk(stockArr []string) {
 	for _, stock := range stockArr {
 		go bidaskprocess.SaveBidAsk(stock)
 	}
-	stocks := subBody{
-		StockNumArr: stockArr,
-	}
-	var resp *resty.Response
-	resp, err = restful.GetClient().R().
-		SetBody(stocks).
-		SetResult(&sinopacsrv.OrderResponse{}).
-		Post("http://" + global.PyServerHost + ":" + global.PyServerPort + "/pyapi/subscribe/bid-ask")
+	err = sinopacapi.GetAgent().SubBidAsk(stockArr)
 	if err != nil {
 		logger.GetLogger().Panic(err)
-	} else if resp.StatusCode() != http.StatusOK {
-		logger.GetLogger().Panic("SubBidAsk api fail")
-	}
-	res := *resp.Result().(*sinopacsrv.OrderResponse)
-	if res.Status != sinopacsrv.StatusSuccuss {
-		logger.GetLogger().Panic("Subscribe bidask fail")
 	}
 }
 
-// UnSubscribeAll UnSubscribeAll
-func UnSubscribeAll(dataType TickType) {
-	var err error
-	defer func() {
-		if r := recover(); r != nil {
-			switch x := r.(type) {
-			case string:
-				err = errors.New(x)
-			case error:
-				err = x
-			default:
-				err = errors.New("unknown panic")
-			}
-			logger.GetLogger().Error(err.Error() + "\n" + string(debug.Stack()))
-		}
-	}()
-	var url string
-	switch {
-	case dataType == StreamType:
-		url = "/pyapi/unsubscribeall/streamtick"
-	case dataType == BidAsk:
-		url = "/pyapi/unsubscribeall/bid-ask"
-	}
-	var resp *resty.Response
-	resp, err = restful.GetClient().R().
-		SetResult(&sinopacsrv.OrderResponse{}).
-		Get("http://" + global.PyServerHost + ":" + global.PyServerPort + url)
+// UnSubscribeStockAllByType UnSubscribeStockAllByType
+func UnSubscribeStockAllByType(dataType sinopacapi.TickType) (err error) {
+	err = sinopacapi.GetAgent().UnSubscribeAllByType(dataType)
 	if err != nil {
-		logger.GetLogger().Panic(err)
-	} else if resp.StatusCode() != http.StatusOK {
-		logger.GetLogger().Panic("UnSubscribeAll api fail")
+		return err
 	}
-	res := *resp.Result().(*sinopacsrv.OrderResponse)
-	if res.Status != sinopacsrv.StatusSuccuss {
-		logger.GetLogger().Panic("Unsubscribe fail")
-	}
+	return err
 }
 
 // SimTradeCollector SimTradeCollector
