@@ -4,7 +4,6 @@ package sysparminit
 import (
 	"os"
 	"path/filepath"
-	"runtime"
 
 	"gitlab.tocraw.com/root/toc_trader/pkg/logger"
 	"gitlab.tocraw.com/root/toc_trader/pkg/models/sysparm"
@@ -29,10 +28,6 @@ func init() {
 	if deployment == "docker" {
 		sysparm.DefaultSetting["runmode"] = "release"
 		sysparm.DefaultSetting["database"] = "tradebot"
-		sysparm.DefaultSetting["dbhost"] = "172.20.10.10"
-		sysparm.DefaultSetting["py_server_host"] = "sinopac-srv.tocraw.com"
-	}
-	if runtime.GOOS == "windows" {
 		sysparm.DefaultSetting["dbhost"] = "172.20.10.10"
 		sysparm.DefaultSetting["py_server_host"] = "sinopac-srv.tocraw.com"
 	}

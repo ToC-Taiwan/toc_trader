@@ -40,6 +40,7 @@ func init() {
 	global.LastTradeDay = lastTradeDayArr[0]
 	global.LastLastTradeDay = lastTradeDayArr[1]
 	global.LastTradeDayArr = append(global.LastTradeDayArr, global.LastTradeDay, global.LastLastTradeDay)
+
 	logger.GetLogger().WithFields(map[string]interface{}{
 		"TradeDay":         global.TradeDay.Format(global.ShortTimeLayout),
 		"LastTradeDay":     global.LastTradeDay.Format(global.ShortTimeLayout),
@@ -49,6 +50,7 @@ func init() {
 	logger.GetLogger().WithFields(map[string]interface{}{
 		"TradeDayInEndTime": global.TradeDayInEndTime.Format(global.LongTimeLayout),
 	}).Info("Trade In End Time")
+
 	logger.GetLogger().WithFields(map[string]interface{}{
 		"TradeDayOutEndTime": global.TradeDayOutEndTime.Format(global.LongTimeLayout),
 	}).Info("Trade Out End Time")

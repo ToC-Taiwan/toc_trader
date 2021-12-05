@@ -165,22 +165,6 @@ func getConds() {
 		logger.GetLogger().Warn("no cond to trade")
 		<-tmpChan
 	}
-	// forwardResult, err := simulate.GetResultByCond(int(global.ForwardCond.ID), database.GetAgent())
-	// if err != nil {
-	// 	logger.GetLogger().Panic(err)
-	// }
-	// reverseResult, err := simulate.GetResultByCond(int(global.ReverseCond.ID), database.GetAgent())
-	// if err != nil {
-	// 	logger.GetLogger().Panic(err)
-	// }
-	// if float64(forwardResult.Balance)/float64(reverseResult.Balance) < 0.5 {
-	// 	global.TradeSwitch.Buy = false
-	// 	logger.GetLogger().Warn("TradeSwitch Buy is OFF")
-	// }
-	// if float64(forwardResult.Balance)/float64(reverseResult.Balance) > 2 {
-	// 	global.TradeSwitch.SellFirst = false
-	// 	logger.GetLogger().Warn("TradeSwitch SellFirst is OFF")
-	// }
 	simulateprocess.ClearAllNotBest()
 }
 
