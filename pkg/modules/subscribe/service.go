@@ -51,13 +51,16 @@ func SubStockStreamTick(stockArr []string) {
 			logger.GetLogger().Warnf("Stock %s has no lastClose", stockNum)
 			continue
 		}
-		forwardCh := make(chan *streamtick.StreamTick)
-		ForwardStreamTickChannelMap.Set(stockNum, forwardCh)
-		go tickprocess.ForwardTickProcess(lastClose, global.ForwardCond, forwardCh, saveCh)
-
-		reverseCh := make(chan *streamtick.StreamTick)
-		ReverseStreamTickChannelMap.Set(stockNum, reverseCh)
-		go tickprocess.ReverseTickProcess(lastClose, global.ReverseCond, reverseCh)
+		if global.TradeSwitch.Buy {
+			forwardCh := make(chan *streamtick.StreamTick)
+			ForwardStreamTickChannelMap.Set(stockNum, forwardCh)
+			go tickprocess.ForwardTickProcess(lastClose, global.ForwardCond, forwardCh, saveCh)
+		}
+		if global.TradeSwitch.SellFirst {
+			reverseCh := make(chan *streamtick.StreamTick)
+			ReverseStreamTickChannelMap.Set(stockNum, reverseCh)
+			go tickprocess.ReverseTickProcess(lastClose, global.ReverseCond, reverseCh)
+		}
 	}
 	// fill missing ticks
 	var wg sync.WaitGroup
