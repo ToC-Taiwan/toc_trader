@@ -161,9 +161,17 @@ func getConds() {
 			logger.GetLogger().Panic(err)
 		}
 	}
-	if global.ForwardCond.Model.ID == 0 || global.ReverseCond.Model.ID == 0 {
+	if global.ForwardCond.Model.ID == 0 && global.ReverseCond.Model.ID == 0 {
 		logger.GetLogger().Warn("no cond to trade")
 		<-tmpChan
+	}
+	if global.ForwardCond.Model.ID == 0 {
+		global.TradeSwitch.Buy = false
+		logger.GetLogger().Warn("no forward cond, turn forward off")
+	}
+	if global.ReverseCond.Model.ID == 0 {
+		global.TradeSwitch.SellFirst = false
+		logger.GetLogger().Warn("no reverse cond, turn reverse off")
 	}
 	simulateprocess.ClearAllNotBest()
 }
