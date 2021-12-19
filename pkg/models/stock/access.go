@@ -55,7 +55,7 @@ func GetStocksFromNumArr(stockNumArr []string, db *gorm.DB) (data []Stock, err e
 func GetTargetByMultiLowHighVolume(conditionArr []sysparm.TargetCondArr, db *gorm.DB) (data []Stock, err error) {
 	for _, cond := range conditionArr {
 		var tmp []Stock
-		result := db.Model(&Stock{}).Where("day_trade = ? AND last_close > ? AND last_close < ? AND last_volume > ?", true, cond.LimitPriceLow, cond.LimitPriceHigh, cond.LimitVolume).Order("stock_num").Find(&tmp)
+		result := db.Model(&Stock{}).Where("day_trade = ? AND last_close > ? AND last_close < ? AND last_volume > ?", true, cond.LimitPriceLow, cond.LimitPriceHigh, cond.LimitVolumeLow).Order("stock_num").Find(&tmp)
 		if result.Error != nil {
 			return data, err
 		}

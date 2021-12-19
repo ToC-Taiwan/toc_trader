@@ -14,9 +14,10 @@ type Parameters struct {
 
 // TargetCondArr TargetCondArr
 type TargetCondArr struct {
-	LimitPriceLow  float64 `json:"limit_price_low"`
-	LimitPriceHigh float64 `json:"limit_price_high"`
-	LimitVolume    int64   `json:"limit_volume"`
+	LimitPriceLow   float64 `json:"limit_price_low"`
+	LimitPriceHigh  float64 `json:"limit_price_high"`
+	LimitVolumeLow  int64   `json:"limit_volume_low"`
+	LimitVolumeHigh int64   `json:"limit_volume_high"`
 }
 
 // Tabler Tabler

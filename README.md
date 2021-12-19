@@ -110,6 +110,96 @@ git check-ignore *
     "original_balance": -1447,
     "discount": 542,
     "total": -905
+  },
+  {
+    "trade_day": "2021-12-06T08:00:00+08:00",
+    "trade_count": 3,
+    "forward": -822,
+    "reverse": -477,
+    "original_balance": -1299,
+    "discount": 147,
+    "total": -1152
+  },
+  {
+    "trade_day": "2021-12-07T08:00:00+08:00",
+    "trade_count": 7,
+    "forward": -488,
+    "reverse": 716,
+    "original_balance": 228,
+    "discount": 386,
+    "total": 614
+  },
+  {
+    "trade_day": "2021-12-08T08:00:00+08:00",
+    "trade_count": 8,
+    "forward": -289,
+    "reverse": -11,
+    "original_balance": -300,
+    "discount": 568,
+    "total": 268
+  },
+  {
+    "trade_day": "2021-12-09T08:00:00+08:00",
+    "trade_count": 5,
+    "forward": -1111,
+    "reverse": -772,
+    "original_balance": -1883,
+    "discount": 393,
+    "total": -1490
+  },
+  {
+    "trade_day": "2021-12-10T08:00:00+08:00",
+    "trade_count": 5,
+    "forward": 1841,
+    "reverse": -427,
+    "original_balance": 1414,
+    "discount": 455,
+    "total": 1869
+  },
+  {
+    "trade_day": "2021-12-13T08:00:00+08:00",
+    "trade_count": 3,
+    "forward": 176,
+    "reverse": 705,
+    "original_balance": 881,
+    "discount": 177,
+    "total": 1058
+  },
+  {
+    "trade_day": "2021-12-14T08:00:00+08:00",
+    "trade_count": 10,
+    "forward": -2975,
+    "reverse": -945,
+    "original_balance": -3920,
+    "discount": 725,
+    "total": -3195
+  },
+  {
+    "trade_day": "2021-12-15T08:00:00+08:00",
+    "trade_count": 12,
+    "forward": -1716,
+    "reverse": -1983,
+    "original_balance": -3699,
+    "discount": 821,
+    "total": -2878
+  },
+  {
+    "trade_day": "2021-12-16T08:00:00+08:00",
+    "trade_count": 9,
+    "forward": -1649,
+    "reverse": -543,
+    "original_balance": -2192,
+    "discount": 690,
+    "total": -1502
+  },
+  {
+    "trade_day": "2021-12-17T08:00:00+08:00",
+    "trade_count": 6,
+    "forward": -55,
+    "reverse": 0,
+    "original_balance": -55,
+    "discount": 401,
+    "total": 346
   }
 ]
 ```

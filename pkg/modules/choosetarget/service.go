@@ -125,7 +125,7 @@ func GetTopTarget(count int) (targetArr []string, err error) {
 			if _, ok := blackCategoryMap[importbasic.AllStockDetailMap.GetCategory(v.GetCode())]; ok {
 				continue
 			}
-			if count == -1 && v.GetTotalVolume() < condition.LimitVolume {
+			if count == -1 && v.GetTotalVolume() < condition.LimitVolumeLow {
 				continue
 			}
 			if v.GetClose() > condition.LimitPriceLow && v.GetClose() < condition.LimitPriceHigh {
@@ -247,7 +247,10 @@ func GetVolumeRankByDate(date string, count int64) (rankArr []string, err error)
 		if _, ok := blackCategoryMap[importbasic.AllStockDetailMap.GetCategory(v.GetCode())]; ok {
 			continue
 		}
-		if v.GetTotalVolume() > conditionArr[0].LimitVolume && v.GetClose() > conditionArr[0].LimitPriceLow && v.GetClose() < conditionArr[0].LimitPriceHigh {
+		if v.GetTotalVolume() < conditionArr[0].LimitVolumeLow || v.GetTotalVolume() > conditionArr[0].LimitVolumeHigh {
+			continue
+		}
+		if v.GetClose() > conditionArr[0].LimitPriceLow && v.GetClose() < conditionArr[0].LimitPriceHigh {
 			rankArr = append(rankArr, v.GetCode())
 		}
 	}
