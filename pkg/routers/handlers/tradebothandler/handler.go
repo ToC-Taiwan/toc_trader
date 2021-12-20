@@ -79,11 +79,11 @@ func ReceiveStreamTick(c *gin.Context) {
 		Simtrade:        req.Tick.GetSimtrade(),
 	}
 	if tmp.TimeStamp != 0 {
-		if forwardCh := *subscribe.ForwardStreamTickChannelMap.GetChannelByStockNum(req.Tick.Code); forwardCh != nil {
-			forwardCh <- &tmp
+		if forwardCh := subscribe.ForwardStreamTickChannelMap.GetChannelByStockNum(req.Tick.Code); forwardCh != nil {
+			*forwardCh <- &tmp
 		}
-		if reverseCh := *subscribe.ReverseStreamTickChannelMap.GetChannelByStockNum(req.Tick.Code); reverseCh != nil {
-			reverseCh <- &tmp
+		if reverseCh := subscribe.ReverseStreamTickChannelMap.GetChannelByStockNum(req.Tick.Code); reverseCh != nil {
+			*reverseCh <- &tmp
 		}
 	}
 	c.JSON(http.StatusOK, nil)

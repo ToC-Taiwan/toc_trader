@@ -74,13 +74,15 @@ func SubStockStreamTick(stockArr []string) {
 					logger.GetLogger().Error(err)
 					return
 				}
+				forwardCh := ForwardStreamTickChannelMap.GetChannelByStockNum(stock)
+				reverseCh := ReverseStreamTickChannelMap.GetChannelByStockNum(stock)
 				for _, tick := range ticks {
 					streamTick := tick.ToStreamTick()
-					if forwardCh := *ForwardStreamTickChannelMap.GetChannelByStockNum(stock); forwardCh != nil {
-						forwardCh <- streamTick
+					if forwardCh != nil {
+						*forwardCh <- streamTick
 					}
-					if reverseCh := *ReverseStreamTickChannelMap.GetChannelByStockNum(stock); reverseCh != nil {
-						reverseCh <- streamTick
+					if reverseCh != nil {
+						*reverseCh <- streamTick
 					}
 				}
 				logger.GetLogger().WithFields(map[string]interface{}{
